@@ -53,20 +53,25 @@ struct TrackingView: View {
     @State private var showingMeasurementOptionsSheet = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Dad Achievement Banner
-            HStack {
-                TinyStepsDesign.DadIcon(symbol: TinyStepsDesign.Icons.sports, color: TinyStepsDesign.Colors.success)
-                Text("Dad's Progress")
-                    .font(TinyStepsDesign.Typography.header)
-                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                Spacer()
-            }
-            .padding()
-            .background(TinyStepsDesign.Colors.primary)
-            .cornerRadius(16)
-            .padding(.horizontal)
-            .padding(.top, 12)
+        ZStack {
+            // Background gradient
+            TinyStepsDesign.Colors.background
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Dad Achievement Banner
+                HStack {
+                    TinyStepsDesign.DadIcon(symbol: TinyStepsDesign.Icons.sports, color: TinyStepsDesign.Colors.success)
+                    Text("Dad's Progress")
+                        .font(TinyStepsDesign.Typography.header)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    Spacer()
+                }
+                .padding()
+                .background(TinyStepsDesign.Colors.primary)
+                .cornerRadius(16)
+                .padding(.horizontal)
+                .padding(.top, 12)
             // Main Content
             ScrollView {
                 VStack(spacing: 20) {
@@ -468,12 +473,12 @@ struct TrackingView: View {
                 .padding(.vertical, 20)
             }
             .navigationTitle("Tracking")
-            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
             .onAppear {
                 withAnimation {
                     animateContent = true
                 }
             }
+        }
             .sheet(isPresented: $showingBabyForm) {
                 if let baby = dataManager.baby {
                     BabyFormView(babyToEdit: baby)

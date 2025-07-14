@@ -196,7 +196,11 @@ struct AddAppointmentSheet: View {
     
     var body: some View {
         NavigationView {
-            Form {
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                Form {
                 Section(header: Text("Title")) {
                     TextField("Appointment Title", text: $title)
                 }
@@ -225,6 +229,7 @@ struct AddAppointmentSheet: View {
                         Text("1 day before").tag(1440)
                     }
                     .pickerStyle(.menu)
+                }
                 }
             }
             .navigationTitle("New Appointment")
@@ -278,7 +283,11 @@ struct EditAppointmentSheet: View {
     
     var body: some View {
         NavigationView {
-            Form {
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                Form {
                 Section(header: Text("Title")) {
                     TextField("Appointment Title", text: $appointment.title)
                 }

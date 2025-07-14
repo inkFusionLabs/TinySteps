@@ -16,8 +16,7 @@ struct HealthVisitorView: View {
             TinyStepsDesign.Colors.background
                 .ignoresSafeArea()
             
-            NavigationView {
-                VStack {
+            VStack {
                     // Percentile Chart Section
                     if let baby = dataManager.baby, !baby.healthVisitorVisits.isEmpty {
                         let showLbs = false // Set to true if you want to display lbs as primary (add user preference logic if needed)
@@ -135,6 +134,7 @@ struct HealthVisitorView: View {
                         }
                     }
                 }
+            }
                 .sheet(isPresented: $showingAddEditSheet) {
                     NavigationView {
                         Form {
