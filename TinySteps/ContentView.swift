@@ -1,0 +1,1314 @@
+//
+//  ContentView.swift
+//  TinySteps
+//
+//  Created by inkLabs on 08/07/2025.
+//
+
+import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
+#if canImport(AppKit)
+import AppKit
+#endif
+
+@available(iOS 18.0, *)
+struct ContentView: View {
+    @AppStorage("userName") private var userName: String = ""
+    @State private var showNameEntry = false
+    @Binding var selectedTab: Tab
+    @State private var showMenu = false
+    @State private var showProfile = false
+    @State private var tabCustomization = TabViewCustomization()
+    
+    enum Tab: String, CaseIterable, Identifiable {
+        case home, info, tracking, journal, reminders, appointments, healthVisitor, tips, milestones, settings
+        var id: String { rawValue }
+        var title: String {
+            switch self {
+            case .home: return "Home"
+            case .info: return "Info Hub"
+            case .tracking: return "Tracking"
+            case .journal: return "Journal"
+            case .reminders: return "Reminders"
+            case .appointments: return "Appointments"
+            case .healthVisitor: return "Health Visitor"
+            case .tips: return "Tips"
+            case .milestones: return "Milestones"
+            case .settings: return "Settings"
+            }
+        }
+        var icon: String {
+            switch self {
+            case .home: return "house.fill"
+            case .info: return "info.circle.fill"
+            case .tracking: return "chart.bar.fill"
+            case .journal: return "book.fill"
+            case .reminders: return "bell.fill"
+            case .appointments: return "calendar"
+            case .healthVisitor: return "cross.case.fill"
+            case .tips: return "lightbulb.fill"
+            case .milestones: return "star.fill"
+            case .settings: return "gear"
+            }
+        }
+    }
+
+    init(selectedTab: Binding<Tab>) {
+        self._selectedTab = selectedTab
+#if canImport(UIKit)
+        let appearance = UITabBarAppearance()
+        appearance.configureWithOpaqueBackground()
+        appearance.backgroundColor = UIColor(
+            red: 0.1, green: 0.2, blue: 0.4, alpha: 1.0
+        )
+        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.blue)
+        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.blue)]
+        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.7)
+        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white.withAlphaComponent(0.7)]
+        UITabBar.appearance().standardAppearance = appearance
+        UITabBar.appearance().scrollEdgeAppearance = appearance
+#endif
+    }
+
+    var body: some View {
+        if userName.isEmpty {
+            if showNameEntry {
+                NameEntryView()
+            } else {
+                WelcomeView(showNameEntry: $showNameEntry)
+            }
+        } else {
+            TabView(selection: $selectedTab) {
+                NavigationView { 
+                    HomeView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Home", systemImage: "house.fill")
+                }
+                .tag(Tab.home)
+                
+                NavigationView { 
+                    InformationHubView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Info Hub", systemImage: "info.circle.fill")
+                }
+                .tag(Tab.info)
+                
+                NavigationView { 
+                    TrackingView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Tracking", systemImage: "chart.bar.fill")
+                }
+                .tag(Tab.tracking)
+                
+                NavigationView {
+                    JournalView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Journal", systemImage: "book.fill")
+                }
+                .tag(Tab.journal)
+                
+                NavigationView {
+                    RemindersView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Reminders", systemImage: "bell.fill")
+                }
+                .tag(Tab.reminders)
+                
+                NavigationView { 
+                    AppointmentsCalendarView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Appointments", systemImage: "calendar")
+                }
+                .tag(Tab.appointments)
+                
+                NavigationView { 
+                    HealthVisitorView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Health Visitor", systemImage: "cross.case.fill")
+                }
+                .tag(Tab.healthVisitor)
+                
+                NavigationView { 
+                    ParentingTipsView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Tips", systemImage: "lightbulb.fill")
+                }
+                .tag(Tab.tips)
+                
+                NavigationView {
+                    MilestonesView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Milestones", systemImage: "star.fill")
+                }
+                .tag(Tab.milestones)
+                
+                NavigationView {
+                    SettingsView()
+                        .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    showMenu.toggle()
+                                }) {
+                                    Image(systemName: "line.3.horizontal")
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                        .font(.title2)
+                                }
+                            }
+                        }
+                }
+                .tabItem {
+                    Label("Settings", systemImage: "gear")
+                }
+                .tag(Tab.settings)
+            }
+            .accentColor(TinyStepsDesign.Colors.accent)
+            .tabViewStyle(.sidebarAdaptable)
+            // .tabViewCustomization($tabCustomization) // Removed due to type mismatch
+            .background(.ultraThinMaterial)
+            .sheet(isPresented: $showMenu) {
+                MenuView(selectedTab: $selectedTab, showMenu: $showMenu, showProfile: $showProfile)
+            }
+            .sheet(isPresented: $showProfile) {
+                NavigationView {
+                    ProfileView()
+                }
+            }
+        }
+    }
+}
+
+// Helper for background blur
+struct BlurView: UIViewRepresentable {
+    var style: UIBlurEffect.Style
+    func makeUIView(context: Context) -> UIVisualEffectView {
+        UIVisualEffectView(effect: UIBlurEffect(style: style))
+    }
+    func updateUIView(_ uiView: UIVisualEffectView, context: Context) {}
+}
+
+struct DashboardView: View {
+    @EnvironmentObject var dataManager: BabyDataManager
+    @State private var animateCards = false
+    @State private var showWelcome = false
+    
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 25) {
+                    // Enhanced Header with animation
+                    VStack(spacing: 15) {
+                        Image(systemName: "baby.fill")
+                            .font(.system(size: 80))
+                            .foregroundColor(.white)
+                            .scaleEffect(showWelcome ? 1.1 : 1.0)
+                            .animation(.easeInOut(duration: 2.0).repeatForever(autoreverses: true), value: showWelcome)
+                        
+                        Text("Welcome, Dad!")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                            .opacity(animateCards ? 1 : 0)
+                            .animation(.easeIn(duration: 0.8), value: animateCards)
+                        
+                        Text("Your journey with \(dataManager.baby?.name ?? "Baby") begins here")
+                            .font(.title3)
+                            .foregroundColor(.white.opacity(0.9))
+                            .multilineTextAlignment(.center)
+                            .opacity(animateCards ? 1 : 0)
+                            .animation(.easeIn(duration: 0.8).delay(0.2), value: animateCards)
+                    }
+                    .padding(.vertical, 30)
+                    
+                    // Enhanced Quick Stats with animations
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 20) {
+                        QuickStatCard(
+                            title: "Age",
+                            value: "\(dataManager.baby?.ageInDays ?? 0) days",
+                            icon: "calendar",
+                            color: .blue
+                        )
+                        .offset(x: animateCards ? 0 : -50)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.3), value: animateCards)
+                        
+                        QuickStatCard(
+                            title: "Next Feed",
+                            value: formatNextFeeding(),
+                            icon: "clock",
+                            color: .green
+                        )
+                        .offset(x: animateCards ? 0 : 50)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.4), value: animateCards)
+                        
+                        QuickStatCard(
+                            title: "Today's Feeds",
+                            value: "\(dataManager.getTodayFeedingCount())",
+                            icon: "drop.fill",
+                            color: .orange
+                        )
+                        .offset(x: animateCards ? 0 : -50)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.5), value: animateCards)
+                        
+                        QuickStatCard(
+                            title: "Today's Nappies",
+                            value: "\(dataManager.getTodayNappyCount())",
+                            icon: "drop",
+                            color: .purple
+                        )
+                        .offset(x: animateCards ? 0 : 50)
+                        .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.6), value: animateCards)
+                    }
+                    .padding(.horizontal)
+                    
+                    // Enhanced Tips Section
+                    VStack(alignment: .leading, spacing: 15) {
+                        HStack {
+                            Image(systemName: "lightbulb.fill")
+                                .foregroundColor(.yellow)
+                                .font(.title2)
+                            Text("Today's Dad Tip")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal)
+                        
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: 20) {
+                                TipCard(
+                                    title: "Skin-to-Skin",
+                                    description: "Hold your baby against your bare chest. It helps with bonding and regulates their temperature.",
+                                    color: .orange,
+                                    icon: "heart.fill"
+                                )
+                                .offset(y: animateCards ? 0 : 100)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.7), value: animateCards)
+                                
+                                TipCard(
+                                    title: "Talk to Your Baby",
+                                    description: "Even though they can't respond, talking helps with language development and bonding.",
+                                    color: .green,
+                                    icon: "message.fill"
+                                )
+                                .offset(y: animateCards ? 0 : 100)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.8), value: animateCards)
+                                
+                                TipCard(
+                                    title: "Take Photos",
+                                    description: "Capture these precious moments. They grow so quickly!",
+                                    color: .purple,
+                                    icon: "camera.fill"
+                                )
+                                .offset(y: animateCards ? 0 : 100)
+                                .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.9), value: animateCards)
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                    
+                    // Enhanced Emergency Contacts
+                    VStack(alignment: .leading, spacing: 15) {
+                        HStack {
+                            Image(systemName: "phone.fill")
+                                .foregroundColor(.red)
+                                .font(.title2)
+                            Text("Emergency Contacts")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                        }
+                        .padding(.horizontal)
+                        
+                        VStack(spacing: 12) {
+                            EmergencyContactRow(
+                                name: "NHS 111",
+                                number: "111",
+                                description: "Non-emergency medical advice",
+                                color: .red
+                            )
+                            .offset(x: animateCards ? 0 : -100)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.0), value: animateCards)
+                            
+                            EmergencyContactRow(
+                                name: "Bliss Helpline",
+                                number: "0808 801 0322",
+                                description: "Support for premature babies",
+                                color: .blue
+                            )
+                            .offset(x: animateCards ? 0 : 100)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.1), value: animateCards)
+                            
+                            EmergencyContactRow(
+                                name: "NCT Helpline",
+                                number: "0300 330 0771",
+                                description: "Parenting support",
+                                color: .green
+                            )
+                            .offset(x: animateCards ? 0 : -100)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.2), value: animateCards)
+                        }
+                        .padding(.horizontal)
+                    }
+                }
+            }
+            .navigationTitle("Dad's Dashboard")
+            .onAppear {
+                withAnimation {
+                    animateCards = true
+                    showWelcome = true
+                }
+            }
+        }
+    }
+    
+    private func formatNextFeeding() -> String {
+        guard let nextFeeding = dataManager.getNextFeedingTime() else {
+            return "Not set"
+        }
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: nextFeeding)
+    }
+}
+
+struct QuickStatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    @State private var isPressed = false
+    
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 30, weight: .medium))
+                .foregroundColor(color)
+                .scaleEffect(isPressed ? 0.9 : 1.0)
+                .animation(.easeInOut(duration: 0.1), value: isPressed)
+            
+            Text(value)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.white)
+            
+            Text(title)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundColor(.white.opacity(0.8))
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(color.opacity(0.2))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20)
+                        .stroke(color.opacity(0.3), lineWidth: 1)
+                )
+        )
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(.easeInOut(duration: 0.1), value: isPressed)
+        .onTapGesture {
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isPressed = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isPressed = false
+                }
+            }
+        }
+    }
+}
+
+struct TipCard: View {
+    let title: String
+    let description: String
+    let color: Color
+    let icon: String
+    @State private var isHovered = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: icon)
+                    .font(.title2)
+                    .foregroundColor(.white)
+                
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                
+                Spacer()
+            }
+            
+            Text(description)
+                .font(.body)
+                .foregroundColor(.white.opacity(0.9))
+                .lineLimit(4)
+                .multilineTextAlignment(.leading)
+        }
+        .frame(width: 280, height: 140)
+        .padding(20)
+        .background(
+            RoundedRectangle(cornerRadius: 20)
+                .fill(
+                    LinearGradient(
+                        gradient: Gradient(colors: [color, color.opacity(0.8)]),
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+        )
+        .scaleEffect(isHovered ? 1.05 : 1.0)
+        .shadow(color: color.opacity(0.3), radius: isHovered ? 15 : 10, x: 0, y: 5)
+        .animation(.easeInOut(duration: 0.2), value: isHovered)
+        .onHover { hovering in
+            isHovered = hovering
+        }
+    }
+}
+
+struct EmergencyContactRow: View {
+    let name: String
+    let number: String
+    let description: String
+    let color: Color
+    @State private var isPressed = false
+    
+    var body: some View {
+        HStack(spacing: 15) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(name)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(.white)
+                
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.8))
+            }
+            
+            Spacer()
+            
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.1)) {
+                    isPressed = true
+                }
+                
+                #if canImport(UIKit)
+                if let url = URL(string: "tel:\(number)") {
+                    UIApplication.shared.open(url)
+                }
+                #elseif canImport(AppKit)
+                if let url = URL(string: "tel:\(number)") {
+                    NSWorkspace.shared.open(url)
+                }
+                #endif
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(.easeInOut(duration: 0.1)) {
+                        isPressed = false
+                    }
+                }
+            }) {
+                HStack(spacing: 8) {
+                    Image(systemName: "phone.fill")
+                        .font(.caption)
+                    Text(number)
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+                .foregroundColor(.white)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(color)
+                )
+                .scaleEffect(isPressed ? 0.95 : 1.0)
+            }
+        }
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color.clear)
+                .background(.ultraThinMaterial)
+        )
+    }
+}
+
+struct FeedingGuideView: View {
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Feeding Basics
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Feeding Basics")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        InfoCard(
+                            title: "Breastfeeding Support",
+                            content: "• Support your partner by bringing water and snacks\n• Help with positioning and pillows\n• Take care of household tasks\n• Offer emotional support and encouragement",
+                            icon: "heart.fill",
+                            color: .pink
+                        )
+                        
+                        InfoCard(
+                            title: "Bottle Feeding",
+                            content: "• Sterilise bottles and equipment\n• Prepare formula according to instructions\n• Hold baby in semi-upright position\n• Burp baby after feeding",
+                            icon: "drop.fill",
+                            color: .blue
+                        )
+                        
+                        InfoCard(
+                            title: "Feeding Schedule",
+                            content: "• Newborns feed every 2-3 hours\n• Watch for hunger cues (rooting, sucking hands)\n• Don't wait until baby cries\n• Track feeding times and amounts",
+                            icon: "clock.fill",
+                            color: .green
+                        )
+                    }
+                    .padding()
+                    
+                    // Hunger Cues
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Recognising Hunger Cues")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        HStack(spacing: 15) {
+                            HungerCueCard(
+                                title: "Early Signs",
+                                cues: ["Rooting", "Sucking hands", "Lip smacking"],
+                                color: .green
+                            )
+                            
+                            HungerCueCard(
+                                title: "Late Signs",
+                                cues: ["Crying", "Fussing", "Head turning"],
+                                color: .orange
+                            )
+                        }
+                    }
+                    .padding()
+                    
+                    // UK Guidelines
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("UK Guidelines")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        VStack(spacing: 10) {
+                            GuidelineRow(
+                                title: "NHS Recommendations",
+                                description: "Exclusive breastfeeding for first 6 months"
+                            )
+                            
+                            GuidelineRow(
+                                title: "Bliss Support",
+                                description: "Specialised support for premature babies"
+                            )
+                            
+                            GuidelineRow(
+                                title: "Formula Safety",
+                                description: "Use only approved UK formulas"
+                            )
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Feeding Guide")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.large)
+            #endif
+        }
+    }
+}
+
+struct InfoCard: View {
+    let title: String
+    let content: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(color)
+                    .font(.title2)
+                
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+            }
+            
+            Text(content)
+                .font(.body)
+                .lineSpacing(4)
+        }
+        .padding()
+        .background(Color.clear)
+        .background(.ultraThinMaterial)
+        .cornerRadius(12)
+    }
+}
+
+struct HungerCueCard: View {
+    let title: String
+    let cues: [String]
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(TinyStepsDesign.Colors.accent)
+            
+            ForEach(cues, id: \.self) { cue in
+                HStack {
+                    Image(systemName: "circle.fill")
+                        .font(.caption)
+                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                    
+                    Text(cue)
+                        .font(.caption)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color.clear)
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
+    }
+}
+
+struct GuidelineRow: View {
+    let title: String
+    let description: String
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(.green)
+        }
+        .padding()
+        .background(Color.clear)
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
+    }
+}
+
+struct SleepGuideView: View {
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Safe Sleep
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Safe Sleep Guidelines")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        InfoCard(
+                            title: "Back to Sleep",
+                            content: "• Always place baby on their back to sleep\n• Use a firm, flat mattress\n• Keep baby in your room for first 6 months\n• Avoid soft bedding and toys",
+                            icon: "bed.double.fill",
+                            color: .blue
+                        )
+                        
+                        InfoCard(
+                            title: "Temperature",
+                            content: "• Room temperature 16-20°C\n• Don't overheat baby\n• Use sleep bags instead of blankets\n• Check baby's chest for warmth",
+                            icon: "thermometer",
+                            color: .orange
+                        )
+                    }
+                    .padding()
+                    
+                    // Sleep Patterns
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Newborn Sleep Patterns")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 2), spacing: 15) {
+                            SleepPatternCard(
+                                title: "0-3 months",
+                                hours: "16-18 hours",
+                                pattern: "Sleep in short bursts"
+                            )
+                            
+                            SleepPatternCard(
+                                title: "3-6 months",
+                                hours: "14-15 hours",
+                                pattern: "Longer night sleep"
+                            )
+                        }
+                    }
+                    .padding()
+                    
+                    // Tips for Dads
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Tips for Dads")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        VStack(spacing: 10) {
+                            TipRow(
+                                tip: "Take turns with night feeds",
+                                icon: "clock.arrow.circlepath"
+                            )
+                            
+                            TipRow(
+                                tip: "Create a bedtime routine",
+                                icon: "moon.fill"
+                            )
+                            
+                            TipRow(
+                                tip: "Use white noise or gentle music",
+                                icon: "speaker.wave.2.fill"
+                            )
+                            
+                            TipRow(
+                                tip: "Be patient - sleep training takes time",
+                                icon: "heart.fill"
+                            )
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Sleep Guide")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.large)
+            #endif
+        }
+    }
+}
+
+struct SleepPatternCard: View {
+    let title: String
+    let hours: String
+    let pattern: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.headline)
+                .foregroundColor(TinyStepsDesign.Colors.accent)
+            
+            Text(hours)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+            
+            Text(pattern)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color.clear)
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
+    }
+}
+
+struct TipRow: View {
+    let tip: String
+    let icon: String
+    
+    var body: some View {
+        HStack {
+            Image(systemName: icon)
+                .foregroundColor(TinyStepsDesign.Colors.accent)
+                .frame(width: 20)
+            
+            Text(tip)
+                .font(.body)
+            
+            Spacer()
+        }
+        .padding()
+        .background(Color.clear)
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
+    }
+}
+
+struct DevelopmentView: View {
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Milestones
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Development Milestones")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        VStack(spacing: 15) {
+                            MilestoneCard(
+                                age: "0-1 month",
+                                milestones: ["Lifts head briefly", "Follows objects with eyes", "Responds to sounds", "Grasps reflexively"],
+                                color: .blue
+                            )
+                            
+                            MilestoneCard(
+                                age: "1-2 months",
+                                milestones: ["Smiles socially", "Coos and gurgles", "Holds head up better", "Follows moving objects"],
+                                color: .green
+                            )
+                            
+                            MilestoneCard(
+                                age: "2-3 months",
+                                milestones: ["Laughs and squeals", "Reaches for objects", "Rolls from tummy to back", "Holds head steady"],
+                                color: .orange
+                            )
+                        }
+                    }
+                    .padding()
+                    
+                    // Activities for Dads
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("Activities for Dads")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        VStack(spacing: 10) {
+                            ActivityCard(
+                                title: "Tummy Time",
+                                description: "Place baby on tummy for short periods to strengthen neck and shoulder muscles",
+                                duration: "2-3 times daily",
+                                icon: "figure.walk"
+                            )
+                            
+                            ActivityCard(
+                                title: "Reading Together",
+                                description: "Read books with bright pictures and simple words",
+                                duration: "10-15 minutes",
+                                icon: "book.fill"
+                            )
+                            
+                            ActivityCard(
+                                title: "Singing and Talking",
+                                description: "Sing songs and talk to your baby throughout the day",
+                                duration: "Throughout day",
+                                icon: "music.note"
+                            )
+                        }
+                    }
+                    .padding()
+                    
+                    // Warning Signs
+                    VStack(alignment: .leading, spacing: 15) {
+                        Text("When to Seek Help")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                        
+                        VStack(spacing: 10) {
+                            WarningSignRow(
+                                sign: "Not responding to sounds",
+                                action: "Contact health visitor"
+                            )
+                            
+                            WarningSignRow(
+                                sign: "Not making eye contact",
+                                action: "Speak to GP"
+                            )
+                            
+                            WarningSignRow(
+                                sign: "Not smiling by 8 weeks",
+                                action: "Seek medical advice"
+                            )
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Development")
+            #if os(iOS)
+            .navigationBarTitleDisplayMode(.large)
+            #endif
+        }
+    }
+}
+
+struct MilestoneCard: View {
+    let age: String
+    let milestones: [String]
+    let color: Color
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(age)
+                .font(.headline)
+                .foregroundColor(TinyStepsDesign.Colors.accent)
+            
+            ForEach(milestones, id: \.self) { milestone in
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                        .font(.caption)
+                    
+                    Text(milestone)
+                        .font(.caption)
+                }
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Color.clear)
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
+    }
+}
+
+struct ActivityCard: View {
+    let title: String
+    let description: String
+    let duration: String
+    let icon: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(TinyStepsDesign.Colors.accent)
+                    .font(.title2)
+                
+                Text(title)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                
+                Spacer()
+            }
+            
+            Text(description)
+                .font(.body)
+                .lineSpacing(2)
+            
+            Text("Duration: \(duration)")
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+        .padding()
+        .background(Color.clear)
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
+    }
+}
+
+struct WarningSignRow: View {
+    let sign: String
+    let action: String
+    
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(sign)
+                    .font(.headline)
+                
+                Text(action)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+            
+            Spacer()
+            
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundColor(.orange)
+        }
+        .padding()
+        .background(Color.clear)
+        .background(.ultraThinMaterial)
+        .cornerRadius(8)
+    }
+}
+
+// MARK: - Menu View
+struct MenuView: View {
+    @Binding var selectedTab: ContentView.Tab
+    @Binding var showMenu: Bool
+    @Binding var showProfile: Bool
+    @AppStorage("userName") private var userName: String = ""
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 0) {
+                // Header
+                VStack(spacing: 16) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Welcome back,")
+                                .font(.subheadline)
+                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            Text(userName.isEmpty ? "Dad" : userName)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                        }
+                        Spacer()
+                        Button(action: {
+                            showMenu = false
+                        }) {
+                            Image(systemName: "xmark.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    
+                    Divider()
+                        .background(TinyStepsDesign.Colors.textSecondary.opacity(0.3))
+                }
+                .background(TinyStepsDesign.Colors.primary)
+                
+                // Menu Items
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(ContentView.Tab.allCases, id: \.self) { tab in
+                            MenuItemView(
+                                tab: tab,
+                                isSelected: selectedTab == tab,
+                                action: {
+                                    selectedTab = tab
+                                    showMenu = false
+                                }
+                            )
+                        }
+                        
+                        Divider()
+                            .background(TinyStepsDesign.Colors.textSecondary.opacity(0.3))
+                            .padding(.vertical, 8)
+                        
+                        // Profile Section
+                        MenuItemView(
+                            title: "Profile",
+                            icon: "person.circle.fill",
+                            action: {
+                                showMenu = false
+                                showProfile = true
+                            }
+                        )
+                        
+                        // Support Section
+                        MenuItemView(
+                            title: "Support",
+                            icon: "questionmark.circle.fill",
+                            action: {
+                                // Navigate to support
+                                showMenu = false
+                            }
+                        )
+                        
+                        // Logout Section
+                        MenuItemView(
+                            title: "Logout",
+                            icon: "rectangle.portrait.and.arrow.right",
+                            action: {
+                                // Handle logout
+                                userName = ""
+                                showMenu = false
+                            }
+                        )
+                    }
+                }
+                .background(TinyStepsDesign.Colors.background)
+            }
+            .navigationBarHidden(true)
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
+// MARK: - Menu Item View
+struct MenuItemView: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    init(tab: ContentView.Tab, isSelected: Bool = false, action: @escaping () -> Void) {
+        self.title = tab.title
+        self.icon = tab.icon
+        self.isSelected = isSelected
+        self.action = action
+    }
+    
+    init(title: String, icon: String, isSelected: Bool = false, action: @escaping () -> Void) {
+        self.title = title
+        self.icon = icon
+        self.isSelected = isSelected
+        self.action = action
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                Image(systemName: icon)
+                    .font(.title3)
+                    .foregroundColor(isSelected ? TinyStepsDesign.Colors.accent : TinyStepsDesign.Colors.textSecondary)
+                    .frame(width: 24)
+                
+                Text(title)
+                    .font(.body)
+                    .fontWeight(isSelected ? .semibold : .regular)
+                    .foregroundColor(isSelected ? TinyStepsDesign.Colors.accent : TinyStepsDesign.Colors.textPrimary)
+                
+                Spacer()
+                
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.caption)
+                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(isSelected ? TinyStepsDesign.Colors.accent.opacity(0.1) : Color.clear)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+#if DEBUG
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView(selectedTab: .constant(.home))
+            .environmentObject(BabyDataManager())
+    }
+}
+#endif
+
