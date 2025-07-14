@@ -21,7 +21,7 @@ struct SupportView: View {
         case reminders = "Reminders"
         case tips = "Parenting Tips"
         case milestones = "Milestones"
-        case healthcareMap = "Healthcare Map"
+        case healthcareMap = "Hospital Map"
         
         var icon: String {
             switch self {
@@ -69,31 +69,33 @@ struct SupportView: View {
                     }
                     .padding(.horizontal)
                     
-                    // Section Picker
-                    ScrollView(.horizontal, showsIndicators: false) {
-                        HStack(spacing: 12) {
-                            ForEach(SupportSection.allCases, id: \.self) { section in
-                                Button(action: {
-                                    selectedSection = section
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: section.icon)
-                                            .font(.system(size: 16, weight: .medium))
-                                        Text(section.rawValue)
-                                            .font(.system(size: 14, weight: .medium))
-                                    }
-                                    .foregroundColor(selectedSection == section ? .white : .white.opacity(0.7))
-                                    .padding(.horizontal, 16)
-                                    .padding(.vertical, 10)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(selectedSection == section ? section.color : Color.white.opacity(0.1))
-                                    )
+                    // Compact Section Picker
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
+                        ForEach(SupportSection.allCases, id: \.self) { section in
+                            Button(action: {
+                                selectedSection = section
+                            }) {
+                                VStack(spacing: 6) {
+                                    Image(systemName: section.icon)
+                                        .font(.system(size: 20, weight: .medium))
+                                        .foregroundColor(selectedSection == section ? .white : .white.opacity(0.8))
+                                    
+                                    Text(section.rawValue)
+                                        .font(.system(size: 11, weight: .medium))
+                                        .foregroundColor(selectedSection == section ? .white : .white.opacity(0.8))
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(2)
                                 }
+                                .frame(height: 70)
+                                .frame(maxWidth: .infinity)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(selectedSection == section ? section.color : Color.white.opacity(0.1))
+                                )
                             }
                         }
-                        .padding(.horizontal)
                     }
+                    .padding(.horizontal)
                 }
                 .padding(.top)
                 
@@ -570,12 +572,12 @@ struct HealthcareMapSection: View {
             // Header
             HStack {
                 VStack(alignment: .leading, spacing: 5) {
-                    Text("Healthcare Map")
+                    Text("Hospital Map")
                         .font(.headline)
                         .fontWeight(.semibold)
                         .foregroundColor(.white)
                     
-                    Text("Find nearby hospitals, clinics & medical facilities")
+                    Text("Find nearby hospitals & medical centers")
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
                 }
@@ -691,7 +693,7 @@ struct HealthcareMapSection: View {
             
             // Healthcare Places List
             VStack(alignment: .leading, spacing: 15) {
-                Text("Nearby Healthcare Facilities")
+                Text("Nearby Hospitals")
                     .font(.headline)
                     .fontWeight(.semibold)
                     .foregroundColor(.white)
@@ -701,7 +703,7 @@ struct HealthcareMapSection: View {
                         Image(systemName: "building.2")
                             .font(.largeTitle)
                             .foregroundColor(.white.opacity(0.5))
-                        Text("No healthcare facilities found nearby")
+                        Text("No hospitals found nearby")
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.7))
                     }
@@ -728,42 +730,97 @@ struct HealthcareMapSection: View {
     private func searchNearbyHealthcarePlaces(near coordinate: CLLocationCoordinate2D) {
         isLoading = true
         
-        let request = MKLocalSearch.Request()
-        request.naturalLanguageQuery = "hospital clinic medical facility"
-        request.region = MKCoordinateRegion(
+        // Search specifically for hospitals
+        let hospitalRequest = MKLocalSearch.Request()
+        hospitalRequest.naturalLanguageQuery = "hospital"
+        hospitalRequest.region = MKCoordinateRegion(
             center: coordinate,
-            span: MKCoordinateSpan(latitudeDelta: 0.1, longitudeDelta: 0.1)
+            span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
         )
         
-        let search = MKLocalSearch(request: request)
-        search.start { response, error in
+        let hospitalSearch = MKLocalSearch(request: hospitalRequest)
+        hospitalSearch.start { response, error in
             DispatchQueue.main.async {
-                isLoading = false
-                
                 if let error = error {
-                    print("Search error: \(error.localizedDescription)")
+                    print("Hospital search error: \(error.localizedDescription)")
+                    self.isLoading = false
                     return
                 }
                 
                 guard let response = response else {
-                    print("No search response")
+                    print("No hospital search response")
+                    self.isLoading = false
                     return
                 }
                 
-                healthcarePlaces = response.mapItems.map { item in
+                let hospitals = response.mapItems.map { item in
                     HealthcarePlace(
                         id: UUID(),
-                        name: item.name ?? "Unknown",
-                        address: item.placemark.thoroughfare ?? "",
+                        name: item.name ?? "Unknown Hospital",
+                        address: self.formatAddress(item.placemark),
                         coordinate: item.placemark.coordinate,
-                        type: determineHealthcareType(from: item.name ?? ""),
-                        distance: calculateDistance(from: coordinate, to: item.placemark.coordinate)
+                        type: .hospital,
+                        distance: self.calculateDistance(from: coordinate, to: item.placemark.coordinate)
                     )
                 }.sorted { $0.distance < $1.distance }
                 
-                print("Found \(healthcarePlaces.count) healthcare facilities")
+                // Also search for major medical centers
+                let medicalRequest = MKLocalSearch.Request()
+                medicalRequest.naturalLanguageQuery = "medical center"
+                medicalRequest.region = MKCoordinateRegion(
+                    center: coordinate,
+                    span: MKCoordinateSpan(latitudeDelta: 0.2, longitudeDelta: 0.2)
+                )
+                
+                let medicalSearch = MKLocalSearch(request: medicalRequest)
+                medicalSearch.start { medicalResponse, medicalError in
+                    DispatchQueue.main.async {
+                        self.isLoading = false
+                        
+                        var allPlaces = hospitals
+                        
+                        if let medicalResponse = medicalResponse {
+                            let medicalCenters = medicalResponse.mapItems.map { item in
+                                HealthcarePlace(
+                                    id: UUID(),
+                                    name: item.name ?? "Unknown Medical Center",
+                                    address: self.formatAddress(item.placemark),
+                                    coordinate: item.placemark.coordinate,
+                                    type: .hospital,
+                                    distance: self.calculateDistance(from: coordinate, to: item.placemark.coordinate)
+                                )
+                            }
+                            
+                            // Combine and remove duplicates
+                            allPlaces.append(contentsOf: medicalCenters)
+                            allPlaces = Array(Set(allPlaces)).sorted { $0.distance < $1.distance }
+                        }
+                        
+                        self.healthcarePlaces = allPlaces
+                        print("Found \(self.healthcarePlaces.count) hospitals and medical centers")
+                    }
+                }
             }
         }
+    }
+    
+    private func formatAddress(_ placemark: MKPlacemark) -> String {
+        var addressComponents: [String] = []
+        
+        if let thoroughfare = placemark.thoroughfare {
+            addressComponents.append(thoroughfare)
+        }
+        if let subThoroughfare = placemark.subThoroughfare {
+            addressComponents.append(subThoroughfare)
+        }
+        if let locality = placemark.locality {
+            addressComponents.append(locality)
+        }
+        if let postalCode = placemark.postalCode {
+            addressComponents.append(postalCode)
+        }
+        
+        return addressComponents.joined(separator: ", ")
     }
     
     private func determineHealthcareType(from name: String) -> HealthcareType {
@@ -788,7 +845,7 @@ struct HealthcareMapSection: View {
     }
 }
 
-struct HealthcarePlace: Identifiable {
+struct HealthcarePlace: Identifiable, Hashable {
     let id: UUID
     let name: String
     let address: String
@@ -804,6 +861,19 @@ struct HealthcarePlace: Identifiable {
         case .gp: return "person.fill"
         case .medical: return "cross.fill"
         }
+    }
+    
+    // Hashable conformance for deduplication
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+        hasher.combine(coordinate.latitude)
+        hasher.combine(coordinate.longitude)
+    }
+    
+    static func == (lhs: HealthcarePlace, rhs: HealthcarePlace) -> Bool {
+        return lhs.name == rhs.name && 
+               lhs.coordinate.latitude == rhs.coordinate.latitude && 
+               lhs.coordinate.longitude == rhs.coordinate.longitude
     }
 }
 
