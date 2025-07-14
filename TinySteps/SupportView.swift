@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import CoreLocation
 
 struct SupportView: View {
     @State private var selectedSection: SupportSection = .healthVisitor
@@ -562,6 +563,7 @@ struct HealthcareMapSection: View {
     )
     @State private var healthcarePlaces: [HealthcarePlace] = []
     @State private var showingLocationPermission = false
+    @State private var isLoading = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -579,12 +581,24 @@ struct HealthcareMapSection: View {
                 }
                 Spacer()
                 
-                Button(action: {
-                    locationManager.requestLocationPermission()
-                }) {
-                    Image(systemName: "location.fill")
-                        .foregroundColor(.red)
-                        .font(.title2)
+                VStack(alignment: .trailing, spacing: 4) {
+                    // Location Status Indicator
+                    HStack(spacing: 4) {
+                        Circle()
+                            .fill(locationManager.locationStatus == .authorizedWhenInUse ? Color.green : Color.red)
+                            .frame(width: 8, height: 8)
+                        Text(locationManager.locationStatus == .authorizedWhenInUse ? "Location Active" : "Location Needed")
+                            .font(.caption2)
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                    
+                    Button(action: {
+                        locationManager.requestLocationPermission()
+                    }) {
+                        Image(systemName: "location.fill")
+                            .foregroundColor(.red)
+                            .font(.title2)
+                    }
                 }
             }
             
@@ -610,9 +624,25 @@ struct HealthcareMapSection: View {
                 .cornerRadius(15)
                 .frame(height: 300)
                 
-                // Location permission overlay
-                if locationManager.locationStatus == .denied {
+                // Loading indicator
+                if isLoading {
                     VStack {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(1.5)
+                        Text("Searching for healthcare facilities...")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .padding(.top, 8)
+                    }
+                    .padding()
+                    .background(Color.black.opacity(0.7))
+                    .cornerRadius(15)
+                }
+                
+                // Location permission overlay
+                if locationManager.locationStatus == .denied || locationManager.locationStatus == .restricted {
+                    VStack(spacing: 16) {
                         Image(systemName: "location.slash")
                             .font(.largeTitle)
                             .foregroundColor(.red)
@@ -623,7 +653,7 @@ struct HealthcareMapSection: View {
                             .font(.caption)
                             .foregroundColor(.white.opacity(0.8))
                             .multilineTextAlignment(.center)
-                            .padding()
+                            .padding(.horizontal)
                         
                         Button("Open Settings") {
                             if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
@@ -631,9 +661,27 @@ struct HealthcareMapSection: View {
                             }
                         }
                         .foregroundColor(.white)
-                        .padding()
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 10)
                         .background(Color.red)
                         .cornerRadius(10)
+                    }
+                    .padding()
+                    .background(Color.black.opacity(0.8))
+                    .cornerRadius(15)
+                } else if locationManager.locationStatus == .notDetermined {
+                    VStack(spacing: 16) {
+                        Image(systemName: "location")
+                            .font(.largeTitle)
+                            .foregroundColor(.yellow)
+                        Text("Location Permission Needed")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                        Text("Tap the location button above to enable location access")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
                     }
                     .padding()
                     .background(Color.black.opacity(0.8))
@@ -678,6 +726,8 @@ struct HealthcareMapSection: View {
     }
     
     private func searchNearbyHealthcarePlaces(near coordinate: CLLocationCoordinate2D) {
+        isLoading = true
+        
         let request = MKLocalSearch.Request()
         request.naturalLanguageQuery = "hospital clinic medical facility"
         request.region = MKCoordinateRegion(
@@ -687,9 +737,19 @@ struct HealthcareMapSection: View {
         
         let search = MKLocalSearch(request: request)
         search.start { response, error in
-            guard let response = response else { return }
-            
             DispatchQueue.main.async {
+                isLoading = false
+                
+                if let error = error {
+                    print("Search error: \(error.localizedDescription)")
+                    return
+                }
+                
+                guard let response = response else {
+                    print("No search response")
+                    return
+                }
+                
                 healthcarePlaces = response.mapItems.map { item in
                     HealthcarePlace(
                         id: UUID(),
@@ -700,6 +760,8 @@ struct HealthcareMapSection: View {
                         distance: calculateDistance(from: coordinate, to: item.placemark.coordinate)
                     )
                 }.sorted { $0.distance < $1.distance }
+                
+                print("Found \(healthcarePlaces.count) healthcare facilities")
             }
         }
     }
@@ -808,21 +870,30 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        print("LocationManager initialized")
     }
     
     func requestLocationPermission() {
+        print("Requesting location permission...")
         locationManager.requestWhenInUseAuthorization()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         currentLocation = locations.last
+        print("Location updated: \(locations.last?.coordinate.latitude ?? 0), \(locations.last?.coordinate.longitude ?? 0)")
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        print("Location authorization changed to: \(status.rawValue)")
         locationStatus = status
         if status == .authorizedWhenInUse || status == .authorizedAlways {
+            print("Starting location updates...")
             locationManager.startUpdatingLocation()
         }
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Location manager failed with error: \(error.localizedDescription)")
     }
 }
 
