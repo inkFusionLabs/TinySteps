@@ -566,6 +566,8 @@ struct HealthcareMapSection: View {
     @State private var healthcarePlaces: [HealthcarePlace] = []
     @State private var showingLocationPermission = false
     @State private var isLoading = false
+    @State private var selectedHospital: HealthcarePlace?
+    @State private var showingHospitalDetail = false
     
     var body: some View {
         VStack(spacing: 20) {
@@ -608,18 +610,23 @@ struct HealthcareMapSection: View {
             ZStack {
                 Map(coordinateRegion: $region, annotationItems: healthcarePlaces) { place in
                     MapAnnotation(coordinate: place.coordinate) {
-                        VStack {
-                            Image(systemName: place.icon)
-                                .foregroundColor(.red)
-                                .background(Circle().fill(.white).frame(width: 30, height: 30))
-                                .font(.title2)
-                            Text(place.name)
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 2)
-                                .background(Color.black.opacity(0.7))
-                                .cornerRadius(4)
+                        Button(action: {
+                            selectedHospital = place
+                            showingHospitalDetail = true
+                        }) {
+                            VStack(spacing: 2) {
+                                Image(systemName: place.icon)
+                                    .foregroundColor(.red)
+                                    .background(Circle().fill(.white).frame(width: 30, height: 30))
+                                    .font(.title2)
+                                Text(place.name)
+                                    .font(.caption)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(Color.black.opacity(0.7))
+                                    .cornerRadius(4)
+                            }
                         }
                     }
                 }
@@ -723,6 +730,11 @@ struct HealthcareMapSection: View {
             if let location = location {
                 region.center = location.coordinate
                 searchNearbyHealthcarePlaces(near: location.coordinate)
+            }
+        }
+        .sheet(isPresented: $showingHospitalDetail) {
+            if let hospital = selectedHospital {
+                HospitalDetailView(hospital: hospital)
             }
         }
     }
@@ -964,6 +976,155 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Location manager failed with error: \(error.localizedDescription)")
+    }
+}
+
+struct HospitalDetailView: View {
+    let hospital: HealthcarePlace
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Header
+                        VStack(spacing: 15) {
+                            Image(systemName: "cross.case.fill")
+                                .font(.system(size: 50))
+                                .foregroundColor(.red)
+                                .background(Circle().fill(.white).frame(width: 80, height: 80))
+                            
+                            Text(hospital.name)
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .multilineTextAlignment(.center)
+                            
+                            Text(hospital.address)
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding()
+                        
+                        // Distance Info
+                        VStack(spacing: 10) {
+                            HStack {
+                                Image(systemName: "location.fill")
+                                    .foregroundColor(.red)
+                                Text("Distance")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Text(String(format: "%.1f km", hospital.distance))
+                                    .font(.headline)
+                                    .foregroundColor(.red)
+                            }
+                            
+                            Divider()
+                                .background(Color.white.opacity(0.3))
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(15)
+                        
+                        // Action Buttons
+                        VStack(spacing: 12) {
+                            // Navigate Button
+                            Button(action: {
+                                openInMaps(coordinate: hospital.coordinate, name: hospital.name)
+                            }) {
+                                HStack {
+                                    Image(systemName: "arrow.up.right.square")
+                                        .font(.title2)
+                                    Text("Navigate to Hospital")
+                                        .font(.headline)
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.red)
+                                .cornerRadius(12)
+                            }
+                            
+                            // Call Button (if available)
+                            Button(action: {
+                                // This would typically open phone app with hospital number
+                                // For now, we'll show an alert
+                            }) {
+                                HStack {
+                                    Image(systemName: "phone.fill")
+                                        .font(.title2)
+                                    Text("Call Hospital")
+                                        .font(.headline)
+                                }
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(12)
+                            }
+                            
+                            // Emergency Services Info
+                            VStack(spacing: 10) {
+                                HStack {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundColor(.yellow)
+                                    Text("Emergency Services Available")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                }
+                                
+                                Text("This hospital provides emergency care and neonatal services. In case of emergency, call 999 or go directly to the emergency department.")
+                                    .font(.caption)
+                                    .foregroundColor(.white.opacity(0.8))
+                                    .multilineTextAlignment(.leading)
+                            }
+                            .padding()
+                            .background(Color.yellow.opacity(0.2))
+                            .cornerRadius(12)
+                        }
+                        
+                        // Additional Information
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Hospital Information")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            InfoRow(icon: "clock.fill", title: "Emergency Department", value: "24/7")
+                            InfoRow(icon: "cross.case.fill", title: "Neonatal Unit", value: "Available")
+                            InfoRow(icon: "car.fill", title: "Parking", value: "Available")
+                            InfoRow(icon: "wifi", title: "WiFi", value: "Free")
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(15)
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Hospital Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+            }
+        }
+    }
+    
+    private func openInMaps(coordinate: CLLocationCoordinate2D, name: String) {
+        let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
+        mapItem.name = name
+        mapItem.openInMaps(launchOptions: nil)
     }
 }
 
