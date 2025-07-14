@@ -468,6 +468,7 @@ struct TrackingView: View {
                 .padding(.vertical, 20)
             }
             .navigationTitle("Tracking")
+            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
             .onAppear {
                 withAnimation {
                     animateContent = true

@@ -18,7 +18,6 @@ struct ContentView: View {
     @AppStorage("userName") private var userName: String = ""
     @State private var showNameEntry = false
     @Binding var selectedTab: Tab
-    @State private var showMenu = false
     @State private var showProfile = false
     @State private var tabCustomization = TabViewCustomization()
     
@@ -83,17 +82,6 @@ struct ContentView: View {
             TabView(selection: $selectedTab) {
                 NavigationView { 
                     HomeView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Home", systemImage: "house.fill")
@@ -102,17 +90,6 @@ struct ContentView: View {
                 
                 NavigationView { 
                     InformationHubView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Info Hub", systemImage: "info.circle.fill")
@@ -121,17 +98,6 @@ struct ContentView: View {
                 
                 NavigationView { 
                     TrackingView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Tracking", systemImage: "chart.bar.fill")
@@ -140,17 +106,6 @@ struct ContentView: View {
                 
                 NavigationView {
                     JournalView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Journal", systemImage: "book.fill")
@@ -159,17 +114,6 @@ struct ContentView: View {
                 
                 NavigationView {
                     RemindersView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Reminders", systemImage: "bell.fill")
@@ -178,17 +122,6 @@ struct ContentView: View {
                 
                 NavigationView { 
                     AppointmentsCalendarView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Appointments", systemImage: "calendar")
@@ -197,17 +130,6 @@ struct ContentView: View {
                 
                 NavigationView { 
                     HealthVisitorView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Health Visitor", systemImage: "cross.case.fill")
@@ -216,17 +138,6 @@ struct ContentView: View {
                 
                 NavigationView { 
                     ParentingTipsView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Tips", systemImage: "lightbulb.fill")
@@ -235,17 +146,6 @@ struct ContentView: View {
                 
                 NavigationView {
                     MilestonesView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Milestones", systemImage: "star.fill")
@@ -254,17 +154,6 @@ struct ContentView: View {
                 
                 NavigationView {
                     SettingsView()
-                        .toolbar {
-                            ToolbarItem(placement: .navigationBarTrailing) {
-                                Button(action: {
-                                    showMenu.toggle()
-                                }) {
-                                    Image(systemName: "line.3.horizontal")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                        .font(.title2)
-                                }
-                            }
-                        }
                 }
                 .tabItem {
                     Label("Settings", systemImage: "gear")
@@ -274,10 +163,7 @@ struct ContentView: View {
             .accentColor(TinyStepsDesign.Colors.accent)
             .tabViewStyle(.sidebarAdaptable)
             // .tabViewCustomization($tabCustomization) // Removed due to type mismatch
-            .background(.ultraThinMaterial)
-            .sheet(isPresented: $showMenu) {
-                MenuView(selectedTab: $selectedTab, showMenu: $showMenu, showProfile: $showProfile)
-            }
+            .background(TinyStepsDesign.Colors.background)
             .sheet(isPresented: $showProfile) {
                 NavigationView {
                     ProfileView()
@@ -1153,155 +1039,7 @@ struct WarningSignRow: View {
     }
 }
 
-// MARK: - Menu View
-struct MenuView: View {
-    @Binding var selectedTab: ContentView.Tab
-    @Binding var showMenu: Bool
-    @Binding var showProfile: Bool
-    @AppStorage("userName") private var userName: String = ""
-    
-    var body: some View {
-        NavigationView {
-            VStack(spacing: 0) {
-                // Header
-                VStack(spacing: 16) {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Welcome back,")
-                                .font(.subheadline)
-                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                            Text(userName.isEmpty ? "Dad" : userName)
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                        }
-                        Spacer()
-                        Button(action: {
-                            showMenu = false
-                        }) {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.title2)
-                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                        }
-                    }
-                    .padding(.horizontal, 20)
-                    .padding(.top, 20)
-                    
-                    Divider()
-                        .background(TinyStepsDesign.Colors.textSecondary.opacity(0.3))
-                }
-                .background(TinyStepsDesign.Colors.primary)
-                
-                // Menu Items
-                ScrollView {
-                    VStack(spacing: 0) {
-                        ForEach(ContentView.Tab.allCases, id: \.self) { tab in
-                            MenuItemView(
-                                tab: tab,
-                                isSelected: selectedTab == tab,
-                                action: {
-                                    selectedTab = tab
-                                    showMenu = false
-                                }
-                            )
-                        }
-                        
-                        Divider()
-                            .background(TinyStepsDesign.Colors.textSecondary.opacity(0.3))
-                            .padding(.vertical, 8)
-                        
-                        // Profile Section
-                        MenuItemView(
-                            title: "Profile",
-                            icon: "person.circle.fill",
-                            action: {
-                                showMenu = false
-                                showProfile = true
-                            }
-                        )
-                        
-                        // Support Section
-                        MenuItemView(
-                            title: "Support",
-                            icon: "questionmark.circle.fill",
-                            action: {
-                                // Navigate to support
-                                showMenu = false
-                            }
-                        )
-                        
-                        // Logout Section
-                        MenuItemView(
-                            title: "Logout",
-                            icon: "rectangle.portrait.and.arrow.right",
-                            action: {
-                                // Handle logout
-                                userName = ""
-                                showMenu = false
-                            }
-                        )
-                    }
-                }
-                .background(TinyStepsDesign.Colors.background)
-            }
-            .navigationBarHidden(true)
-        }
-        .navigationViewStyle(StackNavigationViewStyle())
-    }
-}
 
-// MARK: - Menu Item View
-struct MenuItemView: View {
-    let title: String
-    let icon: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    init(tab: ContentView.Tab, isSelected: Bool = false, action: @escaping () -> Void) {
-        self.title = tab.title
-        self.icon = tab.icon
-        self.isSelected = isSelected
-        self.action = action
-    }
-    
-    init(title: String, icon: String, isSelected: Bool = false, action: @escaping () -> Void) {
-        self.title = title
-        self.icon = icon
-        self.isSelected = isSelected
-        self.action = action
-    }
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 16) {
-                Image(systemName: icon)
-                    .font(.title3)
-                    .foregroundColor(isSelected ? TinyStepsDesign.Colors.accent : TinyStepsDesign.Colors.textSecondary)
-                    .frame(width: 24)
-                
-                Text(title)
-                    .font(.body)
-                    .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundColor(isSelected ? TinyStepsDesign.Colors.accent : TinyStepsDesign.Colors.textPrimary)
-                
-                Spacer()
-                
-                if isSelected {
-                    Image(systemName: "checkmark")
-                        .font(.caption)
-                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                }
-            }
-            .padding(.horizontal, 20)
-            .padding(.vertical, 16)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? TinyStepsDesign.Colors.accent.opacity(0.1) : Color.clear)
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-    }
-}
 
 #if DEBUG
 struct ContentView_Previews: PreviewProvider {
