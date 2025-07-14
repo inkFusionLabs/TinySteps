@@ -396,7 +396,7 @@ struct DayCalendarView: View {
     var body: some View {
         Text("Day View (coming soon)")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.gray.opacity(0.1))
+            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
     }
 }
 
@@ -405,6 +405,6 @@ struct YearCalendarView: View {
     var body: some View {
         Text("Year View (coming soon)")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.gray.opacity(0.1))
+            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
     }
 } 
