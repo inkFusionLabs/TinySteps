@@ -75,12 +75,9 @@ TinySteps/
 
 ## 🚀 Getting Started
 
-### Prerequisites
-- Xcode 16.0 or later
-- iOS 18.0+ deployment target
-- macOS 14.0 or later
+For detailed setup instructions, see [SETUP.md](SETUP.md).
 
-### Installation
+### Quick Start
 
 1. **Clone the repository**
    ```bash
@@ -93,22 +90,25 @@ TinySteps/
    open TinySteps.xcodeproj
    ```
 
-3. **Configure your development team**
-   - Select the TinySteps project in Xcode
-   - Go to Signing & Capabilities
-   - Update the Bundle Identifier to your domain
+3. **Configure for testing**
+   - Change the Bundle Identifier to avoid conflicts
    - Select your development team
+   - Choose iOS Simulator or your device
 
 4. **Build and Run**
-   - Select your target device or simulator
    - Press ⌘+R to build and run
+
+### Prerequisites
+- Xcode 16.0 or later
+- iOS 18.0+ deployment target
+- macOS 14.0 or later
 
 ## 🔧 Configuration
 
 ### Bundle Identifier
 Update the bundle identifier in the project settings:
-- Current: `com.yournewprofile.TinySteps`
-- Change to: `com.yourdomain.TinySteps`
+- Current: `com.inkFusionLabs.TinySteps`
+- Change to: `com.yourdomain.TinySteps` (for your own testing)
 
 ### Development Team
 - Select your Apple Developer account in project settings
