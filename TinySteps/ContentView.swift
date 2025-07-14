@@ -22,33 +22,23 @@ struct ContentView: View {
     @State private var tabCustomization = TabViewCustomization()
     
     enum Tab: String, CaseIterable, Identifiable {
-        case home, info, tracking, journal, reminders, appointments, healthVisitor, tips, milestones, settings
+        case home, journal, tracking, support, settings
         var id: String { rawValue }
         var title: String {
             switch self {
             case .home: return "Home"
-            case .info: return "Info Hub"
-            case .tracking: return "Tracking"
             case .journal: return "Journal"
-            case .reminders: return "Reminders"
-            case .appointments: return "Appointments"
-            case .healthVisitor: return "Health Visitor"
-            case .tips: return "Tips"
-            case .milestones: return "Milestones"
+            case .tracking: return "Tracking"
+            case .support: return "Support"
             case .settings: return "Settings"
             }
         }
         var icon: String {
             switch self {
             case .home: return "house.fill"
-            case .info: return "info.circle.fill"
-            case .tracking: return "chart.bar.fill"
             case .journal: return "book.fill"
-            case .reminders: return "bell.fill"
-            case .appointments: return "calendar"
-            case .healthVisitor: return "cross.case.fill"
-            case .tips: return "lightbulb.fill"
-            case .milestones: return "star.fill"
+            case .tracking: return "chart.bar.fill"
+            case .support: return "heart.fill"
             case .settings: return "gear"
             }
         }
@@ -88,13 +78,13 @@ struct ContentView: View {
                 }
                 .tag(Tab.home)
                 
-                NavigationView { 
-                    InformationHubView()
+                NavigationView {
+                    JournalView()
                 }
                 .tabItem {
-                    Label("Info Hub", systemImage: "info.circle.fill")
+                    Label("Journal", systemImage: "book.fill")
                 }
-                .tag(Tab.info)
+                .tag(Tab.journal)
                 
                 NavigationView { 
                     TrackingView()
@@ -104,55 +94,15 @@ struct ContentView: View {
                 }
                 .tag(Tab.tracking)
                 
-                NavigationView {
-                    JournalView()
+                NavigationView { 
+                    SupportView()
                 }
                 .tabItem {
-                    Label("Journal", systemImage: "book.fill")
+                    Label("Support", systemImage: "heart.fill")
                 }
-                .tag(Tab.journal)
-                
-                NavigationView {
-                    RemindersView()
-                }
-                .tabItem {
-                    Label("Reminders", systemImage: "bell.fill")
-                }
-                .tag(Tab.reminders)
+                .tag(Tab.support)
                 
                 NavigationView { 
-                    AppointmentsCalendarView()
-                }
-                .tabItem {
-                    Label("Appointments", systemImage: "calendar")
-                }
-                .tag(Tab.appointments)
-                
-                NavigationView { 
-                    HealthVisitorView()
-                }
-                .tabItem {
-                    Label("Health Visitor", systemImage: "cross.case.fill")
-                }
-                .tag(Tab.healthVisitor)
-                
-                NavigationView { 
-                    ParentingTipsView()
-                }
-                .tabItem {
-                    Label("Tips", systemImage: "lightbulb.fill")
-                }
-                .tag(Tab.tips)
-                
-                NavigationView {
-                    MilestonesView()
-                }
-                .tabItem {
-                    Label("Milestones", systemImage: "star.fill")
-                }
-                .tag(Tab.milestones)
-                
-                NavigationView {
                     SettingsView()
                 }
                 .tabItem {

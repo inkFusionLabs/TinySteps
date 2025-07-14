@@ -50,6 +50,11 @@ struct JournalView: View {
                     .font(TinyStepsDesign.Typography.header)
                     .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                 Spacer()
+                Button(action: { showNewEntry = true }) {
+                    Image(systemName: "plus.circle.fill")
+                        .font(.title2)
+                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                }
             }
             .padding()
             .background(TinyStepsDesign.Colors.primary)

@@ -32,24 +32,161 @@ struct SettingsView: View {
             // Main Content
             ScrollView {
                 VStack(spacing: 20) {
-                    // Example Card
-                    ZStack {
-                        // Card content here
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Preferences")
+                    // Data Management Section
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Data Management")
                                 .font(TinyStepsDesign.Typography.subheader)
-                                .foregroundColor(TinyStepsDesign.Colors.accent)
-                            // ... existing settings content ...
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            Spacer()
+                        }
+                        
+                        Button(action: { showingExportSheet = true }) {
+                            HStack {
+                                Image(systemName: "square.and.arrow.up")
+                                    .foregroundColor(TinyStepsDesign.Colors.accent)
+                                Text("Export Data")
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                        
+                        Button(action: { showingResetAlert = true }) {
+                            HStack {
+                                Image(systemName: "trash")
+                                    .foregroundColor(.red)
+                                Text("Reset All Data")
+                                    .foregroundColor(.red)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
                         }
                     }
                     .padding()
                     .background(.ultraThinMaterial)
-                    // ... repeat for other cards/buttons ...
+                    .cornerRadius(16)
+                    
+                    // Support Section
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Support & Information")
+                                .font(TinyStepsDesign.Typography.subheader)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            Spacer()
+                        }
+                        
+                        Button(action: { showingPrivacyPolicy = true }) {
+                            HStack {
+                                Image(systemName: "hand.raised.fill")
+                                    .foregroundColor(TinyStepsDesign.Colors.accent)
+                                Text("Privacy Policy")
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                        
+                        Link(destination: URL(string: "https://www.bliss.org.uk")!) {
+                            HStack {
+                                Image(systemName: "heart.fill")
+                                    .foregroundColor(.pink)
+                                Text("Bliss - Supporting Premature Babies")
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                Spacer()
+                                Image(systemName: "arrow.up.right.square")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                        
+                        Link(destination: URL(string: "https://www.nhs.uk")!) {
+                            HStack {
+                                Image(systemName: "cross.fill")
+                                    .foregroundColor(.green)
+                                Text("NHS - Health Information")
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                Spacer()
+                                Image(systemName: "arrow.up.right.square")
+                                    .foregroundColor(.gray)
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                    }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(16)
+                    
+                    // App Info Section
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("App Information")
+                                .font(TinyStepsDesign.Typography.subheader)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            Spacer()
+                        }
+                        
+                        VStack(spacing: 8) {
+                            HStack {
+                                Text("Version")
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                                Spacer()
+                                Text("1.0.0")
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            }
+                            
+                            HStack {
+                                Text("Build")
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                                Spacer()
+                                Text("1")
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            }
+                        }
+                        .padding()
+                        .background(Color.white.opacity(0.1))
+                        .cornerRadius(12)
+                    }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(16)
                 }
                 .padding()
             }
         }
         .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
+        .sheet(isPresented: $showingExportSheet) {
+            NavigationView {
+                DataExportView()
+            }
+        }
+        .sheet(isPresented: $showingPrivacyPolicy) {
+            PrivacyPolicyView()
+        }
+        .alert("Reset All Data", isPresented: $showingResetAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Reset", role: .destructive) {
+                resetAllData()
+            }
+        } message: {
+            Text("This will permanently delete all your baby's data. This action cannot be undone.")
+        }
     }
     
     private func resetAllData() {

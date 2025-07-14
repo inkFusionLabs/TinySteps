@@ -20,6 +20,128 @@ struct HomeView: View {
             .padding(.horizontal)
             .padding(.top, 12)
             // Main Content
+            VStack(spacing: 16) {
+                Text("You're doing an amazing job. Remember, every small step counts!")
+                    .font(.headline)
+                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                    .padding(.horizontal)
+                
+                // Dad's Info Hub Card
+                NavigationLink(destination: InformationHubView()) {
+                    HStack {
+                        Image(systemName: "info.circle.fill")
+                            .font(.system(size: 32, weight: .bold))
+                            .foregroundColor(TinyStepsDesign.Colors.accent)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Dad's Info Hub")
+                                .font(.title3)
+                                .fontWeight(.semibold)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            Text("Guidance, support & resources for NICU dads")
+                                .font(.caption)
+                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.right")
+                            .foregroundColor(TinyStepsDesign.Colors.accent)
+                    }
+                    .padding()
+                    .cornerRadius(14)
+                }
+                
+                // Quick Actions
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Quick Actions")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                        .padding(.horizontal)
+                    
+                    HStack(spacing: 16) {
+                        NavigationLink(destination: TrackingView()) {
+                            VStack {
+                                Image(systemName: "chart.bar.fill")
+                                    .font(.title)
+                                    .foregroundColor(TinyStepsDesign.Colors.accent)
+                                Text("Tracking")
+                                    .font(.caption)
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            }
+                            .padding()
+                            .cornerRadius(12)
+                        }
+                        
+                        NavigationLink(destination: SupportView()) {
+                            VStack {
+                                Image(systemName: "heart.fill")
+                                    .font(.title)
+                                    .foregroundColor(TinyStepsDesign.Colors.success)
+                                Text("Support")
+                                    .font(.caption)
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            }
+                            .padding()
+                            .cornerRadius(12)
+                        }
+                        
+                        NavigationLink(destination: MilestonesView()) {
+                            VStack {
+                                Image(systemName: "star.fill")
+                                    .font(.title)
+                                    .foregroundColor(TinyStepsDesign.Colors.highlight)
+                                Text("Milestones")
+                                    .font(.caption)
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            }
+                            .padding()
+                            .cornerRadius(12)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+                
+                // Today's Summary
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Today's Summary")
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                        .padding(.horizontal)
+                    
+                    HStack(spacing: 20) {
+                        VStack {
+                            Text("\(dataManager.feedingRecords.filter { Calendar.current.isDateInToday($0.date) }.count)")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(TinyStepsDesign.Colors.accent)
+                            Text("Feeds")
+                                .font(.caption)
+                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                        }
+                        
+                        VStack {
+                            Text("\(dataManager.sleepRecords.filter { Calendar.current.isDateInToday($0.startTime) }.count)")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(TinyStepsDesign.Colors.highlight)
+                            Text("Sleep")
+                                .font(.caption)
+                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                        }
+                        
+                        VStack {
+                            Text("\(dataManager.nappyRecords.filter { Calendar.current.isDateInToday($0.date) }.count)")
+                                .font(.title2)
+                                .fontWeight(.bold)
+                                .foregroundColor(TinyStepsDesign.Colors.success)
+                            Text("Nappies")
+                                .font(.caption)
+                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+            }
             ScrollView {
                 VStack(spacing: 20) {
                     // Example Card

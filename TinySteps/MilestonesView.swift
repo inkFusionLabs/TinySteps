@@ -56,24 +56,136 @@ struct MilestonesView: View {
             // Main Content
             ScrollView {
                 VStack(spacing: 20) {
-                    // Example Card
-                    ZStack {
-                        // Card content here
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Upcoming Milestones")
+                    // Progress Section
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Progress")
+                                .font(TinyStepsDesign.Typography.subheader)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            Spacer()
+                            Text("\(Int(progressPercentage))%")
                                 .font(TinyStepsDesign.Typography.subheader)
                                 .foregroundColor(TinyStepsDesign.Colors.accent)
-                            // ... existing milestones content ...
+                        }
+                        
+                        ProgressView(value: progressPercentage, total: 100)
+                            .progressViewStyle(LinearProgressViewStyle(tint: TinyStepsDesign.Colors.accent))
+                            .scaleEffect(x: 1, y: 2, anchor: .center)
+                    }
+                    .padding()
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(16)
+                    
+                    // Category Filter
+                    MilestoneCategoryFilterView(selectedCategory: $selectedCategory)
+                    
+                    // Stats Cards
+                    HStack(spacing: 16) {
+                        StatCard(
+                            title: "Achieved",
+                            value: "\(achievedMilestones.count)",
+                            icon: "checkmark.circle.fill",
+                            color: .green
+                        )
+                        
+                        StatCard(
+                            title: "Pending",
+                            value: "\(pendingMilestones.count)",
+                            icon: "clock.fill",
+                            color: .orange
+                        )
+                        
+                        StatCard(
+                            title: "Total",
+                            value: "\(filteredMilestones.count)",
+                            icon: "list.bullet",
+                            color: .blue
+                        )
+                    }
+                    
+                    // Milestones List
+                    VStack(spacing: 12) {
+                        HStack {
+                            Text("Milestones")
+                                .font(TinyStepsDesign.Typography.subheader)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            Spacer()
+                            Button(action: { showingAddMilestone = true }) {
+                                Image(systemName: "plus.circle.fill")
+                                    .foregroundColor(TinyStepsDesign.Colors.accent)
+                                    .font(.title2)
+                            }
+                        }
+                        
+                        if filteredMilestones.isEmpty {
+                            VStack(spacing: 12) {
+                                Image(systemName: "flag.filled.and.flag.crossed")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.gray)
+                                Text("No milestones yet")
+                                    .font(TinyStepsDesign.Typography.body)
+                                    .foregroundColor(.gray)
+                                Text("Add your first milestone to start tracking progress")
+                                    .font(TinyStepsDesign.Typography.caption)
+                                    .foregroundColor(.gray)
+                                    .multilineTextAlignment(.center)
+                            }
+                            .padding(.vertical, 40)
+                        } else {
+                            ForEach(filteredMilestones) { milestone in
+                                MilestoneRowView(milestone: milestone) {
+                                    toggleMilestone(milestone)
+                                }
+                            }
                         }
                     }
                     .padding()
                     .background(.ultraThinMaterial)
-                    // ... repeat for other cards/buttons ...
+                    .cornerRadius(16)
                 }
                 .padding()
             }
         }
         .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
+        .sheet(isPresented: $showingAddMilestone) {
+            NavigationView {
+                VStack(spacing: 20) {
+                    TextField("Milestone Title", text: $newMilestoneTitle)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    TextField("Description", text: $newMilestoneDescription, axis: .vertical)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .lineLimit(3...6)
+                    
+                    Picker("Category", selection: $newMilestoneCategory) {
+                        ForEach(Milestone.MilestoneCategory.allCases, id: \.self) { category in
+                            Text(category.rawValue).tag(category)
+                        }
+                    }
+                    .pickerStyle(MenuPickerStyle())
+                    
+                    Stepper("Expected Age: \(newMilestoneExpectedAge) months", value: $newMilestoneExpectedAge, in: 1...24)
+                    
+                    TextField("Notes (optional)", text: $newMilestoneNotes, axis: .vertical)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .lineLimit(2...4)
+                    
+                    Spacer()
+                }
+                .padding()
+                .navigationTitle("Add Milestone")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { showingAddMilestone = false }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Add") { addNewMilestone() }
+                            .disabled(newMilestoneTitle.isEmpty)
+                    }
+                }
+            }
+        }
     }
     
     private func toggleMilestone(_ milestone: Milestone) {
@@ -394,4 +506,63 @@ struct AddMilestoneView: View {
 #Preview {
     MilestonesView()
         .environmentObject(BabyDataManager())
+}
+
+struct MilestoneRowView: View {
+    let milestone: Milestone
+    let onToggle: () -> Void
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            Button(action: onToggle) {
+                Image(systemName: milestone.isAchieved ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(milestone.isAchieved ? .green : .gray)
+                    .font(.title2)
+            }
+            
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text(milestone.title)
+                        .font(TinyStepsDesign.Typography.body)
+                        .fontWeight(.medium)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                        .strikethrough(milestone.isAchieved)
+                    
+                    Spacer()
+                    
+                    Text("\(milestone.expectedAge)m")
+                        .font(TinyStepsDesign.Typography.caption)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Color.gray.opacity(0.2))
+                        .cornerRadius(8)
+                }
+                
+                if !milestone.description.isEmpty {
+                    Text(milestone.description)
+                        .font(TinyStepsDesign.Typography.caption)
+                        .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                        .lineLimit(2)
+                }
+                
+                if let notes = milestone.notes, !notes.isEmpty {
+                    Text(notes)
+                        .font(TinyStepsDesign.Typography.caption)
+                        .foregroundColor(.gray)
+                        .italic()
+                        .lineLimit(1)
+                }
+                
+                if milestone.isAchieved, let achievedDate = milestone.achievedDate {
+                    Text("Achieved: \(achievedDate, style: .date)")
+                        .font(TinyStepsDesign.Typography.caption)
+                        .foregroundColor(.green)
+                }
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.1))
+        .cornerRadius(12)
+    }
 } 

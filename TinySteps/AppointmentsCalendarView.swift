@@ -286,42 +286,42 @@ struct EditAppointmentSheet: View {
             ZStack {
                 TinyStepsDesign.Colors.background
                     .ignoresSafeArea()
-                
                 Form {
-                Section(header: Text("Title")) {
-                    TextField("Appointment Title", text: $appointment.title)
-                }
-                Section(header: Text("Location")) {
-                    TextField("Location", text: $appointment.location)
-                }
-                Section {
-                    Toggle("All-day", isOn: $appointment.isAllDay)
-                    DatePicker("Start", selection: $appointment.startDate, displayedComponents: appointment.isAllDay ? [.date] : [.date, .hourAndMinute])
-                    DatePicker("End", selection: $appointment.endDate, displayedComponents: appointment.isAllDay ? [.date] : [.date, .hourAndMinute])
-                }
-                Section(header: Text("Notes")) {
-                    TextEditor(text: Binding(get: { appointment.notes ?? "" }, set: { appointment.notes = $0 }))
-                        .frame(minHeight: 60)
-                }
-                Section(header: Text("Reminder")) {
-                    Picker("Alert", selection: $appointment.reminderMinutes) {
-                        Text("None").tag(0)
-                        Text("At time of event").tag(0)
-                        Text("5 minutes before").tag(5)
-                        Text("10 minutes before").tag(10)
-                        Text("15 minutes before").tag(15)
-                        Text("30 minutes before").tag(30)
-                        Text("1 hour before").tag(60)
-                        Text("2 hours before").tag(120)
-                        Text("1 day before").tag(1440)
+                    Section(header: Text("Title")) {
+                        TextField("Appointment Title", text: $appointment.title)
                     }
-                    .pickerStyle(.menu)
-                }
-                Section {
-                    Button(role: .destructive) {
-                        showDeleteAlert = true
-                    } label: {
-                        Label("Delete Appointment", systemImage: "trash")
+                    Section(header: Text("Location")) {
+                        TextField("Location", text: $appointment.location)
+                    }
+                    Section {
+                        Toggle("All-day", isOn: $appointment.isAllDay)
+                        DatePicker("Start", selection: $appointment.startDate, displayedComponents: appointment.isAllDay ? [.date] : [.date, .hourAndMinute])
+                        DatePicker("End", selection: $appointment.endDate, displayedComponents: appointment.isAllDay ? [.date] : [.date, .hourAndMinute])
+                    }
+                    Section(header: Text("Notes")) {
+                        TextEditor(text: Binding(get: { appointment.notes ?? "" }, set: { appointment.notes = $0 }))
+                            .frame(minHeight: 60)
+                    }
+                    Section(header: Text("Reminder")) {
+                        Picker("Alert", selection: $appointment.reminderMinutes) {
+                            Text("None").tag(0)
+                            Text("At time of event").tag(0)
+                            Text("5 minutes before").tag(5)
+                            Text("10 minutes before").tag(10)
+                            Text("15 minutes before").tag(15)
+                            Text("30 minutes before").tag(30)
+                            Text("1 hour before").tag(60)
+                            Text("2 hours before").tag(120)
+                            Text("1 day before").tag(1440)
+                        }
+                        .pickerStyle(.menu)
+                    }
+                    Section {
+                        Button(role: .destructive) {
+                            showDeleteAlert = true
+                        } label: {
+                            Label("Delete Appointment", systemImage: "trash")
+                        }
                     }
                 }
             }
@@ -366,6 +366,7 @@ struct EditAppointmentSheet: View {
             center.add(request)
         }
     }
+    
     private func removeNotification(for appointment: Appointment) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [appointment.id.uuidString])
@@ -379,6 +380,7 @@ extension Binding where Value == String? {
     }
 }
 
+// Date formatters
 private let dateFormatter: DateFormatter = {
     let df = DateFormatter()
     df.dateStyle = .full

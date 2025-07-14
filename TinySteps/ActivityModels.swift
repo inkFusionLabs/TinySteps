@@ -34,4 +34,4 @@ struct ActivityRow: View {
         }
         .padding(.vertical, 6)
     }
-} 
+}

@@ -17,61 +17,63 @@ struct HealthVisitorView: View {
                 .ignoresSafeArea()
             
             VStack {
-                    // Percentile Chart Section
-                    if let baby = dataManager.baby, !baby.healthVisitorVisits.isEmpty {
-                        let showLbs = false // Set to true if you want to display lbs as primary (add user preference logic if needed)
-                        Chart {
-                            // Weight line
-                            ForEach(baby.healthVisitorVisits.sorted { $0.date < $1.date }) { visit in
-                                if let weight = visit.weight {
-                                    LineMark(
-                                        x: .value("Date", visit.date),
-                                        y: .value(showLbs ? "Weight (lbs)" : "Weight (kg)", showLbs ? weight * 2.20462 : weight)
-                                    )
-                                    .foregroundStyle(.blue)
-                                    .symbol(by: .value("Type", "Weight"))
-                                    .annotation(position: .top) {
-                                        Text(String(format: "%.2f kg (%.2f lbs)", weight, weight * 2.20462))
-                                            .font(.caption2)
-                                            .foregroundColor(.blue)
-                                    }
-                                }
-                            }
-                            // Height line
-                            ForEach(baby.healthVisitorVisits.sorted { $0.date < $1.date }) { visit in
-                                if let height = visit.height {
-                                    LineMark(
-                                        x: .value("Date", visit.date),
-                                        y: .value("Height (cm)", height)
-                                    )
-                                    .foregroundStyle(.green)
-                                    .symbol(by: .value("Type", "Height"))
-                                }
-                            }
-                            // Head Circumference line
-                            ForEach(baby.healthVisitorVisits.sorted { $0.date < $1.date }) { visit in
-                                if let head = visit.headCircumference {
-                                    LineMark(
-                                        x: .value("Date", visit.date),
-                                        y: .value("Head Circumference (cm)", head)
-                                    )
-                                    .foregroundStyle(.orange)
-                                    .symbol(by: .value("Type", "Head Circumference"))
+                // Percentile Chart Section
+                if let baby = dataManager.baby, !baby.healthVisitorVisits.isEmpty {
+                    let showLbs = false // Set to true if you want to display lbs as primary (add user preference logic if needed)
+                    Chart {
+                        // Weight line
+                        ForEach(baby.healthVisitorVisits.sorted { $0.date < $1.date }) { visit in
+                            if let weight = visit.weight {
+                                LineMark(
+                                    x: .value("Date", visit.date),
+                                    y: .value(showLbs ? "Weight (lbs)" : "Weight (kg)", showLbs ? weight * 2.20462 : weight)
+                                )
+                                .foregroundStyle(.blue)
+                                .symbol(by: .value("Type", "Weight"))
+                                .annotation(position: .top) {
+                                    Text(String(format: "%.2f kg (%.2f lbs)", weight, weight * 2.20462))
+                                        .font(.caption2)
+                                        .foregroundColor(.blue)
                                 }
                             }
                         }
-                        .frame(height: 220)
-                        .padding(.horizontal)
-                        .background(Color.white.opacity(0.08))
-                        .cornerRadius(14)
-                        .padding(.top)
-                    } else {
-                        Text("No health visitor measurement data yet. Add a visit to see the chart.")
-                            .foregroundColor(.gray)
-                            .padding()
+                        // Height line
+                        ForEach(baby.healthVisitorVisits.sorted { $0.date < $1.date }) { visit in
+                            if let height = visit.height {
+                                LineMark(
+                                    x: .value("Date", visit.date),
+                                    y: .value("Height (cm)", height)
+                                )
+                                .foregroundStyle(.green)
+                                .symbol(by: .value("Type", "Height"))
+                            }
+                        }
+                        // Head Circumference line
+                        ForEach(baby.healthVisitorVisits.sorted { $0.date < $1.date }) { visit in
+                            if let head = visit.headCircumference {
+                                LineMark(
+                                    x: .value("Date", visit.date),
+                                    y: .value("Head Circumference (cm)", head)
+                                )
+                                .foregroundStyle(.orange)
+                                .symbol(by: .value("Type", "Head Circumference"))
+                            }
+                        }
                     }
-                    if let baby = dataManager.baby {
-                        List {
+                    .frame(height: 220)
+                    .padding(.horizontal)
+                    .background(Color.white.opacity(0.08))
+                    .cornerRadius(14)
+                    .padding(.top)
+                } else {
+                    Text("No health visitor measurement data yet. Add a visit to see the chart.")
+                        .foregroundColor(.gray)
+                        .padding()
+                }
+                
+                if let baby = dataManager.baby {
+                    ScrollView {
+                        LazyVStack(spacing: 12) {
                             ForEach(baby.healthVisitorVisits.sorted { $0.date > $1.date }) { visit in
                                 VStack(alignment: .leading, spacing: 6) {
                                     HStack {
@@ -110,56 +112,60 @@ struct HealthVisitorView: View {
                                     }
                                 }
                                 .padding(.vertical, 4)
+                                .padding(.horizontal)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(10)
                             }
-                            .onDelete(perform: deleteVisit)
                         }
-                    } else {
-                        Text("No baby profile found.")
-                            .foregroundColor(.gray)
+                        .padding(.horizontal)
+                    }
+                } else {
+                    Text("No baby profile found.")
+                        .foregroundColor(.gray)
+                }
+            }
+            .navigationTitle("Health Visitor Visits")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        editingVisit = nil
+                        visitDate = Date()
+                        visitNotes = ""
+                        visitWeight = ""
+                        visitHeight = ""
+                        visitHeadCirc = ""
+                        showingAddEditSheet = true
+                    }) {
+                        Image(systemName: "plus")
                     }
                 }
-                .navigationTitle("Health Visitor Visits")
+            }
+        }
+        .sheet(isPresented: $showingAddEditSheet) {
+            NavigationView {
+                Form {
+                    DatePicker("Date", selection: $visitDate, displayedComponents: .date)
+                    TextField("Weight (kg)", text: $visitWeight)
+                        .keyboardType(.decimalPad)
+                    TextField("Height (cm)", text: $visitHeight)
+                        .keyboardType(.decimalPad)
+                    TextField("Head Circumference (cm)", text: $visitHeadCirc)
+                        .keyboardType(.decimalPad)
+                    TextField("Notes", text: $visitNotes, axis: .vertical)
+                }
+                .navigationTitle(editingVisit == nil ? "Add Visit" : "Edit Visit")
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            editingVisit = nil
-                            visitDate = Date()
-                            visitNotes = ""
-                            visitWeight = ""
-                            visitHeight = ""
-                            visitHeadCirc = ""
-                            showingAddEditSheet = true
-                        }) {
-                            Image(systemName: "plus")
-                        }
+                    ToolbarItem(placement: .cancellationAction) {
+                        Button("Cancel") { showingAddEditSheet = false }
+                    }
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Save") { saveVisit() }
+                            .disabled(visitWeight.isEmpty && visitHeight.isEmpty && visitHeadCirc.isEmpty)
                     }
                 }
             }
-                .sheet(isPresented: $showingAddEditSheet) {
-                    NavigationView {
-                        Form {
-                            DatePicker("Date", selection: $visitDate, displayedComponents: .date)
-                            TextField("Weight (kg)", text: $visitWeight)
-                                .keyboardType(.decimalPad)
-                            TextField("Height (cm)", text: $visitHeight)
-                                .keyboardType(.decimalPad)
-                            TextField("Head Circumference (cm)", text: $visitHeadCirc)
-                                .keyboardType(.decimalPad)
-                            TextField("Notes", text: $visitNotes, axis: .vertical)
-                        }
-                        .navigationTitle(editingVisit == nil ? "Add Visit" : "Edit Visit")
-                        .toolbar {
-                            ToolbarItem(placement: .cancellationAction) {
-                                Button("Cancel") { showingAddEditSheet = false }
-                            }
-                            ToolbarItem(placement: .confirmationAction) {
-                                Button("Save") { saveVisit() }
-                                    .disabled(visitWeight.isEmpty && visitHeight.isEmpty && visitHeadCirc.isEmpty)
-                            }
-                        }
-                    }
-                }
-            }
+        }
+    }
     
     func saveVisit() {
         guard var baby = dataManager.baby else { return }
