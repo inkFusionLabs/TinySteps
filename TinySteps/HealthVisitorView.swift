@@ -160,8 +160,6 @@ struct HealthVisitorView: View {
                     }
                 }
             }
-        }
-    }
     
     func saveVisit() {
         guard var baby = dataManager.baby else { return }
