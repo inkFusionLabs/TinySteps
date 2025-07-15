@@ -43,24 +43,26 @@ struct JournalView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            // Dad Journal Banner
-            HStack {
-                TinyStepsDesign.DadIcon(symbol: TinyStepsDesign.Icons.support, color: TinyStepsDesign.Colors.accent)
-                Text("Dad's Journal")
-                    .font(TinyStepsDesign.Typography.header)
-                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                Spacer()
-                Button(action: { showNewEntry = true }) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(TinyStepsDesign.Colors.accent)
+            // Dad Journal Banner (Support & Care style)
+            VStack(alignment: .leading, spacing: 5) {
+                HStack {
+                    Text("Dad's Journal")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Button(action: { showNewEntry = true }) {
+                        Image(systemName: "plus.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.white)
+                    }
                 }
+                Text("Record your thoughts and memories")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
             }
-            .padding()
-            .background(TinyStepsDesign.Colors.primary)
-            .cornerRadius(16)
             .padding(.horizontal)
-            .padding(.top, 12)
+            .padding(.top)
             // Main Content
             ScrollView {
                 VStack(spacing: 20) {
@@ -71,11 +73,11 @@ struct JournalView: View {
                             .foregroundColor(TinyStepsDesign.Colors.accent)
                         // ... existing journal content ...
                     }
-                    .padding()
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
                     .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(Color.clear)
-                            .background(.ultraThinMaterial)
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.1))
                     )
                     // ... repeat for other cards/buttons ...
                 }
@@ -203,7 +205,7 @@ struct NewEntryView: View {
             Button(action: onSave) {
                 HStack(spacing: 10) {
                     Image(systemName: "bookmark.fill")
-                        .font(.headline)
+                        .font(.title2)
                     Text("Save Entry")
                         .font(.headline)
                         .fontWeight(.semibold)

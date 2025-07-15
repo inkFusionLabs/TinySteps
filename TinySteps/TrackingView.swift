@@ -60,18 +60,17 @@ struct TrackingView: View {
             
             VStack(spacing: 0) {
                 // Dad Achievement Banner
-                HStack {
-                    TinyStepsDesign.DadIcon(symbol: TinyStepsDesign.Icons.sports, color: TinyStepsDesign.Colors.success)
+                VStack(alignment: .leading, spacing: 5) {
                     Text("Dad's Progress")
-                        .font(TinyStepsDesign.Typography.header)
-                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                    Spacer()
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text("Track your achievements and baby's growth.")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
                 }
-                .padding()
-                .background(TinyStepsDesign.Colors.primary)
-                .cornerRadius(16)
                 .padding(.horizontal)
-                .padding(.top, 12)
+                .padding(.top)
             // Main Content
             ScrollView {
                 VStack(spacing: 20) {
@@ -79,7 +78,7 @@ struct TrackingView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         HStack {
                             Image(systemName: "person.crop.circle.badge.plus")
-                                .font(.system(size: 40))
+                                .font(.title2)
                                 .foregroundColor(.white)
                                 .background(
                                     Circle()
@@ -127,11 +126,14 @@ struct TrackingView: View {
                             .cornerRadius(12)
                             .padding(.horizontal)
                         }
+                        // --- ANIMATED GROWTH CHARTS ---
+                        AnimatedGrowthChartsView(baby: baby)
                         // --- UNIFIED GROWTH, HEALTH & ACTIVITY CARD ---
                         VStack(alignment: .leading, spacing: 24) {
                             // Growth Charts Header
                             HStack {
                                 Image(systemName: "chart.line.uptrend.xyaxis")
+                                    .font(.title2)
                                     .foregroundColor(.blue)
                                 Text("Growth, Health & Activity")
                                     .font(.title2)
@@ -139,11 +141,12 @@ struct TrackingView: View {
                                     .foregroundColor(.white)
                                 Spacer()
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal, 20)
                             // Vaccination & Health Check Reminders
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack {
                                     Image(systemName: "cross.case.fill")
+                                        .font(.title2)
                                         .foregroundColor(.green)
                                     Text("Vaccination & Health Check Reminders")
                                         .font(.title3)
@@ -158,15 +161,15 @@ struct TrackingView: View {
                                         showingVaccinationSheet = true
                                     }) {
                                         Image(systemName: "plus.circle.fill")
-                                            .font(.title3)
+                                            .font(.title2)
                                             .foregroundColor(.green)
                                     }
                                 }
-                                .padding(.horizontal)
+                                .padding(.horizontal, 20)
                                 if dataManager.vaccinations.isEmpty {
                                     Text("No reminders yet. Tap + to add.")
                                         .foregroundColor(.white.opacity(0.7))
-                                        .padding(.horizontal)
+                                        .padding(.horizontal, 20)
                                 } else {
                                     VStack(alignment: .leading, spacing: 6) {
                                         ForEach(dataManager.vaccinations.sorted { $0.date < $1.date }) { record in
@@ -187,12 +190,14 @@ struct TrackingView: View {
                                                 Spacer()
                                                 if record.isCompleted {
                                                     Image(systemName: "checkmark.circle.fill")
+                                                        .font(.title2)
                                                         .foregroundColor(.green)
                                                 } else {
                                                     Button(action: {
                                                         markVaccinationComplete(record)
                                                     }) {
                                                         Image(systemName: "checkmark.circle")
+                                                            .font(.title2)
                                                             .foregroundColor(.gray)
                                                     }
                                                 }
@@ -204,19 +209,21 @@ struct TrackingView: View {
                                                     showingVaccinationSheet = true
                                                 }) {
                                                     Image(systemName: "pencil")
+                                                        .font(.title2)
                                                         .foregroundColor(.yellow)
                                                 }
                                             }
                                             .padding(.vertical, 2)
                                         }
                                     }
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 20)
                                 }
                             }
                             // Solid Food Tracker
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack {
                                     Image(systemName: "fork.knife")
+                                        .font(.title2)
                                         .foregroundColor(.pink)
                                     Text("Solid Food Tracker")
                                         .font(.title3)
@@ -231,15 +238,15 @@ struct TrackingView: View {
                                         showingSolidFoodSheet = true
                                     }) {
                                         Image(systemName: "plus.circle.fill")
-                                            .font(.title3)
+                                            .font(.title2)
                                             .foregroundColor(.pink)
                                     }
                                 }
-                                .padding(.horizontal)
+                                .padding(.horizontal, 20)
                                 if dataManager.solidFoodRecords.isEmpty {
                                     Text("No solid foods logged yet. Tap + to add.")
                                         .foregroundColor(.white.opacity(0.7))
-                                        .padding(.horizontal)
+                                        .padding(.horizontal, 20)
                                 } else {
                                     VStack(alignment: .leading, spacing: 8) {
                                         ForEach(dataManager.solidFoodRecords.sorted { $0.date > $1.date }) { record in
@@ -259,19 +266,21 @@ struct TrackingView: View {
                                                 }
                                                 Spacer()
                                                 Image(systemName: record.reaction.icon)
+                                                    .font(.title2)
                                                     .foregroundColor(record.reaction.color)
                                                     .font(.title3)
                                             }
                                             .padding(.vertical, 4)
                                         }
                                     }
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 20)
                                 }
                             }
                             // Sleep Pattern Tracker
                             VStack(alignment: .leading, spacing: 12) {
                                 HStack {
                                     Image(systemName: "bed.double.fill")
+                                        .font(.title2)
                                         .foregroundColor(.indigo)
                                     Text("Sleep Pattern Tracker")
                                         .font(.title3)
@@ -287,15 +296,15 @@ struct TrackingView: View {
                                         showingSleepPatternSheet = true
                                     }) {
                                         Image(systemName: "plus.circle.fill")
-                                            .font(.title3)
+                                            .font(.title2)
                                             .foregroundColor(.indigo)
                                     }
                                 }
-                                .padding(.horizontal)
+                                .padding(.horizontal, 20)
                                 if dataManager.sleepRecords.isEmpty {
                                     Text("No sleep data yet. Tap + to add.")
                                         .foregroundColor(.white.opacity(0.7))
-                                        .padding(.horizontal)
+                                        .padding(.horizontal, 20)
                                 } else {
                                     // Sleep summary
                                     let todaySleeps = dataManager.sleepRecords.filter { 
@@ -315,7 +324,7 @@ struct TrackingView: View {
                                             .font(.caption)
                                             .foregroundColor(.blue)
                                     }
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 20)
                                     // Recent sleep records
                                     VStack(alignment: .leading, spacing: 6) {
                                         ForEach(dataManager.sleepRecords.sorted { $0.startTime > $1.startTime }.prefix(5)) { record in
@@ -344,19 +353,22 @@ struct TrackingView: View {
                                             .padding(.vertical, 2)
                                         }
                                     }
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 20)
                                 }
                             }
                         }
-                        .padding()
-                        .background(Color.white.opacity(0.08))
-                        .cornerRadius(18)
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                        )
                         // --- END UNIFIED CARD ---
                         // Data Export Section
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
                                 Image(systemName: "square.and.arrow.up")
+                                    .font(.title2)
                                     .foregroundColor(.cyan)
                                 Text("Data Export")
                                     .font(.title2)
@@ -371,13 +383,13 @@ struct TrackingView: View {
                                         .foregroundColor(.cyan)
                                 }
                             }
-                            .padding(.horizontal)
+                            .padding(.horizontal, 20)
                             
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Export your baby's data for backup or sharing with healthcare providers.")
                                     .font(.caption)
                                     .foregroundColor(.white.opacity(0.8))
-                                    .padding(.horizontal)
+                                    .padding(.horizontal, 20)
                                 
                                 Button(action: {
                                     showingDataExport = true
@@ -386,10 +398,15 @@ struct TrackingView: View {
                                         .font(.caption)
                                         .foregroundColor(.cyan)
                                 }
-                                .padding(.horizontal)
+                                .padding(.horizontal, 20)
                             }
                         }
-                        .padding(.vertical, 10)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                        )
                     } else {
                         EmptyBabyCard {
                             showingBabyForm = true
@@ -403,14 +420,14 @@ struct TrackingView: View {
                     VStack(alignment: .leading, spacing: 20) {
                         HStack {
                             Image(systemName: "chart.bar.fill")
-                                .foregroundColor(.cyan)
                                 .font(.title2)
+                                .foregroundColor(.cyan)
                             Text("Today's Summary")
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
                         .opacity(animateContent ? 1 : 0)
                         .animation(.easeIn(duration: 0.8).delay(0.6), value: animateContent)
                         
@@ -442,21 +459,27 @@ struct TrackingView: View {
                             .offset(x: animateContent ? 0 : -50)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.9), value: animateContent)
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.1))
+                    )
                     
                     // Enhanced Recent Activity
                     VStack(alignment: .leading, spacing: 20) {
                         HStack {
                             Image(systemName: "clock.fill")
-                                .foregroundColor(.green)
                                 .font(.title2)
+                                .foregroundColor(.green)
                             Text("Recent Activity")
                                 .font(.title2)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
                         .opacity(animateContent ? 1 : 0)
                         .animation(.easeIn(duration: 0.8).delay(1.0), value: animateContent)
                         
@@ -467,8 +490,14 @@ struct TrackingView: View {
                                     .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.1 + Double(index) * 0.1), value: animateContent)
                             }
                         }
-                        .padding(.horizontal)
+                        .padding(.horizontal, 20)
                     }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.1))
+                    )
                 }
                 .padding(.vertical, 20)
             }
@@ -826,6 +855,138 @@ struct TrackingView: View {
         } else {
             return "\(m)m"
         }
+    }
+}
+
+// Animated Growth Charts View
+import Charts
+struct AnimatedGrowthChartsView: View {
+    let baby: Baby
+    @State private var animateWeight = false
+    @State private var animateHeight = false
+    @State private var animateHead = false
+    
+    var body: some View {
+        VStack(spacing: 24) {
+            // Weight Chart
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .foregroundColor(.blue)
+                    Text("Weight Growth")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Spacer()
+                }
+                .padding(.horizontal)
+                if !baby.weightHistory.isEmpty {
+                    Chart(baby.weightHistory.sorted { $0.date < $1.date }) { entry in
+                        LineMark(
+                            x: .value("Date", entry.date),
+                            y: .value("Weight (kg)", animateWeight ? entry.weight : 0)
+                        )
+                        .foregroundStyle(.blue)
+                        .interpolationMethod(.catmullRom)
+                        PointMark(
+                            x: .value("Date", entry.date),
+                            y: .value("Weight (kg)", animateWeight ? entry.weight : 0)
+                        )
+                        .foregroundStyle(.blue)
+                    }
+                    .frame(height: 160)
+                    .padding(.horizontal)
+                    .onAppear {
+                        withAnimation(.easeOut(duration: 1.2)) { animateWeight = true }
+                    }
+                } else {
+                    Text("No weight data yet. Add your baby's weight to see progress!")
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal)
+                }
+            }
+            .background(Color(.systemGray6).opacity(0.15))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            // Height Chart
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "ruler")
+                        .foregroundColor(.purple)
+                    Text("Height/Length Growth")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Spacer()
+                }
+                .padding(.horizontal)
+                if !baby.heightHistory.isEmpty {
+                    Chart(baby.heightHistory.sorted { $0.date < $1.date }) { entry in
+                        LineMark(
+                            x: .value("Date", entry.date),
+                            y: .value("Height (cm)", animateHeight ? entry.value : 0)
+                        )
+                        .foregroundStyle(.purple)
+                        .interpolationMethod(.catmullRom)
+                        PointMark(
+                            x: .value("Date", entry.date),
+                            y: .value("Height (cm)", animateHeight ? entry.value : 0)
+                        )
+                        .foregroundStyle(.purple)
+                    }
+                    .frame(height: 160)
+                    .padding(.horizontal)
+                    .onAppear {
+                        withAnimation(.easeOut(duration: 1.2)) { animateHeight = true }
+                    }
+                } else {
+                    Text("No height data yet. Add your baby's height to see progress!")
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal)
+                }
+            }
+            .background(Color(.systemGray6).opacity(0.15))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            // Head Circumference Chart
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    Image(systemName: "circle.grid.cross")
+                        .foregroundColor(.orange)
+                    Text("Head Circumference Growth")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                    Spacer()
+                }
+                .padding(.horizontal)
+                if !baby.headCircumferenceHistory.isEmpty {
+                    Chart(baby.headCircumferenceHistory.sorted { $0.date < $1.date }) { entry in
+                        LineMark(
+                            x: .value("Date", entry.date),
+                            y: .value("Head Circumference (cm)", animateHead ? entry.value : 0)
+                        )
+                        .foregroundStyle(.orange)
+                        .interpolationMethod(.catmullRom)
+                        PointMark(
+                            x: .value("Date", entry.date),
+                            y: .value("Head Circumference (cm)", animateHead ? entry.value : 0)
+                        )
+                        .foregroundStyle(.orange)
+                    }
+                    .frame(height: 160)
+                    .padding(.horizontal)
+                    .onAppear {
+                        withAnimation(.easeOut(duration: 1.2)) { animateHead = true }
+                    }
+                } else {
+                    Text("No head circumference data yet. Add your baby's measurement to see progress!")
+                        .foregroundColor(.secondary)
+                        .padding(.horizontal)
+                }
+            }
+            .background(Color(.systemGray6).opacity(0.15))
+            .cornerRadius(12)
+            .padding(.horizontal)
+        }
+        .padding(.vertical, 8)
     }
 }
 

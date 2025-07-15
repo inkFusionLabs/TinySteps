@@ -105,7 +105,7 @@ struct MeasurementEntry: Identifiable, Codable {
 }
 
 // Enhanced Feeding Records
-struct FeedingRecord: Identifiable, Codable {
+struct FeedingRecord: Identifiable, Codable, Hashable {
     var id: UUID = UUID()
     let date: Date
     let type: FeedingType
@@ -141,10 +141,19 @@ struct FeedingRecord: Identifiable, Codable {
         case right = "Right"
         case both = "Both"
     }
+    
+    // Hashable conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: FeedingRecord, rhs: FeedingRecord) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 // Enhanced Nappy Records
-struct NappyRecord: Identifiable, Codable {
+struct NappyRecord: Identifiable, Codable, Hashable {
     var id: UUID = UUID()
     let date: Date
     let type: NappyType
@@ -171,10 +180,19 @@ struct NappyRecord: Identifiable, Codable {
             }
         }
     }
+    
+    // Hashable conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: NappyRecord, rhs: NappyRecord) -> Bool {
+        return lhs.id == rhs.id
+    }
 }
 
 // New Sleep Records
-struct SleepRecord: Identifiable, Codable {
+struct SleepRecord: Identifiable, Codable, Hashable {
     var id: UUID = UUID()
     let startTime: Date
     let endTime: Date?
@@ -226,6 +244,15 @@ struct SleepRecord: Identifiable, Codable {
             case .other: return "bed.double"
             }
         }
+    }
+    
+    // Hashable conformance
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+    
+    static func == (lhs: SleepRecord, rhs: SleepRecord) -> Bool {
+        return lhs.id == rhs.id
     }
 }
 
@@ -525,12 +552,12 @@ struct PartnerSupport: Identifiable, Codable {
 // Emergency Contacts & Quick Actions
 struct EmergencyContact: Identifiable, Codable {
     var id: UUID = UUID()
-    let name: String
-    let relationship: String
-    let phoneNumber: String
-    let isEmergency: Bool
-    let canPickup: Bool
-    let notes: String?
+    var name: String
+    var relationship: String
+    var phoneNumber: String
+    var isEmergency: Bool
+    var canPickup: Bool
+    var notes: String?
     
     enum ContactType: String, CaseIterable, Codable {
         case partner = "Partner"
@@ -659,8 +686,6 @@ class BabyDataManager: ObservableObject {
     @Published var reminders: [Reminder] = []
     @Published var vaccinations: [VaccinationRecord] = []
     @Published var solidFoodRecords: [SolidFoodRecord] = []
-    
-    // New features
     @Published var wellnessEntries: [WellnessEntry] = []
     @Published var partnerSupports: [PartnerSupport] = []
     @Published var emergencyContacts: [EmergencyContact] = []
@@ -669,217 +694,572 @@ class BabyDataManager: ObservableObject {
     @Published var developmentChecklists: [DevelopmentChecklist] = []
     @Published var appointments: [Appointment] = []
     
+    // Performance optimizations
     private let userDefaults = UserDefaults.standard
+    private var isDataLoaded = false
+    private var lastSaveTime: Date = Date()
+    private let saveDebounceInterval: TimeInterval = 1.0 // Save only once per second
+    private var saveTimer: Timer?
+    
+    // Cached computed values
+    private var cachedTodayFeedingCount: Int?
+    private var cachedTodayNappyCount: Int?
+    private var cachedTodaySleepHours: Double?
+    private var cachedLastFeeding: FeedingRecord?
+    private var lastCacheUpdate: Date = Date()
+    private let cacheValidityDuration: TimeInterval = 300 // 5 minutes
+    
+    // Lazy loading support
+    private var isInitialized = false
     
     init() {
         loadData()
         setupDefaultMilestones()
         setupDefaultAchievements()
-        setupDefaultVaccinations()
+        isInitialized = true
     }
     
-    // MARK: - Data Persistence
+    // MARK: - Performance Optimized Data Loading
+    
     private func loadData() {
-        if let babyData = userDefaults.data(forKey: "baby"),
-           let baby = try? JSONDecoder().decode(Baby.self, from: babyData) {
-            self.baby = baby
-        }
+        guard !isDataLoaded else { return }
         
-        if let feedingData = userDefaults.data(forKey: "feedingRecords"),
-           let feedings = try? JSONDecoder().decode([FeedingRecord].self, from: feedingData) {
-            self.feedingRecords = feedings
-        }
-        
-        if let nappyData = userDefaults.data(forKey: "nappyRecords"),
-           let nappies = try? JSONDecoder().decode([NappyRecord].self, from: nappyData) {
-            self.nappyRecords = nappies
-        }
-        
-        if let sleepData = userDefaults.data(forKey: "sleepRecords"),
-           let sleeps = try? JSONDecoder().decode([SleepRecord].self, from: sleepData) {
-            self.sleepRecords = sleeps
-        }
-        
-        if let milestoneData = userDefaults.data(forKey: "milestones"),
-           let milestones = try? JSONDecoder().decode([Milestone].self, from: milestoneData) {
-            self.milestones = milestones
-        }
-        
-        if let achievementData = userDefaults.data(forKey: "achievements"),
-           let achievements = try? JSONDecoder().decode([DadAchievement].self, from: achievementData) {
-            self.achievements = achievements
-        }
-        
-        if let reminderData = userDefaults.data(forKey: "reminders"),
-           let reminders = try? JSONDecoder().decode([Reminder].self, from: reminderData) {
-            self.reminders = reminders
-        }
-        
-        if let vaccinationData = userDefaults.data(forKey: "vaccinations"),
-           let vaccinations = try? JSONDecoder().decode([VaccinationRecord].self, from: vaccinationData) {
-            self.vaccinations = vaccinations
-        }
-        
-        if let solidFoodData = userDefaults.data(forKey: "solidFoodRecords"),
-           let solidFoods = try? JSONDecoder().decode([SolidFoodRecord].self, from: solidFoodData) {
-            self.solidFoodRecords = solidFoods
-        }
-        
-        // Load new features
-        if let wellnessData = userDefaults.data(forKey: "wellnessEntries"),
-           let wellness = try? JSONDecoder().decode([WellnessEntry].self, from: wellnessData) {
-            self.wellnessEntries = wellness
-        }
-        
-        if let supportData = userDefaults.data(forKey: "partnerSupports"),
-           let supports = try? JSONDecoder().decode([PartnerSupport].self, from: supportData) {
-            self.partnerSupports = supports
-        }
-        
-        if let contactData = userDefaults.data(forKey: "emergencyContacts"),
-           let contacts = try? JSONDecoder().decode([EmergencyContact].self, from: contactData) {
-            self.emergencyContacts = contacts
-        }
-        
-        if let actionData = userDefaults.data(forKey: "quickActions"),
-           let actions = try? JSONDecoder().decode([QuickAction].self, from: actionData) {
-            self.quickActions = actions
-        }
-        
-        if let predictionData = userDefaults.data(forKey: "growthPredictions"),
-           let predictions = try? JSONDecoder().decode([GrowthPrediction].self, from: predictionData) {
-            self.growthPredictions = predictions
-        }
-        
-        if let checklistData = userDefaults.data(forKey: "developmentChecklists"),
-           let checklists = try? JSONDecoder().decode([DevelopmentChecklist].self, from: checklistData) {
-            self.developmentChecklists = checklists
-        }
-        
-        if let appointmentData = userDefaults.data(forKey: "appointments"),
-           let appointments = try? JSONDecoder().decode([Appointment].self, from: appointmentData) {
-            self.appointments = appointments
+        // Load data in background to avoid blocking UI
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self = self else { return }
+            
+            let loadedData = self.loadDataFromStorage()
+            
+            DispatchQueue.main.async {
+                self.applyLoadedData(loadedData)
+                self.isDataLoaded = true
+            }
         }
     }
+    
+    private func loadDataFromStorage() -> [String: Any] {
+        var data: [String: Any] = [:]
+        let dataQueue = DispatchQueue(label: "com.tinysteps.datasafety", attributes: .serial)
+        
+        // Load all data in parallel
+        let group = DispatchGroup()
+        let queue = DispatchQueue(label: "com.tinysteps.dataloading", attributes: .concurrent)
+        
+        // Baby data
+        group.enter()
+        queue.async {
+            if let babyData = self.userDefaults.data(forKey: "baby"),
+               let baby = try? JSONDecoder().decode(Baby.self, from: babyData) {
+                dataQueue.async {
+                    data["baby"] = baby
+                }
+            }
+            group.leave()
+        }
+        
+        // Feeding records
+        group.enter()
+        queue.async {
+            if let feedingData = self.userDefaults.data(forKey: "feedingRecords"),
+               let feedings = try? JSONDecoder().decode([FeedingRecord].self, from: feedingData) {
+                dataQueue.async {
+                    data["feedingRecords"] = feedings
+                }
+            }
+            group.leave()
+        }
+        
+        // Nappy records
+        group.enter()
+        queue.async {
+            if let nappyData = self.userDefaults.data(forKey: "nappyRecords"),
+               let nappies = try? JSONDecoder().decode([NappyRecord].self, from: nappyData) {
+                dataQueue.async {
+                    data["nappyRecords"] = nappies
+                }
+            }
+            group.leave()
+        }
+        
+        // Sleep records
+        group.enter()
+        queue.async {
+            if let sleepData = self.userDefaults.data(forKey: "sleepRecords"),
+               let sleeps = try? JSONDecoder().decode([SleepRecord].self, from: sleepData) {
+                dataQueue.async {
+                    data["sleepRecords"] = sleeps
+                }
+            }
+            group.leave()
+        }
+        
+        // Other records (load in batches for efficiency)
+        let recordKeys = ["milestones", "achievements", "reminders", "vaccinations", "solidFoodRecords", "wellnessEntries", "partnerSupports", "emergencyContacts", "quickActions", "growthPredictions", "developmentChecklists", "appointments"]
+        
+        for key in recordKeys {
+            group.enter()
+            queue.async {
+                if let recordData = self.userDefaults.data(forKey: key) {
+                    switch key {
+                    case "milestones":
+                        if let records = try? JSONDecoder().decode([Milestone].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "achievements":
+                        if let records = try? JSONDecoder().decode([DadAchievement].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "reminders":
+                        if let records = try? JSONDecoder().decode([Reminder].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "vaccinations":
+                        if let records = try? JSONDecoder().decode([VaccinationRecord].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "solidFoodRecords":
+                        if let records = try? JSONDecoder().decode([SolidFoodRecord].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "wellnessEntries":
+                        if let records = try? JSONDecoder().decode([WellnessEntry].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "partnerSupports":
+                        if let records = try? JSONDecoder().decode([PartnerSupport].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "emergencyContacts":
+                        if let records = try? JSONDecoder().decode([EmergencyContact].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "quickActions":
+                        if let records = try? JSONDecoder().decode([QuickAction].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "growthPredictions":
+                        if let records = try? JSONDecoder().decode([GrowthPrediction].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "developmentChecklists":
+                        if let records = try? JSONDecoder().decode([DevelopmentChecklist].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    case "appointments":
+                        if let records = try? JSONDecoder().decode([Appointment].self, from: recordData) {
+                            dataQueue.async {
+                                data[key] = records
+                            }
+                        }
+                    default:
+                        break
+                    }
+                }
+                group.leave()
+            }
+        }
+        
+        group.wait()
+        return data
+    }
+    
+    private func applyLoadedData(_ data: [String: Any]) {
+        baby = data["baby"] as? Baby
+        feedingRecords = data["feedingRecords"] as? [FeedingRecord] ?? []
+        nappyRecords = data["nappyRecords"] as? [NappyRecord] ?? []
+        sleepRecords = data["sleepRecords"] as? [SleepRecord] ?? []
+        milestones = data["milestones"] as? [Milestone] ?? []
+        achievements = data["achievements"] as? [DadAchievement] ?? []
+        reminders = data["reminders"] as? [Reminder] ?? []
+        vaccinations = data["vaccinations"] as? [VaccinationRecord] ?? []
+        solidFoodRecords = data["solidFoodRecords"] as? [SolidFoodRecord] ?? []
+        wellnessEntries = data["wellnessEntries"] as? [WellnessEntry] ?? []
+        partnerSupports = data["partnerSupports"] as? [PartnerSupport] ?? []
+        emergencyContacts = data["emergencyContacts"] as? [EmergencyContact] ?? []
+        quickActions = data["quickActions"] as? [QuickAction] ?? []
+        growthPredictions = data["growthPredictions"] as? [GrowthPrediction] ?? []
+        developmentChecklists = data["developmentChecklists"] as? [DevelopmentChecklist] ?? []
+        appointments = data["appointments"] as? [Appointment] ?? []
+    }
+    
+    // MARK: - Optimized Save Data
     
     func saveData() {
-        if let baby = baby,
-           let babyData = try? JSONEncoder().encode(baby) {
-            userDefaults.set(babyData, forKey: "baby")
-        }
-        
-        if let feedingData = try? JSONEncoder().encode(feedingRecords) {
-            userDefaults.set(feedingData, forKey: "feedingRecords")
-        }
-        
-        if let nappyData = try? JSONEncoder().encode(nappyRecords) {
-            userDefaults.set(nappyData, forKey: "nappyRecords")
-        }
-        
-        if let sleepData = try? JSONEncoder().encode(sleepRecords) {
-            userDefaults.set(sleepData, forKey: "sleepRecords")
-        }
-        
-        if let milestoneData = try? JSONEncoder().encode(milestones) {
-            userDefaults.set(milestoneData, forKey: "milestones")
-        }
-        
-        if let achievementData = try? JSONEncoder().encode(achievements) {
-            userDefaults.set(achievementData, forKey: "achievements")
-        }
-        
-        if let reminderData = try? JSONEncoder().encode(reminders) {
-            userDefaults.set(reminderData, forKey: "reminders")
-        }
-        
-        if let vaccinationData = try? JSONEncoder().encode(vaccinations) {
-            userDefaults.set(vaccinationData, forKey: "vaccinations")
-        }
-        
-        if let solidFoodData = try? JSONEncoder().encode(solidFoodRecords) {
-            userDefaults.set(solidFoodData, forKey: "solidFoodRecords")
-        }
-        
-        // Save new features
-        if let wellnessData = try? JSONEncoder().encode(wellnessEntries) {
-            userDefaults.set(wellnessData, forKey: "wellnessEntries")
-        }
-        
-        if let supportData = try? JSONEncoder().encode(partnerSupports) {
-            userDefaults.set(supportData, forKey: "partnerSupports")
-        }
-        
-        if let contactData = try? JSONEncoder().encode(emergencyContacts) {
-            userDefaults.set(contactData, forKey: "emergencyContacts")
-        }
-        
-        if let actionData = try? JSONEncoder().encode(quickActions) {
-            userDefaults.set(actionData, forKey: "quickActions")
-        }
-        
-        if let predictionData = try? JSONEncoder().encode(growthPredictions) {
-            userDefaults.set(predictionData, forKey: "growthPredictions")
-        }
-        
-        if let checklistData = try? JSONEncoder().encode(developmentChecklists) {
-            userDefaults.set(checklistData, forKey: "developmentChecklists")
-        }
-        
-        if let appointmentData = try? JSONEncoder().encode(appointments) {
-            userDefaults.set(appointmentData, forKey: "appointments")
+        // Debounce saves to avoid excessive I/O
+        saveTimer?.invalidate()
+        saveTimer = Timer.scheduledTimer(withTimeInterval: saveDebounceInterval, repeats: false) { [weak self] _ in
+            self?.performSave()
         }
     }
     
-    // MARK: - Feeding Methods
-    func addFeedingRecord(_ record: FeedingRecord) {
-        feedingRecords.append(record)
-        saveData()
-        checkAchievements()
+    private func performSave() {
+        // Invalidate cache when data changes
+        invalidateCache()
+        
+        // Save in background to avoid blocking UI
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            guard let self = self else { return }
+            self.saveDataToStorage()
+        }
     }
     
-    func getTodayFeedingCount() -> Int {
+    private func saveDataToStorage() {
+        let encoder = JSONEncoder()
+        
+        // Save data in parallel
+        let group = DispatchGroup()
+        let queue = DispatchQueue(label: "com.tinysteps.datasaving", attributes: .concurrent)
+        
+        // Baby data
+        if let baby = baby {
+            group.enter()
+            queue.async {
+                if let babyData = try? encoder.encode(baby) {
+                    self.userDefaults.set(babyData, forKey: "baby")
+                }
+                group.leave()
+            }
+        }
+        
+        // Records data - encode each type separately
+        // Feeding records
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.feedingRecords) {
+                self.userDefaults.set(data, forKey: "feedingRecords")
+            }
+            group.leave()
+        }
+        
+        // Nappy records
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.nappyRecords) {
+                self.userDefaults.set(data, forKey: "nappyRecords")
+            }
+            group.leave()
+        }
+        
+        // Sleep records
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.sleepRecords) {
+                self.userDefaults.set(data, forKey: "sleepRecords")
+            }
+            group.leave()
+        }
+        
+        // Milestones
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.milestones) {
+                self.userDefaults.set(data, forKey: "milestones")
+            }
+            group.leave()
+        }
+        
+        // Achievements
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.achievements) {
+                self.userDefaults.set(data, forKey: "achievements")
+            }
+            group.leave()
+        }
+        
+        // Reminders
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.reminders) {
+                self.userDefaults.set(data, forKey: "reminders")
+            }
+            group.leave()
+        }
+        
+        // Vaccinations
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.vaccinations) {
+                self.userDefaults.set(data, forKey: "vaccinations")
+            }
+            group.leave()
+        }
+        
+        // Solid food records
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.solidFoodRecords) {
+                self.userDefaults.set(data, forKey: "solidFoodRecords")
+            }
+            group.leave()
+        }
+        
+        // Wellness entries
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.wellnessEntries) {
+                self.userDefaults.set(data, forKey: "wellnessEntries")
+            }
+            group.leave()
+        }
+        
+        // Partner supports
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.partnerSupports) {
+                self.userDefaults.set(data, forKey: "partnerSupports")
+            }
+            group.leave()
+        }
+        
+        // Emergency contacts
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.emergencyContacts) {
+                self.userDefaults.set(data, forKey: "emergencyContacts")
+            }
+            group.leave()
+        }
+        
+        // Quick actions
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.quickActions) {
+                self.userDefaults.set(data, forKey: "quickActions")
+            }
+            group.leave()
+        }
+        
+        // Growth predictions
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.growthPredictions) {
+                self.userDefaults.set(data, forKey: "growthPredictions")
+            }
+            group.leave()
+        }
+        
+        // Development checklists
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.developmentChecklists) {
+                self.userDefaults.set(data, forKey: "developmentChecklists")
+            }
+            group.leave()
+        }
+        
+        // Appointments
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.appointments) {
+                self.userDefaults.set(data, forKey: "appointments")
+            }
+            group.leave()
+        }
+        
+        group.wait()
+        lastSaveTime = Date()
+    }
+    
+    // MARK: - Cache Management
+    
+    private func invalidateCache() {
+        cachedTodayFeedingCount = nil
+        cachedTodayNappyCount = nil
+        cachedTodaySleepHours = nil
+        cachedLastFeeding = nil
+        lastCacheUpdate = Date()
+    }
+    
+    private func shouldUpdateCache() -> Bool {
+        return Date().timeIntervalSince(lastCacheUpdate) > cacheValidityDuration
+    }
+    
+    private func updateCache() {
         let today = Calendar.current.startOfDay(for: Date())
-        return feedingRecords.filter { Calendar.current.isDate($0.date, inSameDayAs: today) }.count
-    }
-    
-    func getNextFeedingTime() -> Date? {
-        // Simple logic - could be enhanced with ML
-        let lastFeeding = feedingRecords.last
-        guard let lastFeeding = lastFeeding else { return nil }
         
-        // Assume 3-4 hours between feedings
-        return Calendar.current.date(byAdding: .hour, value: 3, to: lastFeeding.date)
-    }
-    
-    // MARK: - Nappy Methods
-    func addNappyRecord(_ record: NappyRecord) {
-        nappyRecords.append(record)
-        saveData()
-        checkAchievements()
-    }
-    
-    func getTodayNappyCount() -> Int {
-        let today = Calendar.current.startOfDay(for: Date())
-        return nappyRecords.filter { Calendar.current.isDate($0.date, inSameDayAs: today) }.count
-    }
-    
-    // MARK: - Sleep Methods
-    func addSleepRecord(_ record: SleepRecord) {
-        sleepRecords.append(record)
-        saveData()
-        checkAchievements()
-    }
-    
-    func getTodaySleepHours() -> Double {
-        let today = Calendar.current.startOfDay(for: Date())
+        cachedTodayFeedingCount = feedingRecords.filter { Calendar.current.isDate($0.date, inSameDayAs: today) }.count
+        cachedTodayNappyCount = nappyRecords.filter { Calendar.current.isDate($0.date, inSameDayAs: today) }.count
+        
         let todaySleeps = sleepRecords.filter { Calendar.current.isDate($0.startTime, inSameDayAs: today) }
-        
-        return todaySleeps.reduce(0) { total, sleep in
+        cachedTodaySleepHours = todaySleeps.reduce(0) { total, sleep in
             if let endTime = sleep.endTime {
                 return total + endTime.timeIntervalSince(sleep.startTime) / 3600
             }
             return total
         }
+        
+        cachedLastFeeding = feedingRecords.last
+        lastCacheUpdate = Date()
+    }
+    
+    // MARK: - Optimized Data Methods
+    
+    func addFeedingRecord(_ record: FeedingRecord) {
+        feedingRecords.append(record)
+        invalidateCache()
+        saveData()
+        checkAchievements()
+    }
+    
+    func getTodayFeedingCount() -> Int {
+        if shouldUpdateCache() {
+            updateCache()
+        }
+        return cachedTodayFeedingCount ?? 0
+    }
+    
+    func getTodayNappyCount() -> Int {
+        if shouldUpdateCache() {
+            updateCache()
+        }
+        return cachedTodayNappyCount ?? 0
+    }
+    
+    func getTodaySleepHours() -> Double {
+        if shouldUpdateCache() {
+            updateCache()
+        }
+        return cachedTodaySleepHours ?? 0.0
+    }
+    
+    func getTodaySleepCount() -> Int {
+        let today = Calendar.current.startOfDay(for: Date())
+        return sleepRecords.filter { Calendar.current.isDate($0.startTime, inSameDayAs: today) }.count
+    }
+    
+    func getNextFeedingTime() -> Date? {
+        if shouldUpdateCache() {
+            updateCache()
+        }
+        guard let lastFeeding = cachedLastFeeding else { return nil }
+        return Calendar.current.date(byAdding: .hour, value: 3, to: lastFeeding.date)
+    }
+    
+    func addNappyRecord(_ record: NappyRecord) {
+        nappyRecords.append(record)
+        invalidateCache()
+        saveData()
+        checkAchievements()
+    }
+    
+    func addSleepRecord(_ record: SleepRecord) {
+        sleepRecords.append(record)
+        invalidateCache()
+        saveData()
+        checkAchievements()
+    }
+    
+    // MARK: - Optimized Data Queries
+    
+    func getRecentRecords(limit: Int = 10) -> [RecordType] {
+        var recentRecords: [RecordType] = []
+        
+        // Get recent feedings
+        let recentFeedings = Array(feedingRecords.suffix(limit))
+        recentRecords.append(contentsOf: recentFeedings.map { .feeding($0) })
+        
+        // Get recent sleep records
+        let recentSleeps = Array(sleepRecords.suffix(limit))
+        recentRecords.append(contentsOf: recentSleeps.map { .sleep($0) })
+        
+        // Get recent nappy records
+        let recentNappies = Array(nappyRecords.suffix(limit))
+        recentRecords.append(contentsOf: recentNappies.map { .nappy($0) })
+        
+        // Sort by date and return limited results
+        return recentRecords.sorted { $0.recordDate > $1.recordDate }.prefix(limit).map { $0 }
+    }
+    
+    func getRecordsForDate(_ date: Date) -> [RecordType] {
+        let startOfDay = Calendar.current.startOfDay(for: date)
+        let endOfDay = Calendar.current.date(byAdding: .day, value: 1, to: startOfDay) ?? date
+        
+        var dayRecords: [RecordType] = []
+        
+        // Get feedings for the day
+        let dayFeedings = feedingRecords.filter { record in
+            record.date >= startOfDay && record.date < endOfDay
+        }
+        dayRecords.append(contentsOf: dayFeedings.map { .feeding($0) })
+        
+        // Get sleep records for the day
+        let daySleeps = sleepRecords.filter { record in
+            record.startTime >= startOfDay && record.startTime < endOfDay
+        }
+        dayRecords.append(contentsOf: daySleeps.map { .sleep($0) })
+        
+        // Get nappy records for the day
+        let dayNappies = nappyRecords.filter { record in
+            record.date >= startOfDay && record.date < endOfDay
+        }
+        dayRecords.append(contentsOf: dayNappies.map { .nappy($0) })
+        
+        return dayRecords.sorted { $0.recordDate > $1.recordDate }
+    }
+    
+    // MARK: - Performance Monitoring
+    
+    func getPerformanceStats() -> [String: Any] {
+        return [
+            "totalRecords": feedingRecords.count + nappyRecords.count + sleepRecords.count,
+            "lastSaveTime": lastSaveTime,
+            "cacheAge": Date().timeIntervalSince(lastCacheUpdate),
+            "isDataLoaded": isDataLoaded,
+            "isInitialized": isInitialized
+        ]
+    }
+    
+    // MARK: - Memory Management
+    
+    func cleanupOldRecords() {
+        let calendar = Calendar.current
+        let oneYearAgo = calendar.date(byAdding: .year, value: -1, to: Date()) ?? Date()
+        
+        // Keep only records from the last year
+        feedingRecords = feedingRecords.filter { $0.date > oneYearAgo }
+        nappyRecords = nappyRecords.filter { $0.date > oneYearAgo }
+        sleepRecords = sleepRecords.filter { $0.startTime > oneYearAgo }
+        
+        invalidateCache()
+        saveData()
+    }
+    
+    func optimizeStorage() {
+        // Remove duplicate records
+        feedingRecords = Array(Set(feedingRecords))
+        nappyRecords = Array(Set(nappyRecords))
+        sleepRecords = Array(Set(sleepRecords))
+        
+        // Sort records for better performance
+        feedingRecords.sort { $0.date > $1.date }
+        nappyRecords.sort { $0.date > $1.date }
+        sleepRecords.sort { $0.startTime > $1.startTime }
+        
+        invalidateCache()
+        saveData()
     }
     
     // MARK: - Milestone Methods
@@ -1183,6 +1563,40 @@ extension Color {
     static let gold = Color(red: 1.0, green: 0.84, blue: 0.0)
     static let lightGreen = Color(red: 0.4, green: 0.8, blue: 0.4)
 } 
+
+// MARK: - Record Type Protocol and Extensions
+// Protocol for record types that have a date
+protocol DateRecord {
+    var recordDate: Date { get }
+}
+
+// Extensions to make our record types conform to DateRecord
+extension FeedingRecord: DateRecord {
+    var recordDate: Date { date }
+}
+
+extension SleepRecord: DateRecord {
+    var recordDate: Date { startTime }
+}
+
+extension NappyRecord: DateRecord {
+    var recordDate: Date { date }
+}
+
+// Union type for different record types
+enum RecordType {
+    case feeding(FeedingRecord)
+    case sleep(SleepRecord)
+    case nappy(NappyRecord)
+    
+    var recordDate: Date {
+        switch self {
+        case .feeding(let record): return record.date
+        case .sleep(let record): return record.startTime
+        case .nappy(let record): return record.date
+        }
+    }
+}
 
 struct Appointment: Identifiable, Codable {
     var id: UUID = UUID()

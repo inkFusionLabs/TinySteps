@@ -145,22 +145,27 @@ struct HealthVisitorSection: View {
     var body: some View {
         VStack(spacing: 20) {
             // Health Visitor Card
-            VStack(alignment: .leading, spacing: 15) {
-                HStack {
-                    Image(systemName: "cross.case.fill")
-                        .font(.title2)
-                        .foregroundColor(.blue)
-                    Text("Health Visitor")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                    Spacer()
-                }
+            VStack(spacing: 15) {
+                ProfileInfoRow(
+                    icon: "cross.case.fill",
+                    title: "Health Visitor",
+                    value: "0800 123 4567",
+                    color: .blue
+                )
                 
-                VStack(alignment: .leading, spacing: 12) {
-                    InfoRow(icon: "phone.fill", title: "Contact", value: "0800 123 4567")
-                    InfoRow(icon: "envelope.fill", title: "Email", value: "healthvisitor@nhs.uk")
-                    InfoRow(icon: "clock.fill", title: "Hours", value: "Mon-Fri 9AM-5PM")
-                }
+                ProfileInfoRow(
+                    icon: "envelope.fill",
+                    title: "Email",
+                    value: "healthvisitor@nhs.uk",
+                    color: .blue
+                )
+                
+                ProfileInfoRow(
+                    icon: "clock.fill",
+                    title: "Hours",
+                    value: "Mon-Fri 9AM-5PM",
+                    color: .blue
+                )
                 
                 Button(action: {
                     // Call health visitor
@@ -176,9 +181,10 @@ struct HealthVisitorSection: View {
                     .cornerRadius(10)
                 }
             }
-            .padding()
+            .padding(.horizontal, 20)
+            .padding(.vertical, 15)
             .background(Color.white.opacity(0.1))
-            .cornerRadius(15)
+            .cornerRadius(12)
             
             // Recent Notes
             VStack(alignment: .leading, spacing: 15) {
@@ -203,9 +209,12 @@ struct HealthVisitorSection: View {
                     }
                     .padding()
                     .background(Color.white.opacity(0.05))
-                    .cornerRadius(10)
+                    .cornerRadius(8)
                 }
             }
+            .padding()
+            .background(Color.white.opacity(0.1))
+            .cornerRadius(12)
         }
     }
 }
@@ -232,12 +241,32 @@ struct AppointmentsSection: View {
             // Upcoming Appointments
             VStack(spacing: 15) {
                 ForEach(1...3, id: \.self) { index in
-                    AppointmentCard(
-                        title: "Check-up \(index)",
-                        date: "Dec \(index + 15), 2024",
-                        time: "\(9 + index):00 AM",
-                        location: "Neonatal Unit"
-                    )
+                    VStack(spacing: 15) {
+                        ProfileInfoRow(
+                            icon: "calendar",
+                            title: "Check-up \(index)",
+                            value: "Dec \(index + 15), 2024",
+                            color: .green
+                        )
+                        
+                        ProfileInfoRow(
+                            icon: "clock",
+                            title: "Time",
+                            value: "\(9 + index):00 AM",
+                            color: .green
+                        )
+                        
+                        ProfileInfoRow(
+                            icon: "location",
+                            title: "Location",
+                            value: "Neonatal Unit",
+                            color: .green
+                        )
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
                 }
             }
         }
@@ -266,11 +295,25 @@ struct RemindersSection: View {
             // Active Reminders
             VStack(spacing: 15) {
                 ForEach(1...3, id: \.self) { index in
-                    SupportReminderCard(
-                        title: "Feed Baby",
-                        time: "Every \(2 + index) hours",
-                        isActive: true
-                    )
+                    VStack(spacing: 15) {
+                        ProfileInfoRow(
+                            icon: "bell.fill",
+                            title: "Feed Baby",
+                            value: "Every \(2 + index) hours",
+                            color: .orange
+                        )
+                        
+                        ProfileInfoRow(
+                            icon: "checkmark.circle.fill",
+                            title: "Status",
+                            value: "Active",
+                            color: .green
+                        )
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
                 }
             }
         }
@@ -287,11 +330,23 @@ struct TipsSection: View {
             
             LazyVStack(spacing: 15) {
                 ForEach(1...5, id: \.self) { index in
-                    SupportTipCard(
-                        title: "Tip \(index)",
-                        description: "This is a helpful parenting tip for dads with babies in neonatal care.",
-                        category: ["Bonding", "Care", "Support", "Health", "Wellbeing"][index % 5]
-                    )
+                    VStack(spacing: 15) {
+                        ProfileInfoRow(
+                            icon: "lightbulb.fill",
+                            title: "Tip \(index)",
+                            value: ["Bonding", "Care", "Support", "Health", "Wellbeing"][index % 5],
+                            color: .yellow
+                        )
+                        
+                        Text("This is a helpful parenting tip for dads with babies in neonatal care.")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.8))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
                 }
             }
         }
@@ -319,26 +374,56 @@ struct MilestonesSection: View {
             
             // Milestone Progress
             VStack(spacing: 15) {
-                MilestoneProgressCard(
-                    title: "Weight Gain",
-                    current: "2.1kg",
-                    target: "2.5kg",
-                    progress: 0.84
-                )
+                VStack(spacing: 15) {
+                    ProfileInfoRow(
+                        icon: "scalemass.fill",
+                        title: "Weight Gain",
+                        value: "2.1kg / 2.5kg",
+                        color: .purple
+                    )
+                    
+                    ProgressView(value: 0.84)
+                        .progressViewStyle(LinearProgressViewStyle(tint: .purple))
+                        .scaleEffect(y: 2)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 15)
+                .background(Color.white.opacity(0.1))
+                .cornerRadius(12)
                 
-                MilestoneProgressCard(
-                    title: "Feeding",
-                    current: "45ml",
-                    target: "60ml",
-                    progress: 0.75
-                )
+                VStack(spacing: 15) {
+                    ProfileInfoRow(
+                        icon: "drop.fill",
+                        title: "Feeding",
+                        value: "45ml / 60ml",
+                        color: .purple
+                    )
+                    
+                    ProgressView(value: 0.75)
+                        .progressViewStyle(LinearProgressViewStyle(tint: .purple))
+                        .scaleEffect(y: 2)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 15)
+                .background(Color.white.opacity(0.1))
+                .cornerRadius(12)
                 
-                MilestoneProgressCard(
-                    title: "Breathing",
-                    current: "Stable",
-                    target: "Independent",
-                    progress: 0.9
-                )
+                VStack(spacing: 15) {
+                    ProfileInfoRow(
+                        icon: "lungs.fill",
+                        title: "Breathing",
+                        value: "Stable / Independent",
+                        color: .purple
+                    )
+                    
+                    ProgressView(value: 0.9)
+                        .progressViewStyle(LinearProgressViewStyle(tint: .purple))
+                        .scaleEffect(y: 2)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 15)
+                .background(Color.white.opacity(0.1))
+                .cornerRadius(12)
             }
         }
     }
@@ -608,24 +693,26 @@ struct HealthcareMapSection: View {
             
             // Map View
             ZStack {
-                Map(coordinateRegion: $region, annotationItems: healthcarePlaces) { place in
-                    MapAnnotation(coordinate: place.coordinate) {
-                        Button(action: {
-                            selectedHospital = place
-                            showingHospitalDetail = true
-                        }) {
-                            VStack(spacing: 2) {
-                                Image(systemName: place.icon)
-                                    .foregroundColor(.red)
-                                    .background(Circle().fill(.white).frame(width: 30, height: 30))
-                                    .font(.title2)
-                                Text(place.name)
-                                    .font(.caption)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 2)
-                                    .background(Color.black.opacity(0.7))
-                                    .cornerRadius(4)
+                Map(position: .constant(.region(region))) {
+                    ForEach(healthcarePlaces) { place in
+                        Annotation(place.name, coordinate: place.coordinate) {
+                            Button(action: {
+                                selectedHospital = place
+                                showingHospitalDetail = true
+                            }) {
+                                VStack(spacing: 2) {
+                                    Image(systemName: place.icon)
+                                        .foregroundColor(.red)
+                                        .background(Circle().fill(.white).frame(width: 30, height: 30))
+                                        .font(.title2)
+                                    Text(place.name)
+                                        .font(.caption)
+                                        .foregroundColor(.white)
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 2)
+                                        .background(Color.black.opacity(0.7))
+                                        .cornerRadius(4)
+                                }
                             }
                         }
                     }
@@ -897,41 +984,37 @@ struct HealthcarePlaceCard: View {
     let place: HealthcarePlace
     
     var body: some View {
-        HStack {
-            Image(systemName: place.icon)
-                .foregroundColor(.red)
-                .font(.title2)
-                .frame(width: 30)
+        VStack(spacing: 15) {
+            ProfileInfoRow(
+                icon: place.icon,
+                title: place.name,
+                value: String(format: "%.1f km", place.distance),
+                color: .red
+            )
             
-            VStack(alignment: .leading, spacing: 4) {
-                Text(place.name)
-                    .font(.subheadline)
-                    .fontWeight(.medium)
-                    .foregroundColor(.white)
-                
-                Text(place.address)
-                    .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
-            }
+            ProfileInfoRow(
+                icon: "location.fill",
+                title: "Address",
+                value: place.address,
+                color: .red
+            )
             
-            Spacer()
-            
-            VStack(alignment: .trailing, spacing: 4) {
-                Text(String(format: "%.1f km", place.distance))
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundColor(.red)
-                
-                Button(action: {
-                    openInMaps(coordinate: place.coordinate, name: place.name)
-                }) {
+            Button(action: {
+                openInMaps(coordinate: place.coordinate, name: place.name)
+            }) {
+                HStack {
                     Image(systemName: "arrow.up.right.square")
-                        .foregroundColor(.red)
-                        .font(.caption)
+                    Text("Navigate")
                 }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(Color.red)
+                .cornerRadius(8)
             }
         }
-        .padding()
+        .padding(.horizontal, 20)
+        .padding(.vertical, 15)
         .background(Color.white.opacity(0.1))
         .cornerRadius(12)
     }

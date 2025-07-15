@@ -3,165 +3,194 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @State private var animateCards = false
+    @AppStorage("userAvatar") private var userAvatarData: Data = Data()
+    @State private var userAvatar: UserAvatar = UserAvatar()
+    @State private var showProfile = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Dad Welcome Banner
-            HStack {
-                TinyStepsDesign.DadIcon(symbol: TinyStepsDesign.Icons.dad, color: TinyStepsDesign.Colors.accent)
-                Text("Welcome, Dad!")
-                    .font(TinyStepsDesign.Typography.header)
-                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                Spacer()
-            }
-            .padding()
-            .background(TinyStepsDesign.Colors.primary)
-            .cornerRadius(16)
-            .padding(.horizontal)
-            .padding(.top, 12)
-            // Main Content
-            VStack(spacing: 16) {
-                Text("You're doing an amazing job. Remember, every small step counts!")
-                    .font(.headline)
-                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                    .padding(.horizontal)
-                
-                // Dad's Info Hub Card
-                NavigationLink(destination: InformationHubView()) {
+        ZStack {
+            VStack(spacing: 0) {
+                // Dad Welcome Banner
+                VStack(alignment: .leading, spacing: 5) {
                     HStack {
-                        Image(systemName: "info.circle.fill")
-                            .font(.system(size: 32, weight: .bold))
-                            .foregroundColor(TinyStepsDesign.Colors.accent)
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Dad's Info Hub")
-                                .font(.title3)
-                                .fontWeight(.semibold)
-                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            Text("Guidance, support & resources for NICU dads")
-                                .font(.caption)
-                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                        }
+                        Text("Welcome, Dad!")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
                         Spacer()
-                        Image(systemName: "chevron.right")
-                            .foregroundColor(TinyStepsDesign.Colors.accent)
+                        Button(action: { showProfile = true }) {
+                            SimpleAvatarView(avatar: userAvatar)
+                                .frame(width: 36, height: 36)
+                                .clipShape(Circle())
+                                .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                                .shadow(radius: 2, y: 1)
+                        }
+                        .buttonStyle(PlainButtonStyle())
                     }
-                    .padding()
-                    .cornerRadius(14)
+                    Text("Your dashboard for baby's journey.")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
                 }
-                
-                // Quick Actions
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Quick Actions")
+                .padding(.horizontal)
+                .padding(.top)
+                // Main Content
+                VStack(spacing: 16) {
+                    Text("You're doing an amazing job. Remember, every small step counts!")
                         .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                        .foregroundColor(TinyStepsDesign.Colors.textSecondary)
                         .padding(.horizontal)
                     
-                    HStack(spacing: 16) {
-                        NavigationLink(destination: TrackingView()) {
+                    // Dad's Info Hub Card
+                    NavigationLink(destination: InformationHubView()) {
+                        VStack(alignment: .leading, spacing: 5) {
+                            HStack {
+                                Text("Dad's Info Hub")
+                                    .font(.largeTitle)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.title2)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            Text("Guidance, support & resources for NICU dads")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 15)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                        )
+                    }
+                    
+                    // Quick Actions
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Quick Actions")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            .padding(.horizontal)
+                        
+                        HStack(spacing: 16) {
+                            NavigationLink(destination: TrackingView()) {
+                                VStack {
+                                    Image(systemName: "chart.bar.fill")
+                                        .font(.title2)
+                                        .font(.title)
+                                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                                    Text("Tracking")
+                                        .font(.caption)
+                                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                }
+                                .padding()
+                                .cornerRadius(12)
+                            }
+                            
+                            NavigationLink(destination: SupportView()) {
+                                VStack {
+                                    Image(systemName: "heart.fill")
+                                        .font(.title2)
+                                        .font(.title)
+                                        .foregroundColor(TinyStepsDesign.Colors.success)
+                                    Text("Support")
+                                        .font(.caption)
+                                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                }
+                                .padding()
+                                .cornerRadius(12)
+                            }
+                            
+                            NavigationLink(destination: MilestonesView()) {
+                                VStack {
+                                    Image(systemName: "star.fill")
+                                        .font(.title2)
+                                        .font(.title)
+                                        .foregroundColor(TinyStepsDesign.Colors.highlight)
+                                    Text("Milestones")
+                                        .font(.caption)
+                                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                }
+                                .padding()
+                                .cornerRadius(12)
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    // Today's Summary
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Today's Summary")
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            .padding(.horizontal)
+                        
+                        HStack(spacing: 20) {
                             VStack {
-                                Image(systemName: "chart.bar.fill")
-                                    .font(.title)
+                                Text("\(dataManager.getTodayFeedingCount())")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
                                     .foregroundColor(TinyStepsDesign.Colors.accent)
-                                Text("Tracking")
+                                Text("Feeds")
                                     .font(.caption)
-                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
                             }
-                            .padding()
-                            .cornerRadius(12)
-                        }
-                        
-                        NavigationLink(destination: SupportView()) {
+                            
                             VStack {
-                                Image(systemName: "heart.fill")
-                                    .font(.title)
-                                    .foregroundColor(TinyStepsDesign.Colors.success)
-                                Text("Support")
-                                    .font(.caption)
-                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            }
-                            .padding()
-                            .cornerRadius(12)
-                        }
-                        
-                        NavigationLink(destination: MilestonesView()) {
-                            VStack {
-                                Image(systemName: "star.fill")
-                                    .font(.title)
+                                Text("\(dataManager.getTodaySleepCount())")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
                                     .foregroundColor(TinyStepsDesign.Colors.highlight)
-                                Text("Milestones")
+                                Text("Sleep")
                                     .font(.caption)
-                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
                             }
-                            .padding()
-                            .cornerRadius(12)
+                            
+                            VStack {
+                                Text("\(dataManager.getTodayNappyCount())")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(TinyStepsDesign.Colors.success)
+                                Text("Nappies")
+                                    .font(.caption)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
                         }
-                    }
-                    .padding(.horizontal)
-                }
-                
-                // Today's Summary
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Today's Summary")
-                        .font(.headline)
-                        .fontWeight(.semibold)
-                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         .padding(.horizontal)
-                    
-                    HStack(spacing: 20) {
-                        VStack {
-                            Text("\(dataManager.feedingRecords.filter { Calendar.current.isDateInToday($0.date) }.count)")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(TinyStepsDesign.Colors.accent)
-                            Text("Feeds")
-                                .font(.caption)
-                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                        }
-                        
-                        VStack {
-                            Text("\(dataManager.sleepRecords.filter { Calendar.current.isDateInToday($0.startTime) }.count)")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(TinyStepsDesign.Colors.highlight)
-                            Text("Sleep")
-                                .font(.caption)
-                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                        }
-                        
-                        VStack {
-                            Text("\(dataManager.nappyRecords.filter { Calendar.current.isDateInToday($0.date) }.count)")
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(TinyStepsDesign.Colors.success)
-                            Text("Nappies")
-                                .font(.caption)
-                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                        }
                     }
-                    .padding(.horizontal)
                 }
-            }
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Example Card
-                    ZStack {
-                        // Card content here
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Example Card
                         VStack(alignment: .leading, spacing: 12) {
                             Text("Recent Activity")
                                 .font(TinyStepsDesign.Typography.subheader)
                                 .foregroundColor(TinyStepsDesign.Colors.accent)
                             // ... existing activity content ...
                         }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(Color.white.opacity(0.1))
+                        )
+                        // ... repeat for other cards/buttons ...
                     }
                     .padding()
-                    .background(.ultraThinMaterial)
-                    // ... repeat for other cards/buttons ...
                 }
-                .padding()
             }
         }
         .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
+        .sheet(isPresented: $showProfile) {
+            ProfileView()
+        }
+        .onAppear {
+            if let loaded = try? JSONDecoder().decode(UserAvatar.self, from: userAvatarData), userAvatarData.count > 0 {
+                userAvatar = loaded
+            }
+        }
     }
     
     private func formatNextFeeding() -> String {
@@ -174,44 +203,40 @@ struct HomeView: View {
     }
     
     private func getRecentActivity() -> [ActivityItem] {
+        let recentRecords = dataManager.getRecentRecords(limit: 6)
         var activities: [ActivityItem] = []
         
-        // Add recent feedings
-        for record in dataManager.feedingRecords.prefix(2) {
-            activities.append(ActivityItem(
-                icon: "drop.fill",
-                title: "\(record.type.rawValue) Feed",
-                description: record.amount != nil ? "\(Int(record.amount!))ml" : "\(Int(record.duration ?? 0))min",
-                date: record.date,
-                color: TinyStepsDesign.Colors.accent
-            ))
-        }
-        
-        // Add recent sleep records
-        for record in dataManager.sleepRecords.prefix(2) {
-            var description = record.location.rawValue
-            if let endTime = record.endTime {
-                let duration = endTime.timeIntervalSince(record.startTime) / 3600
-                description = "\(formatDuration(hours: duration)) • \(record.location.rawValue)"
+        for record in recentRecords {
+            if let feeding = record as? FeedingRecord {
+                activities.append(ActivityItem(
+                    icon: "drop.fill",
+                    title: "\(feeding.type.rawValue) Feed",
+                    description: feeding.amount != nil ? "\(Int(feeding.amount!))ml" : "\(Int(feeding.duration ?? 0))min",
+                    date: feeding.date,
+                    color: TinyStepsDesign.Colors.accent
+                ))
+            } else if let sleep = record as? SleepRecord {
+                var description = sleep.location.rawValue
+                if let endTime = sleep.endTime {
+                    let duration = endTime.timeIntervalSince(sleep.startTime) / 3600
+                    description = "\(formatDuration(hours: duration)) • \(sleep.location.rawValue)"
+                }
+                activities.append(ActivityItem(
+                    icon: "bed.double.fill",
+                    title: "Sleep Session",
+                    description: description,
+                    date: sleep.startTime,
+                    color: TinyStepsDesign.Colors.highlight
+                ))
+            } else if let nappy = record as? NappyRecord {
+                activities.append(ActivityItem(
+                    icon: "drop",
+                    title: "\(nappy.type.rawValue) Nappy",
+                    description: nappy.notes ?? "",
+                    date: nappy.date,
+                    color: TinyStepsDesign.Colors.success
+                ))
             }
-            activities.append(ActivityItem(
-                icon: "bed.double.fill",
-                title: "Sleep Session",
-                description: description,
-                date: record.startTime,
-                color: TinyStepsDesign.Colors.highlight
-            ))
-        }
-        
-        // Add recent nappy changes
-        for record in dataManager.nappyRecords.prefix(2) {
-            activities.append(ActivityItem(
-                icon: "drop",
-                title: "\(record.type.rawValue) Nappy",
-                description: record.notes ?? "",
-                date: record.date,
-                color: TinyStepsDesign.Colors.success
-            ))
         }
         
         return activities.sorted { $0.date > $1.date }.prefix(3).map { $0 }

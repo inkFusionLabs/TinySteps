@@ -12,7 +12,13 @@ struct InformationHubView: View {
         ("Formula Milk Guide", "Complete guide to formula feeding and preparation"),
         ("Mixed Feeding Guide", "How to combine breast milk and formula feeding"),
         ("Developmental Care", "How to support your baby's development"),
-        ("Going Home", "Preparing for the transition home")
+        ("Going Home", "Preparing for the transition home"),
+        // New health topics
+        ("Teething", "How to help your baby through teething discomfort"),
+        ("Colic", "Understanding and soothing colic in babies"),
+        ("Constipation", "What to do if your baby is constipated"),
+        ("Reflux", "Managing reflux and spit-up"),
+        ("Common Illnesses", "Recognizing and responding to common baby illnesses")
     ]
     
     var body: some View {
@@ -25,6 +31,7 @@ struct InformationHubView: View {
                     careTopicsSection
                     ukGuidelinesSection
                     lifeAfterNICUSection
+                    supportResourcesSection
                 }
                 .padding()
             }
@@ -35,47 +42,40 @@ struct InformationHubView: View {
     }
     
     private var dadInfoBanner: some View {
-        HStack {
-            TinyStepsDesign.DadIcon(symbol: TinyStepsDesign.Icons.dad, color: TinyStepsDesign.Colors.accent)
-            Text("Dad's Info Hub")
-                .font(TinyStepsDesign.Typography.header)
-                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-            Spacer()
+        VStack(alignment: .leading, spacing: 5) {
+            HStack {
+                Text("Dad's Info Hub")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                Spacer()
+            }
+            Text("Guidance, support & resources for NICU dads")
+                .font(.subheadline)
+                .foregroundColor(.white.opacity(0.8))
         }
-        .padding()
-        .background(TinyStepsDesign.Colors.primary)
-        .cornerRadius(16)
         .padding(.horizontal)
-        .padding(.top, 12)
+        .padding(.top)
     }
     
     private var dadFocusedArticlesSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("For Dads")
-                .font(TinyStepsDesign.Typography.subheader)
-                .foregroundColor(TinyStepsDesign.Colors.accent)
-            // Example dad-focused article
+        VStack(spacing: 15) {
             Link(destination: URL(string: "https://fatherly.com")!) {
-                HStack {
-                    Image(systemName: "figure.and.child.holdinghands")
-                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                    Text("Fatherly: Tips for New Dads")
-                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                }
+                ProfileInfoRow(
+                    icon: "figure.and.child.holdinghands",
+                    title: "Fatherly: Tips for New Dads",
+                    value: "Visit site",
+                    color: TinyStepsDesign.Colors.accent
+                )
             }
-            .padding(8)
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.clear)
-                    .background(.ultraThinMaterial)
-            )
+            .buttonStyle(PlainButtonStyle())
             // ... add more dad-specific articles/resources ...
         }
-        .padding()
+        .padding(.horizontal, 20)
+        .padding(.vertical, 15)
         .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(Color.clear)
-                .background(.ultraThinMaterial)
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.1))
         )
     }
     
@@ -88,73 +88,43 @@ struct InformationHubView: View {
             )
             
             NavigationLink(destination: TopicDetailView(topic: "Understanding NICU")) {
-                TinyStepsCard {
-                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
-                        HStack {
-                            Image(systemName: "building.2.fill")
-                                .font(.title2)
-                                .foregroundColor(TinyStepsDesign.Colors.success)
-                            
-                            Text("Understanding NICU")
-                                .font(TinyStepsDesign.Typography.body)
-                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                        }
-                        
-                        Text("What to expect in the neonatal intensive care unit")
-                            .font(TinyStepsDesign.Typography.body)
-                            .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                    }
-                }
+                ProfileInfoRow(
+                    icon: "building.2.fill",
+                    title: "Understanding NICU",
+                    value: "Learn more",
+                    color: TinyStepsDesign.Colors.success
+                )
             }
             .buttonStyle(PlainButtonStyle())
         }
         .padding(.horizontal, TinyStepsDesign.Spacing.md)
+        .padding(.vertical, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.1))
+        )
     }
     
     private var careTopicsSection: some View {
-        VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
-            TinyStepsSectionHeader(
-                title: "Care Topics",
-                icon: "cross.case.fill",
-                color: TinyStepsDesign.Colors.highlight
-            )
-            
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 1), spacing: TinyStepsDesign.Spacing.md) {
-                ForEach(topics.dropFirst(), id: \.0) { topic in
-                    NavigationLink(destination: TopicDetailView(topic: topic.0)) {
-                        TinyStepsCard {
-                            VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
-                                HStack {
-                                    Image(systemName: getIconForTopic(topic.0))
-                                        .font(.title2)
-                                        .foregroundColor(getColorForTopic(topic.0))
-                                    
-                                    Text(topic.0)
-                                        .font(TinyStepsDesign.Typography.body)
-                                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                                }
-                                
-                                Text(topic.1)
-                                    .font(TinyStepsDesign.Typography.body)
-                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                            }
-                        }
-                    }
-                    .buttonStyle(PlainButtonStyle())
+        VStack(spacing: 15) {
+            ForEach(topics, id: \.0) { topic, subtitle in
+                NavigationLink(destination: TopicDetailView(topic: topic)) {
+                    ProfileInfoRow(
+                        icon: "heart.fill",
+                        title: topic,
+                        value: "View guide",
+                        color: TinyStepsDesign.Colors.accent
+                    )
                 }
+                .buttonStyle(PlainButtonStyle())
             }
         }
-        .padding(.horizontal, TinyStepsDesign.Spacing.md)
+        .padding(.horizontal, 20)
+        .padding(.vertical, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.1))
+        )
     }
     
     private var ukGuidelinesSection: some View {
@@ -165,27 +135,16 @@ struct InformationHubView: View {
                 color: TinyStepsDesign.Colors.accent
             )
             
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 1), spacing: TinyStepsDesign.Spacing.sm) {
+            VStack(spacing: 15) {
                 ForEach(Array(UKGuidelines2025.emergencyContacts.enumerated()), id: \.offset) { _, contact in
                     if let url = getURLForContact(contact.0) {
                         Link(destination: url) {
-                            TinyStepsCard {
-                                HStack {
-                                    Image(systemName: "phone.fill")
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.xs) {
-                                        Text(contact.0)
-                                            .font(TinyStepsDesign.Typography.body)
-                                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                                        Text(contact.1)
-                                            .font(TinyStepsDesign.Typography.caption)
-                                            .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                                    }
-                                    Spacer()
-                                    Image(systemName: "arrow.up.right")
-                                        .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                                }
-                            }
+                            ProfileInfoRow(
+                                icon: "phone.fill",
+                                title: contact.0,
+                                value: contact.1,
+                                color: TinyStepsDesign.Colors.accent
+                            )
                         }
                         .buttonStyle(PlainButtonStyle())
                     }
@@ -193,6 +152,49 @@ struct InformationHubView: View {
             }
         }
         .padding(.horizontal, TinyStepsDesign.Spacing.md)
+        .padding(.vertical, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.1))
+        )
+    }
+    
+    private var supportResourcesSection: some View {
+        VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+            TinyStepsSectionHeader(
+                title: "Support Resources",
+                icon: "heart.fill",
+                color: .pink
+            )
+            
+            VStack(spacing: 15) {
+                Link(destination: URL(string: "https://www.bliss.org.uk")!) {
+                    ProfileInfoRow(
+                        icon: "heart.fill",
+                        title: "Bliss - Supporting Premature Babies",
+                        value: "Visit site",
+                        color: .pink
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+                
+                Link(destination: URL(string: "https://www.nhs.uk")!) {
+                    ProfileInfoRow(
+                        icon: "cross.fill",
+                        title: "NHS - Health Information",
+                        value: "Visit site",
+                        color: .green
+                    )
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .padding(.horizontal, TinyStepsDesign.Spacing.md)
+        .padding(.vertical, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.1))
+        )
     }
     
     private var lifeAfterNICUSection: some View {
@@ -204,32 +206,21 @@ struct InformationHubView: View {
             )
             
             NavigationLink(destination: TopicDetailView(topic: "Growing at Home")) {
-                TinyStepsCard {
-                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
-                        HStack {
-                            Image(systemName: "house.fill")
-                                .font(.title2)
-                                .foregroundColor(TinyStepsDesign.Colors.success)
-                            
-                            Text("Growing at Home")
-                                .font(TinyStepsDesign.Typography.body)
-                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "chevron.right")
-                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                        }
-                        
-                        Text("Tips and resources for caring for your baby after discharge")
-                            .font(TinyStepsDesign.Typography.body)
-                            .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                    }
-                }
+                ProfileInfoRow(
+                    icon: "house.fill",
+                    title: "Growing at Home",
+                    value: "Learn more",
+                    color: TinyStepsDesign.Colors.success
+                )
             }
             .buttonStyle(PlainButtonStyle())
         }
         .padding(.horizontal, TinyStepsDesign.Spacing.md)
+        .padding(.vertical, 15)
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color.white.opacity(0.1))
+        )
     }
     
     // Helper functions
@@ -289,7 +280,6 @@ struct TopicDetailView: View {
                         icon: getIconForTopic(topic),
                         color: getColorForTopic(topic)
                     )
-                    
                     // Content based on topic
                     Group {
                         switch topic {
@@ -309,6 +299,16 @@ struct TopicDetailView: View {
                             GoingHomeView()
                         case "Growing at Home":
                             GrowingAtHomeView()
+                        case "Teething":
+                            TeethingInfoView()
+                        case "Colic":
+                            ColicInfoView()
+                        case "Constipation":
+                            ConstipationInfoView()
+                        case "Reflux":
+                            RefluxInfoView()
+                        case "Common Illnesses":
+                            CommonIllnessesInfoView()
                         default:
                             Text("Content coming soon...")
                                 .font(TinyStepsDesign.Typography.body)
@@ -495,5 +495,80 @@ struct GrowingAtHomeView: View {
     var body: some View {
         Text("Growing at Home content...")
             .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+    }
+}
+
+// MARK: - Health Info Views
+struct TeethingInfoView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Teething")
+                .font(.title2).fontWeight(.bold)
+            Text("Teething usually starts around 6 months, but can begin earlier or later. Signs include drooling, chewing, and irritability.")
+            Text("How to help:")
+                .font(.headline)
+            Text("• Offer a clean, cool teething ring or damp washcloth to chew on.\n• Gently rub baby's gums with a clean finger.\n• Wipe drool to prevent rash.\n• If needed, use infant paracetamol (consult your GP first).\n• Avoid teething gels with sugar or aspirin.")
+            Text("When to call the doctor:")
+                .font(.headline)
+            Text("• High fever,\n• Refusal to feed,\n• Severe discomfort or swelling.")
+        }
+    }
+}
+
+struct ColicInfoView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Colic")
+                .font(.title2).fontWeight(.bold)
+            Text("Colic is frequent, prolonged crying in an otherwise healthy baby, often in the evenings. It usually resolves by 3-4 months.")
+            Text("How to help:")
+                .font(.headline)
+            Text("• Hold and comfort your baby.\n• Try gentle rocking or white noise.\n• Offer a dummy (pacifier).\n• Check for hunger, wind, or dirty nappy.\n• Take breaks and ask for support.")
+            Text("When to call the doctor:")
+                .font(.headline)
+            Text("• Vomiting,\n• Blood in stool,\n• Poor weight gain,\n• Fever.")
+        }
+    }
+}
+
+struct ConstipationInfoView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Constipation")
+                .font(.title2).fontWeight(.bold)
+            Text("Constipation is when a baby has hard, infrequent stools. It's common during weaning or formula changes.")
+            Text("How to help:")
+                .font(.headline)
+            Text("• Offer extra water (if over 6 months).\n• Gently move baby's legs in a cycling motion.\n• Give a warm bath.\n• For older babies, offer pureed fruit (prunes, pears, apples).")
+            Text("When to call the doctor:")
+                .font(.headline)
+            Text("• Blood in stool,\n• Severe pain,\n• Vomiting,\n• No improvement after a few days.")
+        }
+    }
+}
+
+struct RefluxInfoView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Reflux")
+                .font(.title2).fontWeight(.bold)
+            Text("Reflux (spit-up) is common in babies and usually improves by 12 months.")
+            Text("How to help:")
+                .font(.headline)
+            Text("• Feed baby upright and keep upright after feeds.\n• Burp baby frequently.\n• Avoid overfeeding.\n• Raise head of cot slightly (never use pillows for babies).\n• See your GP if baby is not gaining weight or seems distressed.")
+        }
+    }
+}
+
+struct CommonIllnessesInfoView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Common Illnesses")
+                .font(.title2).fontWeight(.bold)
+            Text("Babies often get minor illnesses like colds, coughs, and mild fevers.")
+            Text("When to call the doctor:")
+                .font(.headline)
+            Text("• High fever (over 38°C under 3 months, over 39°C over 3 months).\n• Difficulty breathing.\n• Poor feeding or dehydration.\n• Seizures.\n• Rash that doesn't fade with pressure.")
+        }
     }
 }

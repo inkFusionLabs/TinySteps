@@ -2,6 +2,10 @@ import SwiftUI
 
 struct WelcomeView: View {
     @Binding var showNameEntry: Bool
+    @State private var showProfile = false
+    @AppStorage("userAvatar") private var userAvatarData: Data = Data()
+    @State private var userAvatar: UserAvatar = UserAvatar()
+    @State private var showAvatarBuilder = false
 
     var body: some View {
         ZStack {
@@ -10,6 +14,18 @@ struct WelcomeView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 40) {
+                // Welcome Banner (Support & Care style)
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Welcome, Dad!")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text("Start your journey with TinySteps.")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(.horizontal)
+                .padding(.top)
                 Spacer()
                 Image("WelcomeImage")
                     .resizable()
@@ -47,6 +63,23 @@ struct WelcomeView: View {
                 .buttonStyle(PlainButtonStyle())
                 Spacer()
             }
+        }
+        .sheet(isPresented: $showProfile) {
+            ProfileView()
+        }
+        .sheet(isPresented: $showAvatarBuilder, onDismiss: saveAvatar) {
+            AvatarBuilderView(avatar: $userAvatar)
+        }
+        .onAppear {
+            if let loaded = try? JSONDecoder().decode(UserAvatar.self, from: userAvatarData), userAvatarData.count > 0 {
+                userAvatar = loaded
+            }
+        }
+    }
+
+    private func saveAvatar() {
+        if let data = try? JSONEncoder().encode(userAvatar) {
+            userAvatarData = data
         }
     }
 }

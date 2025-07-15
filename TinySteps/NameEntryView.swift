@@ -4,6 +4,10 @@ struct NameEntryView: View {
     @AppStorage("userName") private var userName: String = ""
     @State private var tempName: String = ""
     @State private var showError = false
+    @State private var showAvatarPrompt = false
+    @State private var showAvatarBuilder = false
+    @AppStorage("userAvatar") private var userAvatarData: Data = Data()
+    @State private var userAvatar: UserAvatar = UserAvatar()
 
     var body: some View {
         ZStack {
@@ -37,6 +41,13 @@ struct NameEntryView: View {
                 Spacer()
             }
         }
+        .sheet(isPresented: $showAvatarBuilder, onDismiss: saveAvatar) {
+            AvatarBuilderView(avatar: $userAvatar)
+        }
+        .confirmationDialog("Would you like to create your avatar now, or set it up later?", isPresented: $showAvatarPrompt, titleVisibility: .visible) {
+            Button("Create Avatar") { showAvatarBuilder = true }
+            Button("Set Up Later", role: .cancel) { }
+        }
     }
 
     private func submitName() {
@@ -45,6 +56,13 @@ struct NameEntryView: View {
             showError = true
         } else {
             userName = trimmed
+            showAvatarPrompt = true
+        }
+    }
+
+    private func saveAvatar() {
+        if let data = try? JSONEncoder().encode(userAvatar) {
+            userAvatarData = data
         }
     }
 } 

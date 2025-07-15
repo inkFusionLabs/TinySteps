@@ -10,196 +10,150 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @State private var animateContent = false
-    @State private var showingExportSheet = false
-    @State private var showingResetAlert = false
     @State private var showingPrivacyPolicy = false
+    @State private var showingHelpSupport = false
+    @State private var showingAboutTinySteps = false
+    @State private var showingDataRestore = false
+    @State private var showingPerformance = false
+    @State private var showingEditContact = false
+    @State private var editingContact: EmergencyContact? = nil
     
     var body: some View {
         VStack(spacing: 0) {
             // Dad Settings Banner
-            HStack {
-                TinyStepsDesign.DadIcon(symbol: TinyStepsDesign.Icons.tools, color: TinyStepsDesign.Colors.accent)
+            VStack(alignment: .leading, spacing: 5) {
                 Text("Dad's Settings")
-                    .font(TinyStepsDesign.Typography.header)
-                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                Spacer()
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                Text("Manage your preferences and app settings.")
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.8))
             }
-            .padding()
-            .background(TinyStepsDesign.Colors.primary)
-            .cornerRadius(16)
             .padding(.horizontal)
-            .padding(.top, 12)
+            .padding(.top)
             // Main Content
             ScrollView {
                 VStack(spacing: 20) {
-                    // Data Management Section
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("Data Management")
-                                .font(TinyStepsDesign.Typography.subheader)
-                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            Spacer()
-                        }
-                        
-                        Button(action: { showingExportSheet = true }) {
+                    // Emergency Contacts Section (moved above Data Management)
+                    if !dataManager.emergencyContacts.isEmpty {
+                        VStack(spacing: 16) {
                             HStack {
-                                Image(systemName: "square.and.arrow.up")
-                                    .foregroundColor(TinyStepsDesign.Colors.accent)
-                                Text("Export Data")
+                                Text("Emergency Contacts")
+                                    .font(TinyStepsDesign.Typography.subheader)
                                     .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                                 Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.gray)
                             }
-                            .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                        }
-                        
-                        Button(action: { showingResetAlert = true }) {
-                            HStack {
-                                Image(systemName: "trash")
-                                    .foregroundColor(.red)
-                                Text("Reset All Data")
-                                    .foregroundColor(.red)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.gray)
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                        }
-                    }
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
-                    
-                    // Support Section
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("Support & Information")
-                                .font(TinyStepsDesign.Typography.subheader)
-                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            Spacer()
-                        }
-                        
-                        Button(action: { showingPrivacyPolicy = true }) {
-                            HStack {
-                                Image(systemName: "hand.raised.fill")
-                                    .foregroundColor(TinyStepsDesign.Colors.accent)
-                                Text("Privacy Policy")
-                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.gray)
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                        }
-                        
-                        Link(destination: URL(string: "https://www.bliss.org.uk")!) {
-                            HStack {
-                                Image(systemName: "heart.fill")
-                                    .foregroundColor(.pink)
-                                Text("Bliss - Supporting Premature Babies")
-                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                                Spacer()
-                                Image(systemName: "arrow.up.right.square")
-                                    .foregroundColor(.gray)
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                        }
-                        
-                        Link(destination: URL(string: "https://www.nhs.uk")!) {
-                            HStack {
-                                Image(systemName: "cross.fill")
-                                    .foregroundColor(.green)
-                                Text("NHS - Health Information")
-                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                                Spacer()
-                                Image(systemName: "arrow.up.right.square")
-                                    .foregroundColor(.gray)
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
-                        }
-                    }
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
-                    
-                    // App Info Section
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("App Information")
-                                .font(TinyStepsDesign.Typography.subheader)
-                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            Spacer()
-                        }
-                        
-                        VStack(spacing: 8) {
-                            HStack {
-                                Text("Version")
-                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                                Spacer()
-                                Text("1.0.0")
-                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            }
-                            
-                            HStack {
-                                Text("Build")
-                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                                Spacer()
-                                Text("1")
-                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            ForEach(dataManager.emergencyContacts) { contact in
+                                EmergencyContactCard(contact: contact, onEdit: { editContact in
+                                    editingContact = editContact
+                                    showingEditContact = true
+                                })
                             }
                         }
                         .padding()
-                        .background(Color.white.opacity(0.1))
-                        .cornerRadius(12)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(16)
                     }
-                    .padding()
-                    .background(.ultraThinMaterial)
-                    .cornerRadius(16)
+                    
+                    // App Information Section
+                    VStack(spacing: 15) {
+                        ProfileInfoRow(
+                            icon: "info.circle.fill",
+                            title: "App Version",
+                            value: "1.0.0",
+                            color: .green
+                        )
+                        
+                        Button(action: {
+                            showingDataRestore = true
+                        }) {
+                            ProfileInfoRow(
+                                icon: "arrow.clockwise",
+                                title: "Backup & Restore",
+                                value: "Manage data",
+                                color: .purple
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Button(action: {
+                            showingPerformance = true
+                        }) {
+                            ProfileInfoRow(
+                                icon: "speedometer",
+                                title: "Performance",
+                                value: "Optimize app",
+                                color: .orange
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Button(action: {
+                            showingHelpSupport = true
+                        }) {
+                            ProfileInfoRow(
+                                icon: "questionmark.circle.fill",
+                                title: "Help & Support",
+                                value: "Get assistance",
+                                color: .yellow
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Button(action: {
+                            showingAboutTinySteps = true
+                        }) {
+                            ProfileInfoRow(
+                                icon: "info.circle.fill",
+                                title: "About TinySteps",
+                                value: "Learn more",
+                                color: .cyan
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        Button(action: { showingPrivacyPolicy = true }) {
+                            ProfileInfoRow(
+                                icon: "hand.raised.fill",
+                                title: "Privacy Policy",
+                                value: "View policy",
+                                color: .blue
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 15)
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.1))
+                    )
                 }
                 .padding()
             }
         }
         .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
-        .sheet(isPresented: $showingExportSheet) {
-            NavigationView {
-                DataExportView()
-            }
-        }
         .sheet(isPresented: $showingPrivacyPolicy) {
             PrivacyPolicyView()
         }
-        .alert("Reset All Data", isPresented: $showingResetAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Reset", role: .destructive) {
-                resetAllData()
-            }
-        } message: {
-            Text("This will permanently delete all your baby's data. This action cannot be undone.")
+        .sheet(isPresented: $showingHelpSupport) {
+            HelpSupportView()
         }
-    }
-    
-    private func resetAllData() {
-        dataManager.baby = nil
-        dataManager.feedingRecords.removeAll()
-        dataManager.nappyRecords.removeAll()
-        dataManager.sleepRecords.removeAll()
-        dataManager.milestones.removeAll()
-        dataManager.achievements.removeAll()
-        dataManager.reminders.removeAll()
-        dataManager.vaccinations.removeAll()
-        dataManager.solidFoodRecords.removeAll()
-        dataManager.saveData()
+        .sheet(isPresented: $showingAboutTinySteps) {
+            AboutTinyStepsView()
+        }
+        .sheet(isPresented: $showingDataRestore) {
+            DataRestoreView()
+        }
+        .sheet(isPresented: $showingPerformance) {
+            PerformanceSettingsView()
+        }
+        .sheet(isPresented: $showingEditContact) {
+            if let contact = editingContact {
+                EmergencyContactEditSheet(contact: $dataManager.emergencyContacts.first(where: { $0.id == contact.id })!)
+            }
+        }
     }
     
     private func getURLForContact(_ contact: String) -> URL? {
@@ -267,6 +221,281 @@ struct PrivacyPolicyView: View {
                 }
             }
             .navigationTitle("Privacy Policy")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// EmergencyContactCard View with edit button
+struct EmergencyContactCard: View {
+    let contact: EmergencyContact
+    var onEdit: ((EmergencyContact) -> Void)? = nil
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: contact.isEmergency ? "exclamationmark.triangle.fill" : "person.fill")
+                    .font(.title2)
+                    .foregroundColor(contact.isEmergency ? .red : .blue)
+                Text(contact.name)
+                    .font(.headline)
+                    .foregroundColor(.white)
+                Spacer()
+                if let url = URL(string: "tel:\(contact.phoneNumber)") {
+                    Link(destination: url) {
+                        Image(systemName: "phone.fill")
+                            .font(.title2)
+                            .foregroundColor(.green)
+                            .padding(8)
+                            .background(Circle().fill(Color.white.opacity(0.2)))
+                    }
+                }
+                if let onEdit = onEdit {
+                    Button(action: { onEdit(contact) }) {
+                        Image(systemName: "pencil")
+                            .font(.title2)
+                            .foregroundColor(.yellow)
+                            .padding(8)
+                            .background(Circle().fill(Color.white.opacity(0.2)))
+                    }
+                }
+            }
+            Text(contact.relationship)
+                .font(.subheadline)
+                .foregroundColor(.white.opacity(0.8))
+            Text(contact.phoneNumber)
+                .font(.subheadline)
+                .foregroundColor(.white.opacity(0.8))
+            if contact.isEmergency {
+                Text("EMERGENCY")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .foregroundColor(.red)
+                    .padding(.vertical, 2)
+                    .padding(.horizontal, 8)
+                    .background(Color.red.opacity(0.2))
+                    .cornerRadius(8)
+            }
+            if let notes = contact.notes, !notes.isEmpty {
+                Text(notes)
+                    .font(.caption)
+                    .foregroundColor(.yellow)
+            }
+        }
+        .padding()
+        .background(Color.white.opacity(0.1))
+        .cornerRadius(12)
+        .shadow(radius: 4)
+    }
+}
+
+// EmergencyContactEditSheet
+struct EmergencyContactEditSheet: View {
+    @EnvironmentObject var dataManager: BabyDataManager
+    @Binding var contact: EmergencyContact
+    @Environment(\.dismiss) var dismiss
+    @State private var name: String = ""
+    @State private var relationship: String = ""
+    @State private var phone: String = ""
+    @State private var isEmergency: Bool = false
+    @State private var notes: String = ""
+    var body: some View {
+        NavigationView {
+            Form {
+                Section("Contact Info") {
+                    TextField("Name", text: $name)
+                    TextField("Relationship", text: $relationship)
+                    TextField("Phone Number", text: $phone)
+                        .keyboardType(.phonePad)
+                    Toggle("Emergency", isOn: $isEmergency)
+                }
+                Section("Notes") {
+                    TextField("Notes", text: $notes)
+                }
+            }
+            .navigationTitle("Edit Contact")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        saveContact()
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear {
+                name = contact.name
+                relationship = contact.relationship
+                phone = contact.phoneNumber
+                isEmergency = contact.isEmergency
+                notes = contact.notes ?? ""
+            }
+        }
+    }
+    private func saveContact() {
+        if let idx = dataManager.emergencyContacts.firstIndex(where: { $0.id == contact.id }) {
+            dataManager.emergencyContacts[idx].name = name
+            dataManager.emergencyContacts[idx].relationship = relationship
+            dataManager.emergencyContacts[idx].phoneNumber = phone
+            dataManager.emergencyContacts[idx].isEmergency = isEmergency
+            dataManager.emergencyContacts[idx].notes = notes.isEmpty ? nil : notes
+            dataManager.saveData()
+        }
+    }
+}
+
+struct HelpSupportView: View {
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.lg) {
+                        TinyStepsSectionHeader(
+                            title: "Help & Support",
+                            icon: "questionmark.circle.fill",
+                            color: .yellow
+                        )
+                        
+                        VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+                            TinyStepsInfoCard(
+                                title: "Getting Started",
+                                content: "Welcome to TinySteps! This app is designed specifically for dads with babies in NICU and beyond. Start by adding your baby's information and explore the different features to track your baby's journey.",
+                                icon: "play.circle.fill",
+                                color: TinyStepsDesign.Colors.accent
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Tracking Your Baby",
+                                content: "Use the Tracking screen to monitor feeds, sleep, nappies, and other important metrics. The charts will help you visualize your baby's progress over time.",
+                                icon: "chart.bar.fill",
+                                color: TinyStepsDesign.Colors.success
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Milestones & Achievements",
+                                content: "Celebrate your baby's milestones and unlock badges as they grow. Each milestone is a step forward in your baby's development journey.",
+                                icon: "star.fill",
+                                color: TinyStepsDesign.Colors.highlight
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Information Hub",
+                                content: "Access comprehensive information about NICU care, feeding, health topics, and UK resources. Everything you need to support your baby's development.",
+                                icon: "info.circle.fill",
+                                color: TinyStepsDesign.Colors.info
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Support & Care",
+                                content: "Find health visitor information, manage appointments, set reminders, and access parenting tips. Plus, locate nearby hospitals and medical facilities.",
+                                icon: "heart.fill",
+                                color: .pink
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Emergency Contacts",
+                                content: "Store important contact information for family, friends, and healthcare providers. Quick access to emergency numbers when you need them most.",
+                                icon: "phone.fill",
+                                color: .red
+                            )
+                        }
+                        .padding(.horizontal, TinyStepsDesign.Spacing.md)
+                    }
+                    .padding(.vertical, TinyStepsDesign.Spacing.lg)
+                }
+            }
+            .navigationTitle("Help & Support")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+struct AboutTinyStepsView: View {
+    @Environment(\.dismiss) var dismiss
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.lg) {
+                        TinyStepsSectionHeader(
+                            title: "About TinySteps",
+                            icon: "info.circle.fill",
+                            color: .cyan
+                        )
+                        
+                        VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+                            TinyStepsInfoCard(
+                                title: "Our Mission",
+                                content: "TinySteps is dedicated to supporting dads through the challenging journey of having a baby in NICU and beyond. We believe every dad deserves the tools and information to be the best parent they can be.",
+                                icon: "heart.fill",
+                                color: .pink
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Built for Dads",
+                                content: "This app was created specifically with dads in mind. We understand the unique challenges and emotions that come with having a baby in neonatal care, and we're here to support you every step of the way.",
+                                icon: "figure.and.child.holdinghands",
+                                color: TinyStepsDesign.Colors.accent
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Privacy First",
+                                content: "Your baby's data stays on your device. We don't collect, store, or transmit any personal information. Your privacy and your baby's information are completely secure.",
+                                icon: "lock.shield.fill",
+                                color: TinyStepsDesign.Colors.success
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "UK Focused",
+                                content: "TinySteps is designed for UK families, with information and resources specific to the NHS, UK guidelines, and local support services available to you.",
+                                icon: "flag.fill",
+                                color: TinyStepsDesign.Colors.accent
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Version 1.0.0",
+                                content: "This is the first version of TinySteps. We're committed to continuous improvement and adding new features based on feedback from dads like you.",
+                                icon: "star.circle.fill",
+                                color: TinyStepsDesign.Colors.highlight
+                            )
+                            
+                            TinyStepsInfoCard(
+                                title: "Contact & Feedback",
+                                content: "We'd love to hear from you! Your feedback helps us improve TinySteps and make it better for all dads. Share your thoughts, suggestions, or report any issues.\n\nEmail: inkFusionLabs@icloud.com",
+                                icon: "envelope.fill",
+                                color: TinyStepsDesign.Colors.info
+                            )
+                        }
+                        .padding(.horizontal, TinyStepsDesign.Spacing.md)
+                    }
+                    .padding(.vertical, TinyStepsDesign.Spacing.lg)
+                }
+            }
+            .navigationTitle("About TinySteps")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
