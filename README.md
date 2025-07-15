@@ -170,4 +170,12 @@ This app integrates information from these trusted UK organizations:
 
 ---
 
+## 📋 Project Management
+
+- [TinySteps TODO Board (GitHub Project)](https://github.com/users/inkFusionLabs/projects/11)
+  - Track progress, completed features, and new ideas
+  - Issues and features are organized by category
+
+---
+
 **Made with ❤️ by a dad, for dads everywhere** 
