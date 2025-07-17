@@ -8,6 +8,74 @@
 import Foundation
 import SwiftUI
 
+// MARK: - Date Formatters
+let timeFormatter: DateFormatter = {
+    let df = DateFormatter()
+    df.timeStyle = .short
+    return df
+}()
+
+// MARK: - Enums
+
+enum MilestoneCategory: String, CaseIterable, Codable {
+    case all = "All"
+    case physical = "Physical"
+    case cognitive = "Cognitive"
+    case social = "Social"
+    case language = "Language"
+    
+    var icon: String {
+        switch self {
+        case .all: return "list.bullet"
+        case .physical: return "figure.walk"
+        case .cognitive: return "brain.head.profile"
+        case .social: return "person.2.fill"
+        case .language: return "message.fill"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .all: return .blue
+        case .physical: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
+        case .cognitive: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
+        case .social: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
+        case .language: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
+        }
+    }
+}
+
+enum ReminderCategory: String, CaseIterable, Codable {
+    case all = "All"
+    case feeding = "Feeding"
+    case nappy = "Nappy"
+    case sleep = "Sleep"
+    case medical = "Medical"
+    case personal = "Personal"
+    
+    var icon: String {
+        switch self {
+        case .all: return "list.bullet"
+        case .feeding: return "drop.fill"
+        case .nappy: return "drop"
+        case .sleep: return "bed.double.fill"
+        case .medical: return "cross.fill"
+        case .personal: return "person.fill"
+        }
+    }
+    
+    var color: Color {
+        switch self {
+        case .all: return .blue
+        case .feeding: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
+        case .nappy: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
+        case .sleep: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
+        case .medical: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
+        case .personal: return Color(red: 0.5, green: 0.6, blue: 1.0) // Very light blue
+        }
+    }
+}
+
 // Enhanced Baby Data Models
 struct Baby: Identifiable, Codable {
     var id: UUID = UUID()
@@ -257,6 +325,20 @@ struct SleepRecord: Identifiable, Codable, Hashable {
 }
 
 // New Milestone Tracking
+// Add a period enum for filtering
+enum MilestonePeriod: Codable, Equatable {
+    case months(Int)
+    case years(Int)
+    
+    var description: String {
+        switch self {
+        case .months(let m): return "\(m) months"
+        case .years(let y): return "\(y) years"
+        }
+    }
+}
+
+// Update Milestone struct to include period
 struct Milestone: Identifiable, Codable {
     var id: UUID = UUID()
     let title: String
@@ -266,30 +348,19 @@ struct Milestone: Identifiable, Codable {
     let expectedAge: Int // in weeks
     var isAchieved: Bool
     let notes: String?
+    let ageRange: String
+    let period: MilestonePeriod // new
     
-    enum MilestoneCategory: String, CaseIterable, Codable {
-        case physical = "Physical"
-        case cognitive = "Cognitive"
-        case social = "Social"
-        case language = "Language"
-        
-        var icon: String {
-            switch self {
-            case .physical: return "figure.walk"
-            case .cognitive: return "brain.head.profile"
-            case .social: return "person.2.fill"
-            case .language: return "message.fill"
-            }
-        }
-        
-        var color: Color {
-            switch self {
-            case .physical: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
-            case .cognitive: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
-            case .social: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
-            case .language: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
-            }
-        }
+    init(title: String, description: String, category: MilestoneCategory, achievedDate: Date?, expectedAge: Int, isAchieved: Bool, notes: String?, ageRange: String, period: MilestonePeriod) {
+        self.title = title
+        self.description = description
+        self.category = category
+        self.achievedDate = achievedDate
+        self.expectedAge = expectedAge
+        self.isAchieved = isAchieved
+        self.notes = notes
+        self.ageRange = ageRange
+        self.period = period
     }
 }
 
@@ -333,33 +404,18 @@ struct Reminder: Identifiable, Codable {
     var isCompleted: Bool
     let category: ReminderCategory
     let repeatType: RepeatType
+    let time: String
+    let notes: String?
     
-    enum ReminderCategory: String, CaseIterable, Codable {
-        case feeding = "Feeding"
-        case nappy = "Nappy"
-        case sleep = "Sleep"
-        case medical = "Medical"
-        case personal = "Personal"
-        
-        var icon: String {
-            switch self {
-            case .feeding: return "drop.fill"
-            case .nappy: return "drop"
-            case .sleep: return "bed.double.fill"
-            case .medical: return "cross.fill"
-            case .personal: return "person.fill"
-            }
-        }
-        
-        var color: Color {
-            switch self {
-            case .feeding: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
-            case .nappy: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
-            case .sleep: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
-            case .medical: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
-            case .personal: return Color(red: 0.5, green: 0.6, blue: 1.0) // Very light blue
-            }
-        }
+    init(title: String, description: String?, date: Date, isCompleted: Bool, category: ReminderCategory, repeatType: RepeatType, time: String, notes: String?) {
+        self.title = title
+        self.description = description
+        self.date = date
+        self.isCompleted = isCompleted
+        self.category = category
+        self.repeatType = repeatType
+        self.time = time
+        self.notes = notes
     }
     
     enum RepeatType: String, CaseIterable, Codable {
@@ -668,6 +724,7 @@ struct WeightEntry: Identifiable, Codable {
 // Health Visitor Visit Record
 struct HealthVisitorVisit: Identifiable, Codable {
     var id: UUID = UUID()
+    let title: String
     let date: Date
     let notes: String?
     let weight: Double? // in kg
@@ -693,6 +750,7 @@ class BabyDataManager: ObservableObject {
     @Published var growthPredictions: [GrowthPrediction] = []
     @Published var developmentChecklists: [DevelopmentChecklist] = []
     @Published var appointments: [Appointment] = []
+    @Published var healthVisitorVisits: [HealthVisitorVisit] = []
     
     // Performance optimizations
     private let userDefaults = UserDefaults.standard
@@ -719,6 +777,21 @@ class BabyDataManager: ObservableObject {
         isInitialized = true
     }
     
+    // MARK: - Data Recovery
+    
+    func clearAllData() {
+        // Clear all UserDefaults data
+        let keys = ["baby", "feedingRecords", "nappyRecords", "sleepRecords", "milestones", "achievements", "reminders", "vaccinations", "solidFoodRecords", "wellnessEntries", "partnerSupports", "emergencyContacts", "quickActions", "growthPredictions", "developmentChecklists", "appointments"]
+        
+        for key in keys {
+            userDefaults.removeObject(forKey: key)
+        }
+        
+        // Reset in-memory data
+        setDefaultData()
+        isDataLoaded = true
+    }
+    
     // MARK: - Performance Optimized Data Loading
     
     private func loadData() {
@@ -737,9 +810,33 @@ class BabyDataManager: ObservableObject {
         }
     }
     
+    private func setDefaultData() {
+        // Set empty arrays for all data types to prevent crashes
+        feedingRecords = []
+        nappyRecords = []
+        sleepRecords = []
+        milestones = []
+        achievements = []
+        reminders = []
+        vaccinations = []
+        solidFoodRecords = []
+        wellnessEntries = []
+        partnerSupports = []
+        emergencyContacts = []
+        quickActions = []
+        growthPredictions = []
+        developmentChecklists = []
+        appointments = []
+        healthVisitorVisits = []
+        
+        // Setup default data
+        setupDefaultMilestones()
+        setupDefaultAchievements()
+    }
+    
     private func loadDataFromStorage() -> [String: Any] {
         var data: [String: Any] = [:]
-        let dataQueue = DispatchQueue(label: "com.tinysteps.datasafety", attributes: .serial)
+        let dataQueue = DispatchQueue(label: "com.tinysteps.datasafety")
         
         // Load all data in parallel
         let group = DispatchGroup()
@@ -748,10 +845,14 @@ class BabyDataManager: ObservableObject {
         // Baby data
         group.enter()
         queue.async {
-            if let babyData = self.userDefaults.data(forKey: "baby"),
-               let baby = try? JSONDecoder().decode(Baby.self, from: babyData) {
-                dataQueue.async {
-                    data["baby"] = baby
+            if let babyData = self.userDefaults.data(forKey: "baby") {
+                do {
+                    let baby = try JSONDecoder().decode(Baby.self, from: babyData)
+                    dataQueue.async {
+                        data["baby"] = baby
+                    }
+                } catch {
+                    print("Error decoding baby data: \(error)")
                 }
             }
             group.leave()
@@ -760,10 +861,14 @@ class BabyDataManager: ObservableObject {
         // Feeding records
         group.enter()
         queue.async {
-            if let feedingData = self.userDefaults.data(forKey: "feedingRecords"),
-               let feedings = try? JSONDecoder().decode([FeedingRecord].self, from: feedingData) {
-                dataQueue.async {
-                    data["feedingRecords"] = feedings
+            if let feedingData = self.userDefaults.data(forKey: "feedingRecords") {
+                do {
+                    let feedings = try JSONDecoder().decode([FeedingRecord].self, from: feedingData)
+                    dataQueue.async {
+                        data["feedingRecords"] = feedings
+                    }
+                } catch {
+                    print("Error decoding feeding records: \(error)")
                 }
             }
             group.leave()
@@ -772,10 +877,14 @@ class BabyDataManager: ObservableObject {
         // Nappy records
         group.enter()
         queue.async {
-            if let nappyData = self.userDefaults.data(forKey: "nappyRecords"),
-               let nappies = try? JSONDecoder().decode([NappyRecord].self, from: nappyData) {
-                dataQueue.async {
-                    data["nappyRecords"] = nappies
+            if let nappyData = self.userDefaults.data(forKey: "nappyRecords") {
+                do {
+                    let nappies = try JSONDecoder().decode([NappyRecord].self, from: nappyData)
+                    dataQueue.async {
+                        data["nappyRecords"] = nappies
+                    }
+                } catch {
+                    print("Error decoding nappy records: \(error)")
                 }
             }
             group.leave()
@@ -784,97 +893,72 @@ class BabyDataManager: ObservableObject {
         // Sleep records
         group.enter()
         queue.async {
-            if let sleepData = self.userDefaults.data(forKey: "sleepRecords"),
-               let sleeps = try? JSONDecoder().decode([SleepRecord].self, from: sleepData) {
-                dataQueue.async {
-                    data["sleepRecords"] = sleeps
+            if let sleepData = self.userDefaults.data(forKey: "sleepRecords") {
+                do {
+                    let sleeps = try JSONDecoder().decode([SleepRecord].self, from: sleepData)
+                    dataQueue.async {
+                        data["sleepRecords"] = sleeps
+                    }
+                } catch {
+                    print("Error decoding sleep records: \(error)")
                 }
             }
             group.leave()
         }
         
         // Other records (load in batches for efficiency)
-        let recordKeys = ["milestones", "achievements", "reminders", "vaccinations", "solidFoodRecords", "wellnessEntries", "partnerSupports", "emergencyContacts", "quickActions", "growthPredictions", "developmentChecklists", "appointments"]
+        let recordKeys = ["milestones", "achievements", "reminders", "vaccinations", "solidFoodRecords", "wellnessEntries", "partnerSupports", "emergencyContacts", "quickActions", "growthPredictions", "developmentChecklists", "appointments", "healthVisitorVisits"]
         
         for key in recordKeys {
             group.enter()
             queue.async {
                 if let recordData = self.userDefaults.data(forKey: key) {
-                    switch key {
-                    case "milestones":
-                        if let records = try? JSONDecoder().decode([Milestone].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
+                    do {
+                        switch key {
+                        case "milestones":
+                            let records = try JSONDecoder().decode([Milestone].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "achievements":
+                            let records = try JSONDecoder().decode([DadAchievement].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "reminders":
+                            let records = try JSONDecoder().decode([Reminder].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "vaccinations":
+                            let records = try JSONDecoder().decode([VaccinationRecord].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "solidFoodRecords":
+                            let records = try JSONDecoder().decode([SolidFoodRecord].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "wellnessEntries":
+                            let records = try JSONDecoder().decode([WellnessEntry].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "partnerSupports":
+                            let records = try JSONDecoder().decode([PartnerSupport].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "emergencyContacts":
+                            let records = try JSONDecoder().decode([EmergencyContact].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "quickActions":
+                            let records = try JSONDecoder().decode([QuickAction].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "growthPredictions":
+                            let records = try JSONDecoder().decode([GrowthPrediction].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "developmentChecklists":
+                            let records = try JSONDecoder().decode([DevelopmentChecklist].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "appointments":
+                            let records = try JSONDecoder().decode([Appointment].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        case "healthVisitorVisits":
+                            let records = try JSONDecoder().decode([HealthVisitorVisit].self, from: recordData)
+                            dataQueue.async { data[key] = records }
+                        default:
+                            break
                         }
-                    case "achievements":
-                        if let records = try? JSONDecoder().decode([DadAchievement].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "reminders":
-                        if let records = try? JSONDecoder().decode([Reminder].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "vaccinations":
-                        if let records = try? JSONDecoder().decode([VaccinationRecord].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "solidFoodRecords":
-                        if let records = try? JSONDecoder().decode([SolidFoodRecord].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "wellnessEntries":
-                        if let records = try? JSONDecoder().decode([WellnessEntry].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "partnerSupports":
-                        if let records = try? JSONDecoder().decode([PartnerSupport].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "emergencyContacts":
-                        if let records = try? JSONDecoder().decode([EmergencyContact].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "quickActions":
-                        if let records = try? JSONDecoder().decode([QuickAction].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "growthPredictions":
-                        if let records = try? JSONDecoder().decode([GrowthPrediction].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "developmentChecklists":
-                        if let records = try? JSONDecoder().decode([DevelopmentChecklist].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    case "appointments":
-                        if let records = try? JSONDecoder().decode([Appointment].self, from: recordData) {
-                            dataQueue.async {
-                                data[key] = records
-                            }
-                        }
-                    default:
-                        break
+                    } catch {
+                        print("Error decoding \(key): \(error)")
                     }
                 }
                 group.leave()
@@ -902,6 +986,7 @@ class BabyDataManager: ObservableObject {
         growthPredictions = data["growthPredictions"] as? [GrowthPrediction] ?? []
         developmentChecklists = data["developmentChecklists"] as? [DevelopmentChecklist] ?? []
         appointments = data["appointments"] as? [Appointment] ?? []
+        healthVisitorVisits = data["healthVisitorVisits"] as? [HealthVisitorVisit] ?? []
     }
     
     // MARK: - Optimized Save Data
@@ -1075,6 +1160,15 @@ class BabyDataManager: ObservableObject {
         queue.async {
             if let data = try? encoder.encode(self.appointments) {
                 self.userDefaults.set(data, forKey: "appointments")
+            }
+            group.leave()
+        }
+        
+        // Health visitor visits
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.healthVisitorVisits) {
+                self.userDefaults.set(data, forKey: "healthVisitorVisits")
             }
             group.leave()
         }
@@ -1264,39 +1358,43 @@ class BabyDataManager: ObservableObject {
     
     // MARK: - Milestone Methods
     private func setupDefaultMilestones() {
-        if milestones.isEmpty {
-            // Updated UK milestones for 2025
-            milestones = [
-                // Physical Development
-                Milestone(title: "Lifts head when on tummy", description: "Baby can lift their head briefly when placed on their tummy", category: .physical, expectedAge: 4, isAchieved: false, notes: nil),
-                Milestone(title: "Rolls from tummy to back", description: "Baby can roll from tummy to back position", category: .physical, expectedAge: 12, isAchieved: false, notes: nil),
-                Milestone(title: "Sits without support", description: "Baby can sit independently for short periods", category: .physical, expectedAge: 24, isAchieved: false, notes: nil),
-                Milestone(title: "Crawls or scoots", description: "Baby moves around by crawling or scooting", category: .physical, expectedAge: 28, isAchieved: false, notes: nil),
-                Milestone(title: "Pulls to stand", description: "Baby pulls themselves up to standing position", category: .physical, expectedAge: 36, isAchieved: false, notes: nil),
-                Milestone(title: "Walks independently", description: "Baby takes first steps without support", category: .physical, expectedAge: 52, isAchieved: false, notes: nil),
-                
-                // Cognitive Development
-                Milestone(title: "Follows objects with eyes", description: "Baby tracks moving objects with their eyes", category: .cognitive, expectedAge: 4, isAchieved: false, notes: nil),
-                Milestone(title: "Reaches for objects", description: "Baby reaches out to grab nearby objects", category: .cognitive, expectedAge: 12, isAchieved: false, notes: nil),
-                Milestone(title: "Picks up small objects", description: "Baby can pick up small items using pincer grasp", category: .cognitive, expectedAge: 28, isAchieved: false, notes: nil),
-                Milestone(title: "Points to objects", description: "Baby points to objects they want or find interesting", category: .cognitive, expectedAge: 40, isAchieved: false, notes: nil),
-                Milestone(title: "Follows simple commands", description: "Baby understands and follows simple instructions", category: .cognitive, expectedAge: 52, isAchieved: false, notes: nil),
-                
-                // Social Development
-                Milestone(title: "Smiles at people", description: "Baby responds with social smiles", category: .social, expectedAge: 6, isAchieved: false, notes: nil),
-                Milestone(title: "Recognises familiar faces", description: "Baby shows recognition of parents and caregivers", category: .social, expectedAge: 12, isAchieved: false, notes: nil),
-                Milestone(title: "Plays peek-a-boo", description: "Baby enjoys interactive games like peek-a-boo", category: .social, expectedAge: 24, isAchieved: false, notes: nil),
-                Milestone(title: "Waves goodbye", description: "Baby waves goodbye when someone leaves", category: .social, expectedAge: 36, isAchieved: false, notes: nil),
-                Milestone(title: "Shows independence", description: "Baby shows desire to do things independently", category: .social, expectedAge: 52, isAchieved: false, notes: nil),
-                
-                // Language Development
-                Milestone(title: "Responds to sounds", description: "Baby turns head toward sounds and voices", category: .language, expectedAge: 4, isAchieved: false, notes: nil),
-                Milestone(title: "Babbles and coos", description: "Baby makes babbling sounds and coos", category: .language, expectedAge: 12, isAchieved: false, notes: nil),
-                Milestone(title: "Says 'mama' or 'dada'", description: "Baby says first words like mama or dada", category: .language, expectedAge: 28, isAchieved: false, notes: nil),
-                Milestone(title: "Says first words", description: "Baby says several words beyond mama/dada", category: .language, expectedAge: 40, isAchieved: false, notes: nil),
-                Milestone(title: "Combines 2 words", description: "Baby combines two words together", category: .language, expectedAge: 60, isAchieved: false, notes: nil)
-            ]
+        // Always ensure premade milestones are present
+        let premade: [Milestone] = [
+            Milestone(title: "Lifts head when on tummy", description: "Baby can lift their head briefly when placed on their tummy", category: .physical, achievedDate: nil, expectedAge: 4, isAchieved: false, notes: nil, ageRange: "0-1 months", period: .months(1)),
+            Milestone(title: "Smiles socially", description: "Baby smiles in response to social interaction", category: .social, achievedDate: nil, expectedAge: 6, isAchieved: false, notes: nil, ageRange: "1-2 months", period: .months(2)),
+            Milestone(title: "Rolls from tummy to back", description: "Baby can roll from tummy to back position", category: .physical, achievedDate: nil, expectedAge: 12, isAchieved: false, notes: nil, ageRange: "2-3 months", period: .months(3)),
+            Milestone(title: "Babbles and coos", description: "Baby makes babbling sounds and coos", category: .language, achievedDate: nil, expectedAge: 16, isAchieved: false, notes: nil, ageRange: "3-4 months", period: .months(4)),
+            Milestone(title: "Sits without support", description: "Baby can sit independently for short periods", category: .physical, achievedDate: nil, expectedAge: 24, isAchieved: false, notes: nil, ageRange: "6-7 months", period: .months(7)),
+            Milestone(title: "Says 'mama' or 'dada'", description: "Baby says first words like mama or dada", category: .language, achievedDate: nil, expectedAge: 32, isAchieved: false, notes: nil, ageRange: "8-9 months", period: .months(9)),
+            Milestone(title: "Waves goodbye", description: "Baby waves goodbye when someone leaves", category: .social, achievedDate: nil, expectedAge: 36, isAchieved: false, notes: nil, ageRange: "9-10 months", period: .months(10)),
+            Milestone(title: "Walks independently", description: "Baby takes first steps without support", category: .physical, achievedDate: nil, expectedAge: 52, isAchieved: false, notes: nil, ageRange: "12-14 months", period: .months(14)),
+            Milestone(title: "Says 5-10 words", description: "Baby can say 5-10 words", category: .language, achievedDate: nil, expectedAge: 60, isAchieved: false, notes: nil, ageRange: "15-18 months", period: .months(18)),
+            Milestone(title: "Runs and climbs", description: "Baby can run and climb", category: .physical, achievedDate: nil, expectedAge: 78, isAchieved: false, notes: nil, ageRange: "2 years", period: .years(2)),
+            Milestone(title: "Combines 2 words", description: "Baby combines two words together", category: .language, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2.5 years", period: .years(2)),
+            Milestone(title: "Shows independence", description: "Baby shows desire to do things independently", category: .social, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2.5 years", period: .years(2))
+        ]
+        var didAdd = false
+        for pre in premade {
+            if !milestones.contains(where: { $0.title == pre.title }) {
+                milestones.append(pre)
+                didAdd = true
+            }
         }
+        if didAdd {
+            saveData()
+        }
+    }
+    
+    // Milestone badge system: unlock badge if all milestones in a category are achieved
+    func achievedBadgeCategories() -> [MilestoneCategory] {
+        var unlocked: [MilestoneCategory] = []
+        for category in MilestoneCategory.allCases where category != .all {
+            let milestonesInCategory = milestones.filter { $0.category == category }
+            if !milestonesInCategory.isEmpty && milestonesInCategory.allSatisfy({ $0.isAchieved }) {
+                unlocked.append(category)
+            }
+        }
+        return unlocked
     }
     
     private func setupDefaultAchievements() {
@@ -1394,6 +1492,12 @@ class BabyDataManager: ObservableObject {
     // MARK: - Reminder Methods
     func addReminder(_ reminder: Reminder) {
         reminders.append(reminder)
+        saveData()
+    }
+    
+    // MARK: - Milestone Methods
+    func addMilestone(_ milestone: Milestone) {
+        milestones.append(milestone)
         saveData()
     }
     
@@ -1520,6 +1624,50 @@ class BabyDataManager: ObservableObject {
         return appointments.filter { Calendar.current.isDate($0.startDate, inSameDayAs: today) }
     }
     
+    // MARK: - Health Visitor Methods
+    func addHealthVisitorVisit(_ visit: HealthVisitorVisit) {
+        healthVisitorVisits.append(visit)
+        saveData()
+    }
+    
+    func updateHealthVisitorVisit(_ visit: HealthVisitorVisit) {
+        if let idx = healthVisitorVisits.firstIndex(where: { $0.id == visit.id }) {
+            healthVisitorVisits[idx] = visit
+            saveData()
+        }
+    }
+    
+    func deleteHealthVisitorVisit(_ visit: HealthVisitorVisit) {
+        healthVisitorVisits.removeAll { $0.id == visit.id }
+        saveData()
+    }
+    
+    func markHealthVisitorVisitCompleted(_ visit: HealthVisitorVisit) {
+        // For now, we'll just update the visit to today's date to mark it as completed
+        if let idx = healthVisitorVisits.firstIndex(where: { $0.id == visit.id }) {
+            var updatedVisit = visit
+            // Since date is let, we'll need to create a new visit with today's date
+            let completedVisit = HealthVisitorVisit(
+                title: visit.title,
+                date: Date(),
+                notes: visit.notes,
+                weight: visit.weight,
+                height: visit.height,
+                headCircumference: visit.headCircumference
+            )
+            healthVisitorVisits[idx] = completedVisit
+            saveData()
+        }
+    }
+    
+    func getUpcomingHealthVisitorVisits() -> [HealthVisitorVisit] {
+        return healthVisitorVisits.filter { $0.date > Date() }.sorted { $0.date < $1.date }
+    }
+    
+    func getCompletedHealthVisitorVisits() -> [HealthVisitorVisit] {
+        return healthVisitorVisits.filter { $0.date <= Date() }.sorted { $0.date > $1.date }
+    }
+    
     // MARK: - Neonatal Specific Methods
     func isInNeonatalPeriod() -> Bool {
         guard let baby = baby else { return false }
@@ -1596,7 +1744,7 @@ enum RecordType {
         case .nappy(let record): return record.date
         }
     }
-}
+} 
 
 struct Appointment: Identifiable, Codable {
     var id: UUID = UUID()
@@ -1607,4 +1755,61 @@ struct Appointment: Identifiable, Codable {
     var endDate: Date
     var notes: String?
     var reminderMinutes: Int
+    var type: AppointmentType
+    var time: String
+    
+    enum AppointmentType: String, CaseIterable, Codable {
+        case checkup = "Check-up"
+        case vaccination = "Vaccination"
+        case specialist = "Specialist"
+        case emergency = "Emergency"
+        case followup = "Follow-up"
+        case other = "Other"
+        
+        var icon: String {
+            switch self {
+            case .checkup: return "stethoscope"
+            case .vaccination: return "syringe"
+            case .specialist: return "person.2.fill"
+            case .emergency: return "exclamationmark.triangle.fill"
+            case .followup: return "arrow.clockwise"
+            case .other: return "calendar"
+            }
+        }
+        
+        var color: Color {
+            switch self {
+            case .checkup: return .blue
+            case .vaccination: return .green
+            case .specialist: return .purple
+            case .emergency: return .red
+            case .followup: return .orange
+            case .other: return .gray
+            }
+        }
+    }
+    
+    init(title: String, date: Date, time: String, location: String, notes: String?, type: AppointmentType) {
+        self.title = title
+        self.location = location
+        self.isAllDay = false
+        self.startDate = date
+        self.endDate = date
+        self.notes = notes
+        self.reminderMinutes = 30
+        self.type = type
+        self.time = time
+    }
+    
+    init(title: String, location: String, isAllDay: Bool, startDate: Date, endDate: Date, notes: String?, reminderMinutes: Int) {
+        self.title = title
+        self.location = location
+        self.isAllDay = isAllDay
+        self.startDate = startDate
+        self.endDate = endDate
+        self.notes = notes
+        self.reminderMinutes = reminderMinutes
+        self.type = .other
+        self.time = timeFormatter.string(from: startDate)
+    }
 } 

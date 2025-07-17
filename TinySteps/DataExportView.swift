@@ -6,7 +6,9 @@
 //
 
 import SwiftUI
+#if canImport(UniformTypeIdentifiers)
 import UniformTypeIdentifiers
+#endif
 
 struct DataExportView: View {
     @EnvironmentObject var dataManager: BabyDataManager

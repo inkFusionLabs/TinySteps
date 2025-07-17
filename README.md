@@ -16,13 +16,14 @@ TinySteps was created by a dad who experienced the emotional and practical chall
 - **Daily Journal**: Document precious moments and milestones in your baby's journey
 - **Reminders**: Set up important notifications for feeding times, medication, and appointments
 
-### UK Service Integration
-- **Bliss**: Information and support for babies born premature or sick
-- **DadPad**: Father-specific parenting resources and guidance
-- **Mush**: Connect with other dads in similar situations
-- **Baby Buddy**: NHS-approved baby development tracking
-- **PANDA's**: Perinatal mental health support for dads
-- **NHS Healthier Together**: Official NHS guidance and resources
+### International Health Services Integration
+- **Location-Aware Services**: Automatically detects your country and shows relevant health services
+- **Multi-Country Support**: Health services for 20+ countries including UK, US, Canada, Australia, Germany, and more
+- **Country-Specific Information**: Vaccination schedules, growth standards, and health guidelines tailored to your location
+- **Emergency Information**: Country-specific emergency numbers and healthcare system information
+- **UK Services**: Bliss, DadPad, Mush, Baby Buddy, PANDA's, NHS Healthier Together
+- **US Services**: March of Dimes, NICU Parent Network, Hand to Hold, Graham's Foundation
+- **Global Coverage**: Support organizations and medical services from around the world
 
 ### User Experience
 - **Dad-Focused Design**: Interface designed specifically for fathers' needs

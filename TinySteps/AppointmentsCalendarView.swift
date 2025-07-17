@@ -1,5 +1,14 @@
 import SwiftUI
+#if canImport(UserNotifications)
 import UserNotifications
+#endif
+
+// Date formatters - moved to top level
+let dateFormatter: DateFormatter = {
+    let df = DateFormatter()
+    df.dateStyle = .full
+    return df
+}()
 
 enum CalendarViewType: String, CaseIterable, Identifiable {
     case month = "Month"
@@ -174,6 +183,24 @@ struct MonthCalendarView: View {
     }
 }
 
+struct DayCalendarView: View {
+    @Binding var selectedDate: Date
+    var body: some View {
+        Text("Day View (coming soon)")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
+    }
+}
+
+struct YearCalendarView: View {
+    @Binding var selectedDate: Date
+    var body: some View {
+        Text("Year View (coming soon)")
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
+    }
+}
+
 struct AddAppointmentSheet: View {
     let date: Date
     @Environment(\.dismiss) private var dismiss
@@ -195,41 +222,41 @@ struct AddAppointmentSheet: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 TinyStepsDesign.Colors.background
                     .ignoresSafeArea()
                 
                 Form {
-                Section(header: Text("Title")) {
-                    TextField("Appointment Title", text: $title)
-                }
-                Section(header: Text("Location")) {
-                    TextField("Location", text: $location)
-                }
-                Section {
-                    Toggle("All-day", isOn: $isAllDay)
-                    DatePicker("Start", selection: $startDate, displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute])
-                    DatePicker("End", selection: $endDate, displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute])
-                }
-                Section(header: Text("Notes")) {
-                    TextEditor(text: $notes)
-                        .frame(minHeight: 60)
-                }
-                Section(header: Text("Reminder")) {
-                    Picker("Alert", selection: $reminderMinutes) {
-                        Text("None").tag(0)
-                        Text("At time of event").tag(0)
-                        Text("5 minutes before").tag(5)
-                        Text("10 minutes before").tag(10)
-                        Text("15 minutes before").tag(15)
-                        Text("30 minutes before").tag(30)
-                        Text("1 hour before").tag(60)
-                        Text("2 hours before").tag(120)
-                        Text("1 day before").tag(1440)
+                    Section(header: Text("Title")) {
+                        TextField("Appointment Title", text: $title)
                     }
-                    .pickerStyle(.menu)
-                }
+                    Section(header: Text("Location")) {
+                        TextField("Location", text: $location)
+                    }
+                    Section {
+                        Toggle("All-day", isOn: $isAllDay)
+                        DatePicker("Start", selection: $startDate, displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute])
+                        DatePicker("End", selection: $endDate, displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute])
+                    }
+                    Section(header: Text("Notes")) {
+                        TextEditor(text: $notes)
+                            .frame(minHeight: 60)
+                    }
+                    Section(header: Text("Reminder")) {
+                        Picker("Alert", selection: $reminderMinutes) {
+                            Text("None").tag(0)
+                            Text("At time of event").tag(0)
+                            Text("5 minutes before").tag(5)
+                            Text("10 minutes before").tag(10)
+                            Text("15 minutes before").tag(15)
+                            Text("30 minutes before").tag(30)
+                            Text("1 hour before").tag(60)
+                            Text("2 hours before").tag(120)
+                            Text("1 day before").tag(1440)
+                        }
+                        .pickerStyle(.menu)
+                    }
                 }
             }
             .navigationTitle("New Appointment")
@@ -282,7 +309,7 @@ struct EditAppointmentSheet: View {
     @State private var showDeleteAlert = false
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 TinyStepsDesign.Colors.background
                     .ignoresSafeArea()
@@ -339,16 +366,16 @@ struct EditAppointmentSheet: View {
                     .disabled(appointment.title.isEmpty)
                 }
             }
-            .alert("Delete this appointment?", isPresented: $showDeleteAlert) {
-                Button("Delete", role: .destructive) {
-                    dataManager.deleteAppointment(appointment)
-                    removeNotification(for: appointment)
-                    dismiss()
-                }
-                Button("Cancel", role: .cancel) {}
-            } message: {
-                Text("This action cannot be undone.")
+        }
+        .alert("Delete this appointment?", isPresented: $showDeleteAlert) {
+            Button("Delete", role: .destructive) {
+                dataManager.deleteAppointment(appointment)
+                removeNotification(for: appointment)
+                dismiss()
             }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This action cannot be undone.")
         }
     }
     
@@ -377,36 +404,5 @@ struct EditAppointmentSheet: View {
 extension Binding where Value == String? {
     init(_ source: Binding<String?>, replacingNilWith defaultValue: String) {
         self.init(get: { source.wrappedValue ?? defaultValue }, set: { source.wrappedValue = $0 })
-    }
-}
-
-// Date formatters
-private let dateFormatter: DateFormatter = {
-    let df = DateFormatter()
-    df.dateStyle = .full
-    return df
-}()
-
-private let timeFormatter: DateFormatter = {
-    let df = DateFormatter()
-    df.timeStyle = .short
-    return df
-}()
-
-struct DayCalendarView: View {
-    @Binding var selectedDate: Date
-    var body: some View {
-        Text("Day View (coming soon)")
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
-    }
-}
-
-struct YearCalendarView: View {
-    @Binding var selectedDate: Date
-    var body: some View {
-        Text("Year View (coming soon)")
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
     }
 } 

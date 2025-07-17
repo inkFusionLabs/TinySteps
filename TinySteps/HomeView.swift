@@ -59,10 +59,6 @@ struct HomeView: View {
                         }
                         .padding(.horizontal)
                         .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.1))
-                        )
                     }
                     
                     // Quick Actions
@@ -207,7 +203,8 @@ struct HomeView: View {
         var activities: [ActivityItem] = []
         
         for record in recentRecords {
-            if let feeding = record as? FeedingRecord {
+            switch record {
+            case .feeding(let feeding):
                 activities.append(ActivityItem(
                     icon: "drop.fill",
                     title: "\(feeding.type.rawValue) Feed",
@@ -215,7 +212,7 @@ struct HomeView: View {
                     date: feeding.date,
                     color: TinyStepsDesign.Colors.accent
                 ))
-            } else if let sleep = record as? SleepRecord {
+            case .sleep(let sleep):
                 var description = sleep.location.rawValue
                 if let endTime = sleep.endTime {
                     let duration = endTime.timeIntervalSince(sleep.startTime) / 3600
@@ -228,7 +225,7 @@ struct HomeView: View {
                     date: sleep.startTime,
                     color: TinyStepsDesign.Colors.highlight
                 ))
-            } else if let nappy = record as? NappyRecord {
+            case .nappy(let nappy):
                 activities.append(ActivityItem(
                     icon: "drop",
                     title: "\(nappy.type.rawValue) Nappy",

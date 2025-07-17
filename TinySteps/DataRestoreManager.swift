@@ -2,12 +2,14 @@
 //  DataRestoreManager.swift
 //  TinySteps
 //
-//  Created by inkfusionlabs on 08/07/2025.
+//  Created by inkLabs on 08/07/2025.
 //
 
 import Foundation
 import SwiftUI
+#if canImport(CloudKit)
 import CloudKit
+#endif
 
 // MARK: - Data Backup Structure
 struct TinyStepsBackup: Codable {
@@ -99,19 +101,18 @@ class DataRestoreManager: ObservableObject {
             backupProgress = 0.6
             
             // Save to UserDefaults
-            var backups = getStoredBackups()
-            backups.append(backup)
-            
-            // Keep only last 5 backups
-            if backups.count > 5 {
-                backups = Array(backups.suffix(5))
-            }
-            
-            saveBackups(backups)
-            backupProgress = 0.8
-            
-            // Update last backup date
             await MainActor.run {
+                var backups = getStoredBackups()
+                backups.append(backup)
+                
+                // Keep only last 5 backups
+                if backups.count > 5 {
+                    backups = Array(backups.suffix(5))
+                }
+                
+                saveBackups(backups)
+                
+                // Update last backup date
                 lastBackupDate = Date()
                 userDefaults.set(lastBackupDate, forKey: lastBackupKey)
                 availableBackups = backups
@@ -357,10 +358,12 @@ class DataRestoreManager: ObservableObject {
     }
     
     func deleteBackup(_ backup: TinyStepsBackup) {
-        var backups = getStoredBackups()
-        backups.removeAll { $0.timestamp == backup.timestamp }
-        saveBackups(backups)
-        availableBackups = backups
+        Task { @MainActor in
+            var backups = getStoredBackups()
+            backups.removeAll { $0.timestamp == backup.timestamp }
+            saveBackups(backups)
+            availableBackups = backups
+        }
     }
     
     func clearAllBackups() {

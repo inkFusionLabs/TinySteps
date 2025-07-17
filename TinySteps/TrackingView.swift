@@ -2,11 +2,13 @@
 //  TrackingView.swift
 //  TinySteps
 //
-//  Created by inkLabs on 08/07/2025.
+//  Created by inkFusionLabs on 08/07/2025.
 //
 
 import SwiftUI
+#if canImport(Charts)
 import Charts // Add this import if available (iOS 16+)
+#endif
 
 struct TrackingView: View {
     @EnvironmentObject var dataManager: BabyDataManager
@@ -859,6 +861,7 @@ struct TrackingView: View {
 }
 
 // Animated Growth Charts View
+#if canImport(Charts)
 import Charts
 struct AnimatedGrowthChartsView: View {
     let baby: Baby
@@ -989,6 +992,7 @@ struct AnimatedGrowthChartsView: View {
         .padding(.vertical, 8)
     }
 }
+#endif
 
 struct QuickActionButton: View {
     let icon: String
@@ -1289,6 +1293,8 @@ struct NappyLogView: View {
 }
 
 // MARK: - Growth Charts View
+#if canImport(Charts)
+import Charts
 struct GrowthChartsView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1436,8 +1442,11 @@ struct GrowthChartsView: View {
         }
     }
 }
+#endif
 
 // MARK: - Measurement Options View
+#if canImport(Charts)
+import Charts
 struct MeasurementOptionsView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1569,8 +1578,11 @@ struct MeasurementOptionsView: View {
         }
     }
 }
+#endif
 
 // MARK: - Weight Entry View
+#if canImport(Charts)
+import Charts
 struct WeightEntryView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1611,8 +1623,11 @@ struct WeightEntryView: View {
         dismiss()
     }
 }
+#endif
 
 // MARK: - Height Entry View
+#if canImport(Charts)
+import Charts
 struct HeightEntryView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1653,8 +1668,11 @@ struct HeightEntryView: View {
         dismiss()
     }
 }
+#endif
 
 // MARK: - Head Circumference Entry View
+#if canImport(Charts)
+import Charts
 struct HeadCircumferenceEntryView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1692,6 +1710,7 @@ struct HeadCircumferenceEntryView: View {
         dismiss()
     }
 }
+#endif
 
 #Preview {
     TrackingView()

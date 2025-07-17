@@ -1,6 +1,8 @@
 import SwiftUI
+#if canImport(PhotosUI)
 import PhotosUI
-#if os(iOS)
+#endif
+#if canImport(UIKit)
 import UIKit
 #endif
 

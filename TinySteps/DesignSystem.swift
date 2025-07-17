@@ -346,16 +346,4 @@ struct UKGuidelines2025 {
     ]
 } 
 
-// MARK: - TabView Customization
-@available(iOS 18.0, *)
-class TabViewCustomization: ObservableObject {
-    @Published var selectedTab: Int = 0
-    @Published var tabBarStyle: TabBarStyle = .default
-    
-    enum TabBarStyle {
-        case `default`
-        case custom
-    }
-}
-
  

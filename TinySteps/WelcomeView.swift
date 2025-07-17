@@ -27,10 +27,9 @@ struct WelcomeView: View {
                 .padding(.horizontal)
                 .padding(.top)
                 Spacer()
-                Image("WelcomeImage")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 180, height: 180)
+                Image(systemName: "heart.text.square.fill")
+                    .font(.system(size: 120))
+                    .foregroundColor(.blue)
                     .shadow(radius: 20)
                     .padding(.top, 40)
 

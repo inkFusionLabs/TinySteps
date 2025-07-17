@@ -1,6 +1,6 @@
 import SwiftUI
 
-#if os(iOS)
+#if canImport(UIKit)
 import UIKit
 #endif
 
@@ -493,8 +493,184 @@ struct GoingHomeView: View {
 
 struct GrowingAtHomeView: View {
     var body: some View {
-        Text("Growing at Home content...")
-            .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+        VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.lg) {
+            TinyStepsInfoCard(
+                title: "Growing at Home",
+                content: "Your baby's development journey continues at home. Here's what to expect and how to support their growth in the first year.",
+                icon: "house.fill",
+                color: TinyStepsDesign.Colors.success
+            )
+            
+            // Physical Development
+            TinyStepsCard {
+                VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+                    Text("Physical Development")
+                        .font(TinyStepsDesign.Typography.subheader)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    
+                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
+                        ForEach([
+                            "0-3 months: Lifting head, following objects with eyes",
+                            "3-6 months: Rolling over, reaching for objects",
+                            "6-9 months: Sitting up, crawling, first teeth",
+                            "9-12 months: Standing, cruising, first steps"
+                        ], id: \.self) { milestone in
+                            HStack(alignment: .top, spacing: TinyStepsDesign.Spacing.sm) {
+                                Image(systemName: "circle.fill")
+                                    .foregroundColor(TinyStepsDesign.Colors.success)
+                                    .font(.caption)
+                                
+                                Text(milestone)
+                                    .font(TinyStepsDesign.Typography.body)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Feeding Milestones
+            TinyStepsCard {
+                VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+                    Text("Feeding Milestones")
+                        .font(TinyStepsDesign.Typography.subheader)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    
+                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
+                        ForEach([
+                            "0-6 months: Breast milk or formula only",
+                            "6 months: Start introducing solid foods",
+                            "7-9 months: Finger foods, more variety",
+                            "10-12 months: Family meals, self-feeding"
+                        ], id: \.self) { feeding in
+                            HStack(alignment: .top, spacing: TinyStepsDesign.Spacing.sm) {
+                                Image(systemName: "circle.fill")
+                                    .foregroundColor(TinyStepsDesign.Colors.accent)
+                                    .font(.caption)
+                                
+                                Text(feeding)
+                                    .font(TinyStepsDesign.Typography.body)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Sleep Patterns
+            TinyStepsCard {
+                VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+                    Text("Sleep Development")
+                        .font(TinyStepsDesign.Typography.subheader)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    
+                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
+                        ForEach([
+                            "0-3 months: 14-17 hours total, frequent waking",
+                            "3-6 months: 12-15 hours, longer night sleep",
+                            "6-12 months: 11-14 hours, 2-3 naps daily",
+                            "12+ months: 11-14 hours, 1-2 naps daily"
+                        ], id: \.self) { sleep in
+                            HStack(alignment: .top, spacing: TinyStepsDesign.Spacing.sm) {
+                                Image(systemName: "circle.fill")
+                                    .foregroundColor(TinyStepsDesign.Colors.highlight)
+                                    .font(.caption)
+                                
+                                Text(sleep)
+                                    .font(TinyStepsDesign.Typography.body)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Communication Development
+            TinyStepsCard {
+                VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+                    Text("Communication & Social")
+                        .font(TinyStepsDesign.Typography.subheader)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    
+                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
+                        ForEach([
+                            "0-3 months: Cooing, smiling, eye contact",
+                            "3-6 months: Babbling, laughing, responding to voices",
+                            "6-9 months: Understanding simple words, pointing",
+                            "9-12 months: First words, waving, following simple commands"
+                        ], id: \.self) { communication in
+                            HStack(alignment: .top, spacing: TinyStepsDesign.Spacing.sm) {
+                                Image(systemName: "circle.fill")
+                                    .foregroundColor(TinyStepsDesign.Colors.info)
+                                    .font(.caption)
+                                
+                                Text(communication)
+                                    .font(TinyStepsDesign.Typography.body)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Safety Tips
+            TinyStepsCard {
+                VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+                    Text("Home Safety Tips")
+                        .font(TinyStepsDesign.Typography.subheader)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    
+                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
+                        ForEach([
+                            "Baby-proof your home: cover sockets, secure furniture",
+                            "Keep small objects out of reach (choking hazard)",
+                            "Install stair gates and cupboard locks",
+                            "Set water heater to max 50°C to prevent scalding",
+                            "Never leave baby alone on changing table or bed"
+                        ], id: \.self) { safety in
+                            HStack(alignment: .top, spacing: TinyStepsDesign.Spacing.sm) {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundColor(TinyStepsDesign.Colors.success)
+                                    .font(.caption)
+                                
+                                Text(safety)
+                                    .font(TinyStepsDesign.Typography.body)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // When to Seek Help
+            TinyStepsCard {
+                VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.md) {
+                    Text("When to Contact Your Health Visitor")
+                        .font(TinyStepsDesign.Typography.subheader)
+                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    
+                    VStack(alignment: .leading, spacing: TinyStepsDesign.Spacing.sm) {
+                        ForEach([
+                            "Not reaching expected milestones",
+                            "Concerns about feeding or weight gain",
+                            "Unusual behavior or development",
+                            "Questions about weaning or nutrition",
+                            "Sleep concerns affecting family wellbeing"
+                        ], id: \.self) { concern in
+                            HStack(alignment: .top, spacing: TinyStepsDesign.Spacing.sm) {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .foregroundColor(TinyStepsDesign.Colors.highlight)
+                                    .font(.caption)
+                                
+                                Text(concern)
+                                    .font(TinyStepsDesign.Typography.body)
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 

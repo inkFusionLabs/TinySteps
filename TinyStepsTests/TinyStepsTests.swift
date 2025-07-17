@@ -5,12 +5,13 @@
 //  Created by InkFusionLabs- on 14/07/2025.
 //
 
-import Testing
+import XCTest
+@testable import TinySteps
 
-struct TinyStepsTests {
+class TinyStepsTests: XCTestCase {
 
-    @Test func example() async throws {
-        // Write your test here and use APIs like `#expect(...)` to check expected conditions.
+    func testExample() throws {
+        // Write your test here and use APIs like `XCTAssert` to check expected conditions.
     }
 
 }

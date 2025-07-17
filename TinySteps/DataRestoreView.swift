@@ -2,11 +2,13 @@
 //  DataRestoreView.swift
 //  TinySteps
 //
-//  Created by inkfusionlabs on 08/07/2025.
+//  Created by inkLabs on 08/07/2025.
 //
 
 import SwiftUI
+#if canImport(UniformTypeIdentifiers)
 import UniformTypeIdentifiers
+#endif
 
 struct DataRestoreView: View {
     @EnvironmentObject var dataManager: BabyDataManager

@@ -13,13 +13,11 @@ import UIKit
 import AppKit
 #endif
 
-@available(iOS 18.0, *)
 struct ContentView: View {
     @AppStorage("userName") private var userName: String = ""
     @State private var showNameEntry = false
     @Binding var selectedTab: Tab
     @State private var showProfile = false
-    @State private var tabCustomization = TabViewCustomization()
     
     enum Tab: String, CaseIterable, Identifiable {
         case home, journal, tracking, support, settings
@@ -111,8 +109,6 @@ struct ContentView: View {
                 .tag(Tab.settings)
             }
             .accentColor(TinyStepsDesign.Colors.accent)
-            .tabViewStyle(.sidebarAdaptable)
-            // .tabViewCustomization($tabCustomization) // Removed due to type mismatch
             .background(TinyStepsDesign.Colors.background)
             .sheet(isPresented: $showProfile) {
                 NavigationView {
@@ -211,7 +207,7 @@ struct DashboardView: View {
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 20) {
-                                TipCard(
+                                DashboardTipCard(
                                     title: "Skin-to-Skin",
                                     description: "Hold your baby against your bare chest. It helps with bonding and regulates their temperature.",
                                     color: .orange,
@@ -220,7 +216,7 @@ struct DashboardView: View {
                                 .offset(y: animateCards ? 0 : 100)
                                 .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.7), value: animateCards)
                                 
-                                TipCard(
+                                DashboardTipCard(
                                     title: "Talk to Your Baby",
                                     description: "Even though they can't respond, talking helps with language development and bonding.",
                                     color: .green,
@@ -229,7 +225,7 @@ struct DashboardView: View {
                                 .offset(y: animateCards ? 0 : 100)
                                 .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.8), value: animateCards)
                                 
-                                TipCard(
+                                DashboardTipCard(
                                     title: "Take Photos",
                                     description: "Capture these precious moments. They grow so quickly!",
                                     color: .purple,
@@ -298,12 +294,14 @@ struct DashboardView: View {
     }
     
     private func formatNextFeeding() -> String {
-        guard let nextFeeding = dataManager.getNextFeedingTime() else {
-            return "Not set"
+        // Calculate next feeding time based on last feeding
+        if let lastFeeding = dataManager.feedingRecords.last {
+            let nextFeeding = Calendar.current.date(byAdding: .hour, value: 3, to: lastFeeding.date) ?? Date()
+            let formatter = DateFormatter()
+            formatter.timeStyle = .short
+            return formatter.string(from: nextFeeding)
         }
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: nextFeeding)
+        return "Not set"
     }
 }
 
@@ -357,23 +355,22 @@ struct QuickStatCard: View {
     }
 }
 
-struct TipCard: View {
+struct DashboardTipCard: View {
     let title: String
     let description: String
     let color: Color
     let icon: String
-    @State private var isHovered = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Image(systemName: icon)
+                    .foregroundColor(color)
                     .font(.title2)
-                    .foregroundColor(.white)
                 
                 Text(title)
                     .font(.headline)
-                    .fontWeight(.bold)
+                    .fontWeight(.semibold)
                     .foregroundColor(.white)
                 
                 Spacer()
@@ -382,27 +379,18 @@ struct TipCard: View {
             Text(description)
                 .font(.body)
                 .foregroundColor(.white.opacity(0.9))
-                .lineLimit(4)
-                .multilineTextAlignment(.leading)
+                .lineSpacing(4)
         }
-        .frame(width: 280, height: 140)
-        .padding(20)
+        .frame(width: 280, alignment: .leading)
+        .padding()
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [color, color.opacity(0.8)]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
+            RoundedRectangle(cornerRadius: 16)
+                .fill(color.opacity(0.2))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16)
+                        .stroke(color.opacity(0.3), lineWidth: 1)
                 )
         )
-        .scaleEffect(isHovered ? 1.05 : 1.0)
-        .shadow(color: color.opacity(0.3), radius: isHovered ? 15 : 10, x: 0, y: 5)
-        .animation(.easeInOut(duration: 0.2), value: isHovered)
-        .onHover { hovering in
-            isHovered = hovering
-        }
     }
 }
 
@@ -558,7 +546,7 @@ struct FeedingGuideView: View {
                 }
             }
             .navigationTitle("Feeding Guide")
-            #if os(iOS)
+            #if canImport(UIKit)
             .navigationBarTitleDisplayMode(.large)
             #endif
         }
@@ -734,7 +722,7 @@ struct SleepGuideView: View {
                 }
             }
             .navigationTitle("Sleep Guide")
-            #if os(iOS)
+            #if canImport(UIKit)
             .navigationBarTitleDisplayMode(.large)
             #endif
         }
@@ -802,19 +790,19 @@ struct DevelopmentView: View {
                             .fontWeight(.bold)
                         
                         VStack(spacing: 15) {
-                            MilestoneCard(
+                            DevelopmentMilestoneCard(
                                 age: "0-1 month",
                                 milestones: ["Lifts head briefly", "Follows objects with eyes", "Responds to sounds", "Grasps reflexively"],
                                 color: .blue
                             )
                             
-                            MilestoneCard(
+                            DevelopmentMilestoneCard(
                                 age: "1-2 months",
                                 milestones: ["Smiles socially", "Coos and gurgles", "Holds head up better", "Follows moving objects"],
                                 color: .green
                             )
                             
-                            MilestoneCard(
+                            DevelopmentMilestoneCard(
                                 age: "2-3 months",
                                 milestones: ["Laughs and squeals", "Reaches for objects", "Rolls from tummy to back", "Holds head steady"],
                                 color: .orange
@@ -881,40 +869,51 @@ struct DevelopmentView: View {
                 }
             }
             .navigationTitle("Development")
-            #if os(iOS)
+            #if canImport(UIKit)
             .navigationBarTitleDisplayMode(.large)
             #endif
         }
     }
 }
 
-struct MilestoneCard: View {
+struct DevelopmentMilestoneCard: View {
     let age: String
     let milestones: [String]
     let color: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(age)
-                .font(.headline)
-                .foregroundColor(TinyStepsDesign.Colors.accent)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text(age)
+                    .font(.headline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(color)
+                
+                Spacer()
+                
+                Image(systemName: "star.fill")
+                    .foregroundColor(color)
+                    .font(.caption)
+            }
             
-            ForEach(milestones, id: \.self) { milestone in
-                HStack {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                        .font(.caption)
-                    
-                    Text(milestone)
-                        .font(.caption)
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(milestones, id: \.self) { milestone in
+                    HStack {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.caption)
+                            .foregroundColor(color)
+                        
+                        Text(milestone)
+                            .font(.caption)
+                            .foregroundColor(.primary)
+                    }
                 }
             }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
         .padding()
         .background(Color.clear)
         .background(.ultraThinMaterial)
-        .cornerRadius(8)
+        .cornerRadius(12)
     }
 }
 
