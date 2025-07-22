@@ -244,20 +244,12 @@ class DataRestoreManager: ObservableObject {
             restoreProgress = 0.0
         }
         
-        do {
-            await applyBackup(backup)
-            restoreProgress = 1.0
-            
-            await MainActor.run {
-                isRestoring = false
-                restoreMessage = "Restore completed successfully!"
-            }
-            
-        } catch {
-            await MainActor.run {
-                isRestoring = false
-                restoreMessage = "Restore failed: \(error.localizedDescription)"
-            }
+        await applyBackup(backup)
+        restoreProgress = 1.0
+        
+        await MainActor.run {
+            isRestoring = false
+            restoreMessage = "Restore completed successfully!"
         }
     }
     
@@ -267,25 +259,17 @@ class DataRestoreManager: ObservableObject {
             restoreProgress = 0.0
         }
         
-        do {
-            // Apply backup to data manager
-            applyBackupToManager(backup, dataManager: dataManager)
-            restoreProgress = 0.5
-            
-            // Apply user avatar
-            await applyBackup(backup)
-            restoreProgress = 1.0
-            
-            await MainActor.run {
-                isRestoring = false
-                restoreMessage = "Restore completed successfully!"
-            }
-            
-        } catch {
-            await MainActor.run {
-                isRestoring = false
-                restoreMessage = "Restore failed: \(error.localizedDescription)"
-            }
+        // Apply backup to data manager
+        applyBackupToManager(backup, dataManager: dataManager)
+        restoreProgress = 0.5
+        
+        // Apply user avatar
+        await applyBackup(backup)
+        restoreProgress = 1.0
+        
+        await MainActor.run {
+            isRestoring = false
+            restoreMessage = "Restore completed successfully!"
         }
     }
     

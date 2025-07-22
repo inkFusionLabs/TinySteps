@@ -219,12 +219,8 @@ struct MilestonesView: View {
                 title: Text("Reset All Milestones?"),
                 message: Text("This will restore the default milestone list and remove all your progress. Are you sure?"),
                 primaryButton: .destructive(Text("Reset")) {
-                    do {
-                        dataManager.clearAllData()
-                        CrashReportingManager.shared.logMessage("Milestones reset by user", level: .info)
-                    } catch {
-                        CrashReportingManager.shared.logError(error, context: "resetMilestones")
-                    }
+                    dataManager.clearAllData()
+                    CrashReportingManager.shared.logMessage("Milestones reset by user", level: .info)
                 },
                 secondaryButton: .cancel()
             )

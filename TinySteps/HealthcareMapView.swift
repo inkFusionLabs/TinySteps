@@ -57,29 +57,31 @@ struct HealthcareMapView: View {
                 
                 // Map
                 ZStack {
-                    Map(coordinateRegion: $region, annotationItems: healthcarePlaces) { place in
-                        MapAnnotation(coordinate: place.coordinate) {
-                            Button(action: {
-                                selectedPlace = place
-                                showingPlaceDetail = true
-                            }) {
-                                VStack(spacing: 2) {
-                                    Image(systemName: place.type.icon)
-                                        .font(.title2)
-                                        .foregroundColor(place.type.color)
-                                        .background(
-                                            Circle()
-                                                .fill(.white)
-                                                .frame(width: 30, height: 30)
-                                        )
-                                        .shadow(radius: 2)
-                                    
-                                    Text(place.name)
-                                        .font(.caption2)
-                                        .foregroundColor(.white)
-                                        .background(Color.black.opacity(0.7))
-                                        .cornerRadius(4)
-                                        .padding(.horizontal, 4)
+                    Map(position: .constant(.region(region))) {
+                        ForEach(healthcarePlaces) { place in
+                            Annotation(place.name, coordinate: place.coordinate) {
+                                Button(action: {
+                                    selectedPlace = place
+                                    showingPlaceDetail = true
+                                }) {
+                                    VStack(spacing: 2) {
+                                        Image(systemName: place.type.icon)
+                                            .font(.title2)
+                                            .foregroundColor(place.type.color)
+                                            .background(
+                                                Circle()
+                                                    .fill(.white)
+                                                    .frame(width: 30, height: 30)
+                                            )
+                                            .shadow(radius: 2)
+                                        
+                                        Text(place.name)
+                                            .font(.caption2)
+                                            .foregroundColor(.white)
+                                            .background(Color.black.opacity(0.7))
+                                            .cornerRadius(4)
+                                            .padding(.horizontal, 4)
+                                    }
                                 }
                             }
                         }
