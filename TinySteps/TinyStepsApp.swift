@@ -10,7 +10,6 @@ import LocalAuthentication
 #if canImport(UIKit)
 import UIKit
 #endif
-import Firebase
 
 @main
 struct TinyStepsApp: App {
@@ -23,10 +22,6 @@ struct TinyStepsApp: App {
     @State private var didAppear = false
 
     init() {
-        #if canImport(Firebase)
-        FirebaseApp.configure()
-        #endif
-        
         // Initialize crash reporting
         CrashReportingManager.shared.logMessage("TinySteps app launched", level: .info)
     }
