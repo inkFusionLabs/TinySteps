@@ -12,6 +12,12 @@
 	<string>1.0</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs location access to find nearby healthcare facilities for your baby's care</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>TinySteps uses Face ID to securely access your baby's information and keep your data private.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>TinySteps uses the camera to let you take photos of your baby's milestones and memories.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>TinySteps accesses your photo library to let you add photos of your baby's milestones and memories.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -610,6 +610,13 @@ struct AboutTinyStepsView: View {
                             )
                             
                             TinyStepsInfoCard(
+                                title: "External Services Disclaimer",
+                                content: "TinySteps provides information about healthcare services and organizations (NHS, Bliss, DadPad, March of Dimes, etc.) for informational purposes only. We are not affiliated with, endorsed by, or sponsored by any of these organizations. Please refer to their official websites for the most current information and policies.",
+                                icon: "exclamationmark.triangle.fill",
+                                color: .orange
+                            )
+                            
+                            TinyStepsInfoCard(
                                 title: "Version 1.0.0",
                                 content: "This is the first version of TinySteps. We're committed to continuous improvement and adding new features based on feedback from dads like you.",
                                 icon: "star.circle.fill",
