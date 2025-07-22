@@ -33,6 +33,8 @@ struct ProfileView: View {
                                     .fill(Color.white.opacity(0.2))
                                     .frame(width: 120, height: 120)
                             )
+                            .accessibilityLabel("Profile avatar")
+                            .accessibilityHint("Your profile picture")
                         
                         // User Name
                         VStack(spacing: 8) {
@@ -40,10 +42,13 @@ struct ProfileView: View {
                                 .font(.title)
                                 .fontWeight(.bold)
                                 .foregroundColor(.white)
+                                .accessibilityLabel(userName.isEmpty ? "User" : userName)
+                                .accessibilityAddTraits(.isHeader)
                             
                             Text("TinySteps User")
                                 .font(.subheadline)
                                 .foregroundColor(.white.opacity(0.8))
+                                .accessibilityLabel("TinySteps User")
                         }
                     }
                     .padding(.top, 20)
@@ -79,6 +84,8 @@ struct ProfileView: View {
                             )
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .accessibilityLabel("Edit Profile")
+                        .accessibilityHint("Edit your profile name.")
                         
                         // App Information
                         VStack(spacing: 15) {
@@ -133,6 +140,8 @@ struct ProfileView: View {
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("Help and Support")
+                            .accessibilityHint("Get help and support for TinySteps.")
                             
                             Button(action: {
                                 // Navigate to about
@@ -155,6 +164,8 @@ struct ProfileView: View {
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
+                            .accessibilityLabel("About TinySteps")
+                            .accessibilityHint("Learn more about TinySteps.")
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
@@ -191,10 +202,47 @@ struct ProfileView: View {
                             )
                         }
                         .buttonStyle(PlainButtonStyle())
+                        .accessibilityLabel("Logout")
+                        .accessibilityHint("Log out of your TinySteps profile.")
                     }
                     .padding(.horizontal)
                 }
                 .padding(.bottom, 30)
+                // What's New Section
+                VStack(spacing: 12) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .font(.title2)
+                            .foregroundColor(.yellow)
+                        Text("What's New")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .accessibilityLabel("What's New")
+                            .accessibilityAddTraits(.isHeader)
+                        Spacer()
+                    }
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text("Version 1.0.0")
+                            .font(.subheadline)
+                            .foregroundColor(.white.opacity(0.8))
+                        Text("• Brand new onboarding experience for dads in the NICU and beyond.")
+                            .font(.body)
+                            .foregroundColor(.white)
+                        Text("• Track milestones, set reminders, and secure your data with Face ID/Touch ID.")
+                            .font(.body)
+                            .foregroundColor(.white)
+                        Text("• Beautiful, accessible design and easy-to-use features.")
+                            .font(.body)
+                            .foregroundColor(.white)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 15)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.white.opacity(0.1))
+                )
             }
         }
         .navigationTitle("Profile")
@@ -271,12 +319,14 @@ struct ProfileInfoRow: View {
             Text(title)
                 .font(.body)
                 .foregroundColor(.white)
+                .accessibilityLabel(title)
             
             Spacer()
             
             Text(value)
                 .font(.body)
                 .foregroundColor(.white.opacity(0.8))
+                .accessibilityLabel(value)
         }
     }
 }

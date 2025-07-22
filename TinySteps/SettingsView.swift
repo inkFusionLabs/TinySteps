@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import LocalAuthentication
 
 struct SettingsView: View {
     @EnvironmentObject var dataManager: BabyDataManager
@@ -17,6 +18,13 @@ struct SettingsView: View {
     @State private var showingPerformance = false
     @State private var showingEditContact = false
     @State private var editingContact: EmergencyContact? = nil
+    @State private var faceIDEnabled: Bool = false
+    @State private var touchIDEnabled: Bool = false
+    @State private var showingResetPassword = false
+    @State private var newPassword: String = ""
+    @State private var confirmNewPassword: String = ""
+    @State private var resetPasswordError: String? = nil
+    @State private var resetPasswordSuccess: Bool = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -35,6 +43,43 @@ struct SettingsView: View {
             // Main Content
             ScrollView {
                 VStack(spacing: 20) {
+                    // Security Section
+                    VStack(spacing: 15) {
+                        HStack {
+                            Image(systemName: "lock.fill")
+                                .foregroundColor(.purple)
+                            Text("Security")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .accessibilityLabel("Security settings")
+                                .accessibilityAddTraits(.isHeader)
+                            Spacer()
+                        }
+                        Toggle(isOn: $faceIDEnabled) {
+                            Label("Enable Face ID", systemImage: "faceid")
+                        }
+                        .disabled(!isFaceIDAvailable())
+                        .foregroundColor(.white)
+                        .accessibilityLabel("Enable Face ID")
+                        .accessibilityHint("Toggle Face ID authentication on or off.")
+                        Toggle(isOn: $touchIDEnabled) {
+                            Label("Enable Touch ID", systemImage: "touchid")
+                        }
+                        .disabled(!isTouchIDAvailable())
+                        .foregroundColor(.white)
+                        .accessibilityLabel("Enable Touch ID")
+                        .accessibilityHint("Toggle Touch ID authentication on or off.")
+                        Button(action: { showingResetPassword = true }) {
+                            Label("Reset Password", systemImage: "key.fill")
+                                .foregroundColor(.red)
+                        }
+                        .accessibilityLabel("Reset Password")
+                        .accessibilityHint("Open the form to reset your password.")
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(16)
+                    
                     // Emergency Contacts Section (moved above Data Management)
                     if !dataManager.emergencyContacts.isEmpty {
                         VStack(spacing: 16) {
@@ -129,6 +174,34 @@ struct SettingsView: View {
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.white.opacity(0.1))
                     )
+                    
+                    // Support Email Section
+                    VStack(spacing: 8) {
+                        HStack {
+                            Image(systemName: "envelope.fill")
+                                .foregroundColor(.blue)
+                            Text("Contact Support")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .accessibilityLabel("Contact Support")
+                                .accessibilityAddTraits(.isHeader)
+                            Spacer()
+                        }
+                        Button(action: {
+                            if let url = URL(string: "mailto:inkfusionlabs@gmail.com") {
+                                UIApplication.shared.open(url)
+                            }
+                        }) {
+                            Text("inkfusionlabs@gmail.com")
+                                .foregroundColor(.blue)
+                                .underline()
+                        }
+                        .accessibilityLabel("Email support at inkfusionlabs@gmail.com")
+                        .accessibilityHint("Opens your email app to contact support.")
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(16)
                 }
                 .padding()
             }
@@ -154,6 +227,54 @@ struct SettingsView: View {
                 EmergencyContactEditSheet(contact: $dataManager.emergencyContacts.first(where: { $0.id == contact.id })!)
             }
         }
+        .sheet(isPresented: $showingResetPassword) {
+            VStack(spacing: 20) {
+                Text("Reset Password")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                SecureField("New Password", text: $newPassword)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                SecureField("Confirm New Password", text: $confirmNewPassword)
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                if let error = resetPasswordError {
+                    Text(error)
+                        .foregroundColor(.red)
+                        .font(.subheadline)
+                }
+                if resetPasswordSuccess {
+                    Text("Password updated successfully!")
+                        .foregroundColor(.green)
+                        .font(.subheadline)
+                }
+                Button("Update Password") {
+                    resetPasswordError = nil
+                    resetPasswordSuccess = false
+                    if newPassword.isEmpty || confirmNewPassword.isEmpty {
+                        resetPasswordError = "Please fill in all fields."
+                    } else if newPassword != confirmNewPassword {
+                        resetPasswordError = "Passwords do not match."
+                    } else {
+                        UserDefaults.standard.set(newPassword, forKey: "registeredPassword")
+                        resetPasswordSuccess = true
+                        newPassword = ""
+                        confirmNewPassword = ""
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                Button("Cancel") {
+                    showingResetPassword = false
+                    newPassword = ""
+                    confirmNewPassword = ""
+                    resetPasswordError = nil
+                    resetPasswordSuccess = false
+                }
+                .foregroundColor(.red)
+            }
+            .padding()
+            .background(Color.white.opacity(0.95))
+            .cornerRadius(16)
+            .padding()
+        }
     }
     
     private func getURLForContact(_ contact: String) -> URL? {
@@ -166,6 +287,18 @@ struct SettingsView: View {
         case "CALM": return URL(string: "tel:0800585858")
         default: return nil
         }
+    }
+    
+    // Helper functions for biometrics
+    private func isFaceIDAvailable() -> Bool {
+        let context = LAContext()
+        var error: NSError?
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) && context.biometryType == .faceID
+    }
+    private func isTouchIDAvailable() -> Bool {
+        let context = LAContext()
+        var error: NSError?
+        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) && context.biometryType == .touchID
     }
 }
 

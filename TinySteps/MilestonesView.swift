@@ -56,10 +56,13 @@ struct MilestonesView: View {
                                     .font(.title2)
                                     .fontWeight(.bold)
                                     .foregroundColor(.white)
+                                    .accessibilityLabel("Milestones")
+                                    .accessibilityAddTraits(.isHeader)
                                 
                                 Text("Track your baby's development progress")
                                     .font(.subheadline)
                                     .foregroundColor(.white.opacity(0.8))
+                                    .accessibilityLabel("Track your baby's development progress")
                             }
                             
                             Spacer()
@@ -71,6 +74,8 @@ struct MilestonesView: View {
                                     .font(.title2)
                                     .foregroundColor(.purple)
                             }
+                            .accessibilityLabel("Add new milestone")
+                            .accessibilityHint("Open the form to add a new milestone.")
                         }
                     }
                     .padding()
@@ -119,6 +124,8 @@ struct MilestonesView: View {
                                                     .fill(selectedCategory == category ? category.color : Color.white.opacity(0.1))
                                             )
                                     }
+                                    .accessibilityLabel(category.rawValue)
+                                    .accessibilityHint("Filter milestones by \(category.rawValue) category.")
                                 }
                             }
                             .padding(.horizontal)
@@ -212,7 +219,12 @@ struct MilestonesView: View {
                 title: Text("Reset All Milestones?"),
                 message: Text("This will restore the default milestone list and remove all your progress. Are you sure?"),
                 primaryButton: .destructive(Text("Reset")) {
-                    dataManager.clearAllData()
+                    do {
+                        dataManager.clearAllData()
+                        CrashReportingManager.shared.logMessage("Milestones reset by user", level: .info)
+                    } catch {
+                        CrashReportingManager.shared.logError(error, context: "resetMilestones")
+                    }
                 },
                 secondaryButton: .cancel()
             )
@@ -299,11 +311,13 @@ struct MilestoneCard: View {
                         .font(.subheadline)
                         .fontWeight(.medium)
                         .foregroundColor(.white)
+                        .accessibilityLabel(milestone.title)
                     
                     Text(milestone.description)
                         .font(.caption)
                         .foregroundColor(.white.opacity(0.7))
                         .lineLimit(2)
+                        .accessibilityLabel(milestone.description)
                 }
                 Spacer()
                 // Status indicator with check/uncheck button
@@ -327,6 +341,8 @@ struct MilestoneCard: View {
                     }
                 }
                 .buttonStyle(PlainButtonStyle())
+                .accessibilityLabel(milestone.isAchieved ? "Mark as not achieved" : "Mark as achieved")
+                .accessibilityHint("Toggle achievement status for this milestone.")
             }
             HStack {
                 // Category indicator
