@@ -7,6 +7,9 @@
 
 import SwiftUI
 import LocalAuthentication
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct SettingsView: View {
     @EnvironmentObject var dataManager: BabyDataManager
@@ -175,6 +178,47 @@ struct SettingsView: View {
                             .fill(Color.white.opacity(0.1))
                     )
                     
+                    // App Icon Section
+                    VStack(spacing: 15) {
+                        HStack {
+                            Image(systemName: "app.fill")
+                                .foregroundColor(.blue)
+                            Text("App Icon")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .accessibilityLabel("App icon selection")
+                                .accessibilityAddTraits(.isHeader)
+                            Spacer()
+                        }
+                        let iconOptions: [(label: String, iconName: String?)] = [
+                            ("Default", nil),
+                            ("Dark", "AppIconDark"),
+                            ("Tinted", "AppIconTinted")
+                        ]
+                        ForEach(iconOptions, id: \.iconName) { (label, iconName) in
+                            Button(action: {
+                                #if canImport(UIKit)
+                                UIApplication.shared.setAlternateIconName(iconName) { error in
+                                    // Optionally handle error
+                                }
+                                #endif
+                            }) {
+                                HStack {
+                                    Text(label)
+                                        .foregroundColor(.white)
+                                    if UIApplication.shared.alternateIconName == iconName {
+                                        Image(systemName: "checkmark.circle.fill").foregroundColor(.green)
+                                    }
+                                    Spacer()
+                                }
+                            }
+                            .accessibilityLabel("Switch to \(label) app icon")
+                        }
+                    }
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(16)
+                    
                     // Support Email Section
                     VStack(spacing: 8) {
                         HStack {
@@ -188,15 +232,15 @@ struct SettingsView: View {
                             Spacer()
                         }
                         Button(action: {
-                            if let url = URL(string: "mailto:inkfusionlabs@gmail.com") {
+                            if let url = URL(string: "mailto:inkfusionlabs@icloud.com") {
                                 UIApplication.shared.open(url)
                             }
                         }) {
-                            Text("inkfusionlabs@gmail.com")
-                                .foregroundColor(.blue)
+                            Text("inkfusionlabs@icloud.com")
+                                .foregroundColor(.white)
                                 .underline()
                         }
-                        .accessibilityLabel("Email support at inkfusionlabs@gmail.com")
+                        .accessibilityLabel("Email support at inkfusionlabs@icloud.com")
                         .accessibilityHint("Opens your email app to contact support.")
                     }
                     .padding()
