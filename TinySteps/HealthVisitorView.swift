@@ -59,7 +59,7 @@ struct HealthVisitorView: View {
                         Button(action: { showingAddVisit = true }) {
                             Image(systemName: "plus.circle.fill")
                                 .font(.title2)
-                                .foregroundColor(TinyStepsDesign.Colors.success)
+                                .foregroundColor(.green)
                         }
                     }
                 }
@@ -166,7 +166,7 @@ struct HealthVisitorVisitCard: View {
                 // Status indicator
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(visit.date > Date() ? TinyStepsDesign.Colors.highlight : TinyStepsDesign.Colors.success)
+                        .fill(visit.date > Date() ? Color.yellow : Color.green)
                         .frame(width: 8, height: 8)
                     Text(visit.date > Date() ? "Upcoming" : "Completed")
                         .font(.caption)
@@ -188,7 +188,7 @@ struct HealthVisitorVisitCard: View {
                 }) {
                     Label("Edit", systemImage: "pencil")
                         .font(.caption)
-                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                        .foregroundColor(.blue)
                 }
                 
                 Spacer()
@@ -200,7 +200,7 @@ struct HealthVisitorVisitCard: View {
                     }) {
                         Label("Mark Complete", systemImage: "checkmark.circle")
                             .font(.caption)
-                            .foregroundColor(TinyStepsDesign.Colors.success)
+                            .foregroundColor(.green)
                     }
                 }
             }

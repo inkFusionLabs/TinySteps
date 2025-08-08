@@ -63,7 +63,28 @@ struct DataExportView: View {
             TinyStepsDesign.Colors.background
                 .ignoresSafeArea()
             
-            NavigationView {
+            VStack(spacing: 0) {
+                // Custom Navigation Bar
+                HStack {
+                    Spacer()
+                    Text("Data Export")
+                        .font(.headline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Spacer()
+                    Button("Done") {
+                        print("Done button tapped")
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                    .font(.headline)
+                    .buttonStyle(PlainButtonStyle())
+                }
+                .padding(.horizontal)
+                .padding(.top, 10)
+                .padding(.bottom, 20)
+                
+                // Main Content
                 VStack(spacing: 20) {
                     // Header
                     VStack(spacing: 12) {
@@ -74,10 +95,11 @@ struct DataExportView: View {
                         Text("Export Baby Data")
                             .font(.title2)
                             .fontWeight(.bold)
+                            .foregroundColor(.white)
                         
                         Text("Export your baby's data for backup or sharing with healthcare providers")
                             .font(.body)
-                            .foregroundColor(.secondary)
+                            .foregroundColor(.white.opacity(0.8))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                     }
@@ -87,6 +109,7 @@ struct DataExportView: View {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Select Export Type")
                             .font(.headline)
+                            .foregroundColor(.white)
                             .padding(.horizontal)
                         
                         ScrollView {
@@ -131,15 +154,6 @@ struct DataExportView: View {
                     .disabled(isExporting)
                     .padding(.horizontal)
                     .padding(.bottom)
-                }
-                .navigationTitle("Data Export")
-                .navigationBarTitleDisplayMode(.inline)
-                .toolbar {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button("Done") {
-                            dismiss()
-                        }
-                    }
                 }
             }
         }
@@ -477,11 +491,11 @@ struct ExportTypeCard: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(type.rawValue)
                         .font(.headline)
-                        .foregroundColor(isSelected ? .white : .primary)
+                        .foregroundColor(isSelected ? .white : .white)
                     
                     Text(type.description)
                         .font(.caption)
-                        .foregroundColor(isSelected ? .white.opacity(0.8) : .secondary)
+                        .foregroundColor(isSelected ? .white.opacity(0.8) : .white.opacity(0.7))
                         .lineLimit(2)
                 }
                 
@@ -496,11 +510,11 @@ struct ExportTypeCard: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.blue : Color(.systemBackground))
+                    .fill(isSelected ? Color.blue : Color.black.opacity(0.3))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.blue : Color(.systemGray4), lineWidth: 1)
+                    .stroke(isSelected ? Color.blue : Color.white.opacity(0.2), lineWidth: 1)
             )
         }
         .buttonStyle(PlainButtonStyle())

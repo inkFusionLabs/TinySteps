@@ -37,8 +37,7 @@ struct AppointmentsView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
+                .background(Color.clear)
                 .padding(.horizontal)
                 
                 // Appointments List
@@ -82,8 +81,7 @@ struct AppointmentsView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
+                .background(Color.clear)
                 .padding(.horizontal)
                 
                 Spacer()
@@ -109,6 +107,7 @@ struct AppointmentsView: View {
 
 struct AppointmentCard: View {
     let appointment: Appointment
+    @State private var showingEditSheet = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -132,12 +131,21 @@ struct AppointmentCard: View {
                 
                 Spacer()
                 
+                // Edit Button
+                Button(action: {
+                    showingEditSheet = true
+                }) {
+                    Image(systemName: "pencil.circle.fill")
+                        .font(.title3)
+                        .foregroundColor(.blue)
+                }
+                
                 // Appointment type indicator
                 Text(appointment.type.rawValue)
                     .font(.caption)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(appointment.type.color.opacity(0.3))
+                    .background(Color.clear)
                     .foregroundColor(appointment.type.color)
                     .cornerRadius(4)
             }
@@ -160,8 +168,13 @@ struct AppointmentCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.05))
+        .background(Color.clear)
         .cornerRadius(8)
+        .sheet(isPresented: $showingEditSheet) {
+            NavigationView {
+                EditAppointmentView(appointment: appointment)
+            }
+        }
     }
 }
 

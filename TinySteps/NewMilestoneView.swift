@@ -12,9 +12,10 @@ struct NewMilestoneView: View {
     @State private var periodValue: String = "1"
     
     var body: some View {
-        ZStack {
-            TinyStepsDesign.Colors.background
-                .ignoresSafeArea()
+        NavigationView {
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
             
             VStack(spacing: 20) {
                 // Header
@@ -35,7 +36,7 @@ struct NewMilestoneView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.03))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -112,37 +113,31 @@ struct NewMilestoneView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.03))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
                 Spacer()
                 
-                // Save Button
-                Button(action: saveMilestone) {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Create Milestone")
-                    }
-                    .font(.headline)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(title.isEmpty ? Color.gray : Color.purple)
-                    .cornerRadius(12)
-                }
-                .disabled(title.isEmpty)
-                .padding(.horizontal)
+
             }
-        }
-        .navigationTitle("New Milestone")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Button("Done") {
-                    dismiss()
+            }
+            .navigationTitle("New Milestone")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
                 }
-                .foregroundColor(.white)
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Save") {
+                        saveMilestone()
+                    }
+                    .foregroundColor(.white)
+                    .disabled(title.isEmpty)
+                }
             }
         }
     }

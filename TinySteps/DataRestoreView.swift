@@ -23,7 +23,7 @@ struct DataRestoreView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                Color.clear
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -62,7 +62,7 @@ struct DataRestoreView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.white.opacity(0.03))
                         .cornerRadius(12)
                         
                         // Backup Actions
@@ -130,7 +130,7 @@ struct DataRestoreView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.white.opacity(0.03))
                         .cornerRadius(12)
                         
                         // Progress Indicators
@@ -149,7 +149,7 @@ struct DataRestoreView: View {
                                     .foregroundColor(.white.opacity(0.7))
                             }
                             .padding()
-                            .background(Color.white.opacity(0.1))
+                            .background(Color.white.opacity(0.03))
                             .cornerRadius(12)
                         }
                         
@@ -168,7 +168,7 @@ struct DataRestoreView: View {
                                     .foregroundColor(.white.opacity(0.7))
                             }
                             .padding()
-                            .background(Color.white.opacity(0.1))
+                            .background(Color.white.opacity(0.03))
                             .cornerRadius(12)
                         }
                         
@@ -319,7 +319,7 @@ struct BackupCard: View {
         }
         .padding(.horizontal, 20)
         .padding(.vertical, 15)
-        .background(Color.white.opacity(0.1))
+        .background(Color.white.opacity(0.03))
         .cornerRadius(12)
     }
 } 

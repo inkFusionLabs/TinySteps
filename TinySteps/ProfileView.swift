@@ -6,12 +6,16 @@
 //
 
 import SwiftUI
+import PhotosUI
 
 struct ProfileView: View {
     @AppStorage("userName") private var userName: String = ""
+    @AppStorage("userProfileImageData") private var userProfileImageData: Data?
     @State private var showingNameEdit = false
     @State private var tempUserName = ""
-    @State private var showingLogoutAlert = false
+    @State private var showingImagePicker = false
+    @State private var showingImageOptions = false
+    @State private var selectedImageItem: PhotosPickerItem?
     @Environment(\.presentationMode) var presentationMode
     
     var body: some View {
@@ -25,16 +29,49 @@ struct ProfileView: View {
                     // Profile Header
                     VStack(spacing: 20) {
                         // Profile Avatar
-                        Image(systemName: "person.circle.fill")
-                            .font(.system(size: 100))
-                            .foregroundColor(.white)
-                            .background(
-                                Circle()
-                                    .fill(Color.white.opacity(0.2))
-                                    .frame(width: 120, height: 120)
-                            )
-                            .accessibilityLabel("Profile avatar")
-                            .accessibilityHint("Your profile picture")
+                        Button(action: {
+                            showingImageOptions = true
+                        }) {
+                            ZStack {
+                                if let imageData = userProfileImageData,
+                                   let uiImage = UIImage(data: imageData) {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 120, height: 120)
+                                        .clipShape(Circle())
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                                        )
+                                } else {
+                                    Image(systemName: "person.circle.fill")
+                                        .font(.system(size: 100))
+                                        .foregroundColor(.white)
+                                        .background(
+                                            Circle()
+                                                .fill(Color.white.opacity(0.2))
+                                                .frame(width: 120, height: 120)
+                                        )
+                                }
+                                
+                                // Camera icon overlay
+                                VStack {
+                                    Spacer()
+                                    HStack {
+                                        Spacer()
+                                        Image(systemName: "camera.circle.fill")
+                                            .font(.title2)
+                                            .foregroundColor(.blue)
+                                            .background(Circle().fill(Color.white))
+                                            .offset(x: -15, y: 5)
+                                    }
+                                }
+                            }
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .accessibilityLabel("Profile avatar")
+                        .accessibilityHint("Tap to change your profile picture")
                         
                         // User Name
                         VStack(spacing: 8) {
@@ -78,10 +115,7 @@ struct ProfileView: View {
                             }
                             .padding(.horizontal, 20)
                             .padding(.vertical, 15)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.white.opacity(0.1))
-                            )
+                            .background(Color.clear)
                         }
                         .buttonStyle(PlainButtonStyle())
                         .accessibilityLabel("Edit Profile")
@@ -119,9 +153,7 @@ struct ProfileView: View {
                         
                         // Support Section
                         VStack(spacing: 15) {
-                            Button(action: {
-                                // Navigate to support
-                            }) {
+                            NavigationLink(destination: SupportView()) {
                                 HStack {
                                     Image(systemName: "questionmark.circle.fill")
                                         .font(.title2)
@@ -143,9 +175,7 @@ struct ProfileView: View {
                             .accessibilityLabel("Help and Support")
                             .accessibilityHint("Get help and support for TinySteps.")
                             
-                            Button(action: {
-                                // Navigate to about
-                            }) {
+                            NavigationLink(destination: AboutTinyStepsView()) {
                                 HStack {
                                     Image(systemName: "info.circle.fill")
                                         .font(.title2)
@@ -173,80 +203,94 @@ struct ProfileView: View {
                             RoundedRectangle(cornerRadius: 12)
                                 .fill(Color.white.opacity(0.1))
                         )
-                        
-                        // Logout Button
-                        Button(action: {
-                            showingLogoutAlert = true
-                        }) {
-                            HStack {
-                                Image(systemName: "rectangle.portrait.and.arrow.right")
-                                    .font(.title2)
-                                    .foregroundColor(.red)
-                                
-                                Text("Logout")
-                                    .font(.body)
-                                    .fontWeight(.medium)
-                                    .foregroundColor(.red)
-                                
-                                Spacer()
-                            }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 15)
-                            .background(
-                                RoundedRectangle(cornerRadius: 12)
-                                    .fill(Color.red.opacity(0.1))
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 12)
-                                            .stroke(Color.red.opacity(0.3), lineWidth: 1)
-                                    )
-                            )
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .accessibilityLabel("Logout")
-                        .accessibilityHint("Log out of your TinySteps profile.")
                     }
                     .padding(.horizontal)
                 }
                 .padding(.bottom, 30)
-                // What's New Section
-                VStack(spacing: 12) {
-                    HStack {
-                        Image(systemName: "sparkles")
-                            .font(.title2)
-                            .foregroundColor(.yellow)
-                        Text("What's New")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .accessibilityLabel("What's New")
-                            .accessibilityAddTraits(.isHeader)
-                        Spacer()
-                    }
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Version 1.0.0")
-                            .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
-                        Text("• Brand new onboarding experience for dads in the NICU and beyond.")
-                            .font(.body)
-                            .foregroundColor(.white)
-                        Text("• Track milestones, set reminders, and secure your data with Face ID/Touch ID.")
-                            .font(.body)
-                            .foregroundColor(.white)
-                        Text("• Beautiful, accessible design and easy-to-use features.")
-                            .font(.body)
-                            .foregroundColor(.white)
-                    }
-                    .accessibilityElement(children: .combine)
-                }
-                .padding(.horizontal, 20)
-                .padding(.vertical, 15)
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.white.opacity(0.1))
-                )
             }
         }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingImageOptions) {
+            NavigationView {
+                VStack(spacing: 20) {
+                    Text("Profile Picture")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    VStack(spacing: 15) {
+                        Button(action: {
+                            showingImagePicker = true
+                            showingImageOptions = false
+                        }) {
+                            HStack {
+                                Image(systemName: "photo")
+                                    .font(.title2)
+                                    .foregroundColor(.blue)
+                                
+                                Text("Choose from Photo Library")
+                                    .font(.body)
+                                    .fontWeight(.medium)
+                                    .foregroundColor(.white)
+                                
+                                Spacer()
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.1))
+                            .cornerRadius(12)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        
+                        if userProfileImageData != nil {
+                            Button(action: {
+                                userProfileImageData = nil
+                                showingImageOptions = false
+                            }) {
+                                HStack {
+                                    Image(systemName: "trash")
+                                        .font(.title2)
+                                        .foregroundColor(.red)
+                                    
+                                    Text("Remove Current Picture")
+                                        .font(.body)
+                                        .fontWeight(.medium)
+                                        .foregroundColor(.red)
+                                    
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(Color.red.opacity(0.1))
+                                .cornerRadius(12)
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    
+                    Spacer()
+                }
+                .padding()
+                .background(TinyStepsDesign.Colors.background)
+                .navigationBarItems(
+                    trailing: Button("Cancel") {
+                        showingImageOptions = false
+                    }
+                    .foregroundColor(.white)
+                )
+            }
+        }
+        .photosPicker(
+            isPresented: $showingImagePicker,
+            selection: $selectedImageItem,
+            matching: .images
+        )
+        .onChange(of: selectedImageItem) { newItem in
+            Task {
+                if let data = try? await newItem?.loadTransferable(type: Data.self) {
+                    userProfileImageData = data
+                }
+            }
+        }
         .sheet(isPresented: $showingNameEdit) {
             NavigationView {
                 VStack(spacing: 20) {
@@ -292,15 +336,6 @@ struct ProfileView: View {
                 )
             }
         }
-        .alert("Logout", isPresented: $showingLogoutAlert) {
-            Button("Cancel", role: .cancel) { }
-            Button("Logout", role: .destructive) {
-                userName = ""
-                presentationMode.wrappedValue.dismiss()
-            }
-        } message: {
-            Text("Are you sure you want to logout? You'll need to enter your name again.")
-        }
     }
 }
 
@@ -328,6 +363,9 @@ struct ProfileInfoRow: View {
                 .foregroundColor(.white.opacity(0.8))
                 .accessibilityLabel(value)
         }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.clear)
     }
 }
 

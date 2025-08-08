@@ -59,8 +59,7 @@ struct RemindersView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
+                .background(Color.clear)
                 .padding(.horizontal)
                 
                 // Search and Filter
@@ -75,8 +74,7 @@ struct RemindersView: View {
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color.white.opacity(0.1))
-                    .cornerRadius(8)
+                    .background(Color.clear)
                     
                     // Category Filter
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -91,10 +89,7 @@ struct RemindersView: View {
                                         .foregroundColor(selectedCategory == category ? .white : .white.opacity(0.6))
                                         .padding(.horizontal, 12)
                                         .padding(.vertical, 6)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: 16)
-                                                .fill(selectedCategory == category ? category.color : Color.white.opacity(0.1))
-                                        )
+                                        .background(Color.clear)
                                 }
                             }
                         }
@@ -144,8 +139,7 @@ struct RemindersView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
+                .background(Color.clear)
                 .padding(.horizontal)
                 
                 Spacer()
@@ -199,7 +193,7 @@ struct ReminderCard: View {
                     .font(.caption)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
-                    .background(reminder.category.color.opacity(0.3))
+                    .background(Color.clear)
                     .foregroundColor(reminder.category.color)
                     .cornerRadius(4)
             }
@@ -223,7 +217,7 @@ struct ReminderCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.05))
+        .background(Color.clear)
         .cornerRadius(8)
     }
 }

@@ -1,47 +1,49 @@
 import SwiftUI
 
 struct LoginView: View {
-    @AppStorage("registeredEmail") private var registeredEmail: String = ""
-    @AppStorage("registeredPassword") private var registeredPassword: String = ""
-    @AppStorage("isLoggedIn") private var isLoggedIn: Bool = false
+    @AppStorage("app_passcode") private var appPasscode: String = ""
+    @AppStorage("isLoggedIn") private var isLoggedIn: Bool = true
     
-    @State private var email: String = ""
-    @State private var password: String = ""
-    @State private var confirmPassword: String = ""
-    @State private var isRegistering: Bool = false
+    @State private var enteredPasscode: String = ""
     @State private var errorMessage: String? = nil
+    @State private var showingPasscodeSetup = false
     
     var body: some View {
         ZStack {
             // Background gradient
-            TinyStepsDesign.Colors.background
+            Color.clear
                 .ignoresSafeArea()
             
             NavigationView {
-                VStack(spacing: 24) {
-                    Text(isRegistering ? "Register" : "Login")
-                        .font(.largeTitle)
-                        .bold()
-                        .padding(.top, 40)
-                    
-                    VStack(spacing: 16) {
-                        #if os(iOS)
-                        TextField("Email", text: $email)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        #else
-                        TextField("Email", text: $email)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        #endif
-                        SecureField("Password", text: $password)
-                            .textFieldStyle(RoundedBorderTextFieldStyle())
-                        if isRegistering {
-                            SecureField("Confirm Password", text: $confirmPassword)
-                                .textFieldStyle(RoundedBorderTextFieldStyle())
-                        }
+                VStack(spacing: 30) {
+                    // Header
+                    VStack(spacing: 10) {
+                        Image(systemName: "lock.shield")
+                            .font(.system(size: 80))
+                            .foregroundColor(.blue)
+                        
+                        Text("TinySteps")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Enter your passcode to continue")
+                            .font(.body)
+                            .foregroundColor(.white.opacity(0.7))
                     }
-                    .padding(.horizontal)
+                    
+                    // Passcode Input
+                    VStack(spacing: 20) {
+                        SecureField("Enter passcode", text: $enteredPasscode)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.numberPad)
+                            .frame(maxWidth: 200)
+                            .onChange(of: enteredPasscode) { oldValue, newValue in
+                                if newValue.count == 4 {
+                                    authenticate()
+                                }
+                            }
+                    }
                     
                     if let error = errorMessage {
                         Text(error)
@@ -49,68 +51,46 @@ struct LoginView: View {
                             .font(.subheadline)
                     }
                     
-                    Button(action: {
-                        errorMessage = nil
-                        if isRegistering {
-                            register()
-                        } else {
-                            login()
-                        }
-                    }) {
-                        Text(isRegistering ? "Register" : "Login")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
+                    Button("Unlock") {
+                        authenticate()
                     }
-                    .padding(.horizontal)
+                    .buttonStyle(.borderedProminent)
+                    .disabled(enteredPasscode.isEmpty)
                     
-                    Button(action: {
-                        isRegistering.toggle()
-                        errorMessage = nil
-                    }) {
-                        Text(isRegistering ? "Already have an account? Login" : "Don't have an account? Register")
-                            .font(.footnote)
-                            .foregroundColor(.blue)
+                    if appPasscode.isEmpty {
+                        Button("Set Up Passcode") {
+                            showingPasscodeSetup = true
+                        }
+                        .buttonStyle(.bordered)
                     }
+                    
                     Spacer()
                 }
+                .padding()
                 #if os(iOS)
                 .navigationBarHidden(true)
                 #endif
             }
         }
+        .sheet(isPresented: $showingPasscodeSetup) {
+            PasscodeSetupView()
+        }
     }
     
-    private func register() {
-        guard !email.isEmpty, !password.isEmpty, !confirmPassword.isEmpty else {
-            errorMessage = "Please fill in all fields."
-            return
+    private func authenticate() {
+        if appPasscode.isEmpty {
+            // No passcode set, allow access
+            isLoggedIn = true
+        } else if enteredPasscode == appPasscode {
+            // Correct passcode
+            isLoggedIn = true
+            enteredPasscode = ""
+            errorMessage = nil
+        } else {
+            // Wrong passcode
+            errorMessage = "Incorrect passcode. Please try again."
+            enteredPasscode = ""
         }
-        guard password == confirmPassword else {
-            errorMessage = "Passwords do not match."
-            return
-        }
-        guard email.contains("@"), email.contains(".") else {
-            errorMessage = "Please enter a valid email."
-            return
-        }
-        registeredEmail = email
-        registeredPassword = password
-        isLoggedIn = true
-    }
-    
-    private func login() {
-        guard !email.isEmpty, !password.isEmpty else {
-            errorMessage = "Please fill in all fields."
-            return
-        }
-        guard email == registeredEmail, password == registeredPassword else {
-            errorMessage = "Invalid email or password."
-            return
-        }
-        isLoggedIn = true
     }
 }
 

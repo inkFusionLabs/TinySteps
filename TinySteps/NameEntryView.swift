@@ -12,7 +12,7 @@ struct NameEntryView: View {
     var body: some View {
         ZStack {
             // Background gradient
-            TinyStepsDesign.Colors.background
+            Color.clear
                 .ignoresSafeArea()
 
             VStack(spacing: 24) {

@@ -51,7 +51,7 @@ struct HealthcareMapView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.03))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -163,7 +163,7 @@ struct HealthcareMapView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.03))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -291,7 +291,7 @@ struct HospitalDetailView: View {
     
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            Color.clear
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
@@ -317,7 +317,7 @@ struct HospitalDetailView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.03))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -328,7 +328,7 @@ struct HospitalDetailView: View {
                     DetailRow(icon: "globe", title: "Website", value: place.website, color: .orange)
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.03))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 

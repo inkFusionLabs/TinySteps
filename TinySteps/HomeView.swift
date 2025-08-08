@@ -1,195 +1,198 @@
 import SwiftUI
+import Foundation
 
 struct HomeView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @State private var animateCards = false
     @AppStorage("userAvatar") private var userAvatarData: Data = Data()
+    @AppStorage("enabledDashboardCards") private var enabledCardsData: Data = Data()
     @State private var userAvatar: UserAvatar = UserAvatar()
     @State private var showProfile = false
+    @State private var showDashboardSettings = false
+    @State private var enabledCards: Set<DashboardCardType> = []
+    @Binding var showSidebar: Bool
     
     var body: some View {
-        ZStack {
+        return ZStack {
+            // Theme Background
+            TinyStepsDesign.Colors.background
+                .ignoresSafeArea()
+            
             VStack(spacing: 0) {
-                // Dad Welcome Banner
-                VStack(alignment: .leading, spacing: 5) {
-                    HStack {
-                        Text("Welcome, Dad!")
-                            .font(.largeTitle)
-                            .fontWeight(.bold)
+                // Welcome Banner at the very top
+                HStack {
+                    Button(action: { showDashboardSettings = true }) {
+                        Image(systemName: "slider.horizontal.3")
+                            .font(.title2)
                             .foregroundColor(.white)
-                        Spacer()
-                        Button(action: { showProfile = true }) {
-                            SimpleAvatarView(avatar: userAvatar)
-                                .frame(width: 36, height: 36)
-                                .clipShape(Circle())
-                                .overlay(Circle().stroke(Color.white, lineWidth: 2))
-                                .shadow(radius: 2, y: 1)
-                        }
-                        .buttonStyle(PlainButtonStyle())
                     }
-                    Text("Your dashboard for baby's journey.")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    Spacer()
+                    
+                    Button(action: { showProfile = true }) {
+                        SimpleAvatarView(avatar: userAvatar)
+                            .frame(width: 36, height: 36)
+                            .clipShape(Circle())
+                            .overlay(Circle().stroke(Color.white, lineWidth: 2))
+                            .shadow(radius: 2, y: 1)
+                    }
+                    .buttonStyle(PlainButtonStyle())
                 }
                 .padding(.horizontal)
                 .padding(.top)
-                // Main Content
-                VStack(spacing: 16) {
-                    Text("You're doing an amazing job. Remember, every small step counts!")
-                        .font(.headline)
-                        .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                        .padding(.horizontal)
-                    
-                    // Dad's Info Hub Card
-                    NavigationLink(destination: InformationHubView()) {
-                        VStack(alignment: .leading, spacing: 5) {
-                            HStack {
-                                Text("Dad's Info Hub")
-                                    .font(.largeTitle)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(.white)
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.title2)
-                                    .foregroundColor(.white.opacity(0.8))
-                            }
-                            Text("Guidance, support & resources for NICU dads")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
-                        }
-                        .padding(.horizontal)
-                        .padding(.vertical, 15)
-                    }
-                    
-                    // Quick Actions
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Quick Actions")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            .padding(.horizontal)
-                        
-                        HStack(spacing: 16) {
-                            NavigationLink(destination: TrackingView()) {
-                                VStack {
-                                    Image(systemName: "chart.bar.fill")
-                                        .font(.title2)
-                                        .font(.title)
-                                        .foregroundColor(TinyStepsDesign.Colors.accent)
-                                    Text("Tracking")
-                                        .font(.caption)
-                                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                                }
-                                .padding()
-                                .cornerRadius(12)
-                            }
-                            
-                            NavigationLink(destination: SupportView()) {
-                                VStack {
-                                    Image(systemName: "heart.fill")
-                                        .font(.title2)
-                                        .font(.title)
-                                        .foregroundColor(TinyStepsDesign.Colors.success)
-                                    Text("Support")
-                                        .font(.caption)
-                                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                                }
-                                .padding()
-                                .cornerRadius(12)
-                            }
-                            
-                            NavigationLink(destination: MilestonesView()) {
-                                VStack {
-                                    Image(systemName: "star.fill")
-                                        .font(.title2)
-                                        .font(.title)
-                                        .foregroundColor(TinyStepsDesign.Colors.highlight)
-                                    Text("Milestones")
-                                        .font(.caption)
-                                        .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                                }
-                                .padding()
-                                .cornerRadius(12)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                    
-                    // Today's Summary
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Today's Summary")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
-                            .padding(.horizontal)
-                        
-                        HStack(spacing: 20) {
-                            VStack {
-                                Text("\(dataManager.getTodayFeedingCount())")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(TinyStepsDesign.Colors.accent)
-                                Text("Feeds")
-                                    .font(.caption)
-                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                            }
-                            
-                            VStack {
-                                Text("\(dataManager.getTodaySleepCount())")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(TinyStepsDesign.Colors.highlight)
-                                Text("Sleep")
-                                    .font(.caption)
-                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                            }
-                            
-                            VStack {
-                                Text("\(dataManager.getTodayNappyCount())")
-                                    .font(.title2)
-                                    .fontWeight(.bold)
-                                    .foregroundColor(TinyStepsDesign.Colors.success)
-                                Text("Nappies")
-                                    .font(.caption)
-                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
-                            }
-                        }
-                        .padding(.horizontal)
-                    }
-                }
+                
+                // Main content area
                 ScrollView {
-                    VStack(spacing: 20) {
-                        // Example Card
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Recent Activity")
-                                .font(TinyStepsDesign.Typography.subheader)
-                                .foregroundColor(TinyStepsDesign.Colors.accent)
-                            // ... existing activity content ...
+                    LazyVStack(spacing: 16) {
+                        // Dashboard Cards
+                        if enabledCards.contains(.dailySummary) {
+                            DailySummaryCard()
+                                .padding(.horizontal)
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.1))
-                        )
-                        // ... repeat for other cards/buttons ...
+                        
+                        if enabledCards.contains(.quickActions) {
+                            QuickActionsCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        if enabledCards.contains(.babyStatus) {
+                            BabyStatusCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        if enabledCards.contains(.appointments) {
+                            AppointmentsCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        if enabledCards.contains(.moodTracker) {
+                            DadMoodCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        if enabledCards.contains(.milestones) {
+                            RecentMilestonesCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        if enabledCards.contains(.tips) {
+                            DailyTipCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        if enabledCards.contains(.emergency) {
+                            EmergencyContactsCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        if enabledCards.contains(.photos) {
+                            PhotoGalleryCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        if enabledCards.contains(.resources) {
+                            ResourcesCard()
+                                .padding(.horizontal)
+                        }
+                        
+                        // Information Hub Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Information Hub")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal)
+                            
+                            NavigationLink(destination: InformationHubView()) {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "info.circle.fill")
+                                        .font(.title2)
+                                        .foregroundColor(.blue)
+                                        .frame(width: 32)
+                                    
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text("Dad's Info Hub")
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
+                                            .foregroundColor(.white)
+                                        
+                                        Text("Guidance, support & resources for NICU dads")
+                                            .font(.caption)
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                    
+                                    Spacer()
+                                    
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundColor(.white.opacity(0.6))
+                                }
+                                .padding(.horizontal)
+                                .padding(.vertical, 12)
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(12)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(PlainButtonStyle())
+                            .padding(.horizontal)
+                        }
                     }
-                    .padding()
+                    .padding(.vertical)
+                }
+            }
+            
+            // Sidebar Menu Overlay
+            if showSidebar {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showSidebar = false
+                        }
+                    }
+                
+                HStack {
+                    SidebarMenuView(selectedTab: .constant(.home), showSidebar: $showSidebar)
+                        .frame(width: 280)
+                        .offset(x: showSidebar ? 0 : -280)
+                        .animation(.easeInOut(duration: 0.3), value: showSidebar)
+                    
+                    Spacer()
                 }
             }
         }
-        .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
         .sheet(isPresented: $showProfile) {
             ProfileView()
+        }
+        .sheet(isPresented: $showDashboardSettings) {
+            DashboardSettingsView()
+        }
+        .onChange(of: showDashboardSettings) { isShowing in
+            if !isShowing {
+                // Reload enabled cards when dashboard settings sheet is dismissed
+                loadEnabledCards()
+            }
         }
         .onAppear {
             if let loaded = try? JSONDecoder().decode(UserAvatar.self, from: userAvatarData), userAvatarData.count > 0 {
                 userAvatar = loaded
             }
+            loadEnabledCards()
         }
     }
     
-    private func formatNextFeeding() -> String {
+    private func loadEnabledCards() {
+        if let data = try? JSONDecoder().decode(Set<DashboardCardType>.self, from: enabledCardsData) {
+            enabledCards = data
+        } else {
+            // Default enabled cards
+            enabledCards = [.dailySummary, .quickActions, .babyStatus, .appointments]
+        }
+    }
+    
+    // MARK: - Helper Methods
+    func formatNextFeeding() -> String {
         if let nextTime = dataManager.getNextFeedingTime() {
             let formatter = DateFormatter()
             formatter.timeStyle = .short
@@ -198,49 +201,10 @@ struct HomeView: View {
         return "Soon"
     }
     
-    private func getRecentActivity() -> [ActivityItem] {
-        let recentRecords = dataManager.getRecentRecords(limit: 6)
-        var activities: [ActivityItem] = []
-        
-        for record in recentRecords {
-            switch record {
-            case .feeding(let feeding):
-                activities.append(ActivityItem(
-                    icon: "drop.fill",
-                    title: "\(feeding.type.rawValue) Feed",
-                    description: feeding.amount != nil ? "\(Int(feeding.amount!))ml" : "\(Int(feeding.duration ?? 0))min",
-                    date: feeding.date,
-                    color: TinyStepsDesign.Colors.accent
-                ))
-            case .sleep(let sleep):
-                var description = sleep.location.rawValue
-                if let endTime = sleep.endTime {
-                    let duration = endTime.timeIntervalSince(sleep.startTime) / 3600
-                    description = "\(formatDuration(hours: duration)) • \(sleep.location.rawValue)"
-                }
-                activities.append(ActivityItem(
-                    icon: "bed.double.fill",
-                    title: "Sleep Session",
-                    description: description,
-                    date: sleep.startTime,
-                    color: TinyStepsDesign.Colors.highlight
-                ))
-            case .nappy(let nappy):
-                activities.append(ActivityItem(
-                    icon: "drop",
-                    title: "\(nappy.type.rawValue) Nappy",
-                    description: nappy.notes ?? "",
-                    date: nappy.date,
-                    color: TinyStepsDesign.Colors.success
-                ))
-            }
-        }
-        
-        return activities.sorted { $0.date > $1.date }.prefix(3).map { $0 }
-    }
+
     
     // Helper to format duration as hours and minutes
-    private func formatDuration(hours: Double) -> String {
+    func formatDuration(hours: Double) -> String {
         let totalMinutes = Int(hours * 60)
         let h = totalMinutes / 60
         let m = totalMinutes % 60
@@ -252,10 +216,4 @@ struct HomeView: View {
             return "\(m)m"
         }
     }
-}
-
-
-
-#Preview {
-    HomeView()
 }

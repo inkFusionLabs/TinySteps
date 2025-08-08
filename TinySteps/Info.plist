@@ -7,9 +7,9 @@
 	<key>CFBundleName</key>
 	<string>TinySteps</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>2</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>1.1</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app needs location access to find nearby healthcare facilities for your baby's care</string>
 	<key>NSFaceIDUsageDescription</key>

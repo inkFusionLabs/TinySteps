@@ -56,37 +56,56 @@ struct TrackingView: View {
     
     var body: some View {
         ZStack {
-            // Background gradient
+            // Background
             TinyStepsDesign.Colors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Dad Achievement Banner
-                VStack(alignment: .leading, spacing: 5) {
-                    Text("Dad's Progress")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Text("Track your achievements and baby's growth.")
-                        .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.8))
-                }
-                .padding(.horizontal)
-                .padding(.top)
-            // Main Content
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Add Baby Section
-                    VStack(alignment: .leading, spacing: 20) {
-                        HStack {
-                            Image(systemName: "person.crop.circle.badge.plus")
+                // Enhanced Baby Profile Banner
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 16) {
+                        // Icon with gradient background
+                        ZStack {
+                            Circle()
+                                .fill(Color.clear)
+                                .frame(width: 50, height: 50)
+                            
+                            Image(systemName: "heart.fill")
                                 .font(.title2)
                                 .foregroundColor(.white)
-                                .background(
-                                    Circle()
-                                        .fill(Color.blue.opacity(0.3))
-                                        .frame(width: 50, height: 50)
-                                )
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Baby Profile")
+                                .font(.largeTitle)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                            Text("Track your baby's development and progress")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.8))
+                        }
+                        
+                        Spacer()
+                    }
+                }
+                .padding(.horizontal, 20)
+                .padding(.top, 20)
+                .padding(.bottom, 10)
+                // Main Content
+                ScrollView {
+                VStack(spacing: 20) {
+                    // Enhanced Add Baby Section
+                    VStack(alignment: .leading, spacing: 20) {
+                        HStack {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.clear)
+                                    .frame(width: 60, height: 60)
+                                
+                                Image(systemName: "person.crop.circle.badge.plus")
+                                    .font(.title)
+                                    .foregroundColor(.white)
+                            }
                         }
                         .scaleEffect(animateContent ? 1 : 0)
                         .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(0.4), value: animateContent)
@@ -124,7 +143,7 @@ struct TrackingView: View {
                                     .padding(.top, 4)
                             }
                             .padding()
-                            .background(Color.white.opacity(0.1))
+                            .background(Color.clear)
                             .cornerRadius(12)
                             .padding(.horizontal)
                         }
@@ -361,10 +380,7 @@ struct TrackingView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.1))
-                        )
+                        .background(Color.clear)
                         // --- END UNIFIED CARD ---
                         // Data Export Section
                         VStack(alignment: .leading, spacing: 12) {
@@ -405,10 +421,7 @@ struct TrackingView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.1))
-                        )
+                        .background(Color.clear)
                     } else {
                         EmptyBabyCard {
                             showingBabyForm = true
@@ -467,7 +480,7 @@ struct TrackingView: View {
                     .padding(.vertical, 15)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.1))
+                            .fill(Color.white.opacity(0.03))
                     )
                     
                     // Enhanced Recent Activity
@@ -496,10 +509,7 @@ struct TrackingView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 15)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.1))
-                    )
+                    .background(Color.clear)
                 }
                 .padding(.vertical, 20)
             }
@@ -510,14 +520,13 @@ struct TrackingView: View {
                 }
             }
         }
-            .sheet(isPresented: $showingBabyForm) {
-                if let baby = dataManager.baby {
-                    BabyFormView(babyToEdit: baby)
-                        .environmentObject(dataManager)
-                } else {
-                    BabyFormView()
-                        .environmentObject(dataManager)
-                }
+        .sheet(isPresented: $showingBabyForm) {
+            if let baby = dataManager.baby {
+                BabyFormView(babyToEdit: baby)
+                    .environmentObject(dataManager)
+            } else {
+                BabyFormView()
+                    .environmentObject(dataManager)
             }
         }
         .sheet(isPresented: $showingFeedingSheet) {
@@ -718,6 +727,7 @@ struct TrackingView: View {
             MeasurementOptionsView()
                 .environmentObject(dataManager)
         }
+        }
     }
     
     private func getRecentActivity() -> [ActivityItem] {
@@ -728,7 +738,7 @@ struct TrackingView: View {
             activities.append(ActivityItem(
                 icon: "drop.fill",
                 title: "\(record.type.rawValue) Feed",
-                description: record.amount != nil ? "\(Int(record.amount!))ml" : "\(Int(record.duration ?? 0))min",
+                description: record.amount.map { "\(Int($0))ml" } ?? "\(Int(record.duration ?? 0))min",
                 date: record.date,
                 color: TinyStepsDesign.Colors.accent
             ))
@@ -860,9 +870,6 @@ struct TrackingView: View {
     }
 }
 
-// Animated Growth Charts View
-#if canImport(Charts)
-import Charts
 struct AnimatedGrowthChartsView: View {
     let baby: Baby
     @State private var animateWeight = false
@@ -992,66 +999,8 @@ struct AnimatedGrowthChartsView: View {
         .padding(.vertical, 8)
     }
 }
-#endif
 
-struct QuickActionButton: View {
-    let icon: String
-    let label: String
-    let color: Color
-    let isSelected: Bool
-    let action: () -> Void
-    @State private var isPressed = false
-    @State private var isHovered = false
-    
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 12) {
-                Image(systemName: icon)
-                    .font(.system(size: 28, weight: .medium))
-                    .foregroundColor(.white)
-                    .frame(width: 50, height: 50)
-                    .background(
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: [color, color.opacity(0.8)]),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                    )
-                    .scaleEffect(isPressed ? 0.9 : (isHovered ? 1.1 : 1.0))
-                    .animation(.easeInOut(duration: 0.2), value: isPressed)
-                    .animation(.easeInOut(duration: 0.2), value: isHovered)
-                
-                Text(label)
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 20)
-            .background(
-                RoundedRectangle(cornerRadius: 20)
-                    .fill(isSelected ? color.opacity(0.3) : Color.white.opacity(0.1))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 20)
-                            .stroke(isSelected ? color : Color.white.opacity(0.2), lineWidth: isSelected ? 2 : 1)
-                    )
-            )
-            .scaleEffect(isPressed ? 0.95 : 1.0)
-            .shadow(color: color.opacity(isSelected ? 0.5 : 0.3), radius: isHovered ? 15 : 10, x: 0, y: 5)
-            .animation(.easeInOut(duration: 0.2), value: isPressed)
-            .animation(.easeInOut(duration: 0.2), value: isHovered)
-            .animation(.easeInOut(duration: 0.2), value: isSelected)
-        }
-        .buttonStyle(PlainButtonStyle())
-        .onHover { hovering in
-            isHovered = hovering
-        }
-    }
-}
+
 
 struct SummaryCard: View {
     let title: String
@@ -1080,16 +1029,8 @@ struct SummaryCard: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(color.opacity(0.2))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(color.opacity(0.3), lineWidth: 1)
-                )
-        )
+        .background(Color.clear)
         .scaleEffect(isHovered ? 1.05 : 1.0)
-        .shadow(color: color.opacity(0.3), radius: isHovered ? 15 : 10, x: 0, y: 5)
         .animation(.easeInOut(duration: 0.2), value: isHovered)
         .onHover { hovering in
             isHovered = hovering
@@ -1106,55 +1047,123 @@ struct FeedingLogView: View {
     @State private var amount: String = ""
     @State private var duration: String = ""
     @State private var notes: String = ""
+    @State private var showingHistory = false
     
     var body: some View {
         NavigationView {
-            Form {
-                Section("Feeding Type") {
-                    Picker("Type", selection: $selectedType) {
-                        ForEach(FeedingRecord.FeedingType.allCases, id: \.self) { type in
-                            HStack {
-                                Image(systemName: type.icon)
-                                    .foregroundColor(type.color)
-                                Text(type.rawValue)
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    // Header
+                    VStack(spacing: 10) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("Log Feeding")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                Text("Track your baby's feeding")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.8))
                             }
-                            .tag(type)
+                            
+                            Spacer()
                         }
                     }
-                    .pickerStyle(SegmentedPickerStyle())
-                }
-                
-                if selectedType == .bottle || selectedType == .mixed {
-                    Section("Amount (ml)") {
-                        TextField("Enter amount", text: $amount)
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    
+                    // Form Content
+                    VStack(spacing: 15) {
+                        // Feeding Type
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Feeding Type")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            
+                            Picker("Type", selection: $selectedType) {
+                                ForEach(FeedingRecord.FeedingType.allCases, id: \.self) { type in
+                                    HStack {
+                                        Image(systemName: type.icon)
+                                            .foregroundColor(type.color)
+                                        Text(type.rawValue)
+                                    }
+                                    .tag(type)
+                                }
+                            }
+                            .pickerStyle(SegmentedPickerStyle())
+                            .padding(.horizontal, -8)
+                        }
+                        .padding(.horizontal)
+                        
+                        if selectedType == .bottle || selectedType == .mixed {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Amount (ml)")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                TextField("Enter amount", text: $amount)
+                                    .textFieldStyle(CustomTextFieldStyle())
+                            }
+                            .padding(.horizontal)
+                        }
+                        
+                        if selectedType == .breast || selectedType == .mixed {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text("Duration (minutes)")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                TextField("Enter duration", text: $duration)
+                                    .textFieldStyle(CustomTextFieldStyle())
+                            }
+                            .padding(.horizontal)
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Notes (Optional)")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            TextField("Add any additional notes", text: $notes, axis: .vertical)
+                                .textFieldStyle(CustomTextFieldStyle())
+                                .frame(height: 100)
+                        }
+                        .padding(.horizontal)
                     }
-                }
-                
-                if selectedType == .breast || selectedType == .mixed {
-                    Section("Duration (minutes)") {
-                        TextField("Enter duration", text: $duration)
-                    }
-                }
-                
-                Section("Notes (Optional)") {
-                    TextField("Add notes", text: $notes)
+                    
+                    Spacer()
                 }
             }
-            .navigationTitle("Log Feeding")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
+                ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
                         dismiss()
                     }
                     .foregroundColor(.white)
                 }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        saveFeeding()
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
+                        Button {
+                            showingHistory = true
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundColor(.white)
+                        }
+                        
+                        Button("Save") {
+                            saveFeeding()
+                        }
+                        .foregroundColor(.white)
                     }
-                    .foregroundColor(.white)
                 }
             }
+        }
+        .sheet(isPresented: $showingHistory) {
+            FeedingHistoryView()
         }
     }
     
@@ -1184,7 +1193,11 @@ struct SleepLogView: View {
     
     var body: some View {
         NavigationView {
-            Form {
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                Form {
                 Section("Sleep Location") {
                     Picker("Location", selection: $selectedLocation) {
                         ForEach(SleepRecord.SleepLocation.allCases, id: \.self) { location in
@@ -1200,6 +1213,9 @@ struct SleepLogView: View {
                 Section("Notes (Optional)") {
                     TextField("Add notes", text: $notes)
                 }
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
             }
             .navigationTitle("Log Sleep")
             .toolbar {
@@ -1243,7 +1259,11 @@ struct NappyLogView: View {
     
     var body: some View {
         NavigationView {
-            Form {
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                Form {
                 Section("Nappy Type") {
                     Picker("Type", selection: $selectedType) {
                         ForEach(NappyRecord.NappyType.allCases, id: \.self) { type in
@@ -1261,6 +1281,9 @@ struct NappyLogView: View {
                 Section("Notes (Optional)") {
                     TextField("Add notes", text: $notes)
                 }
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
             }
             .navigationTitle("Log Nappy Change")
             .toolbar {
@@ -1294,7 +1317,6 @@ struct NappyLogView: View {
 
 // MARK: - Growth Charts View
 #if canImport(Charts)
-import Charts
 struct GrowthChartsView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1446,7 +1468,6 @@ struct GrowthChartsView: View {
 
 // MARK: - Measurement Options View
 #if canImport(Charts)
-import Charts
 struct MeasurementOptionsView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1546,7 +1567,6 @@ struct MeasurementOptionsView: View {
                                     Text("Current Height")
                                         .font(.headline)
                                     Text("\(String(format: "%.2f", height)) cm")
-                                        .font(.caption)
                                         .foregroundColor(.secondary)
                                 }
                                 Spacer()
@@ -1578,36 +1598,102 @@ struct MeasurementOptionsView: View {
         }
     }
 }
+
 #endif
 
 // MARK: - Weight Entry View
 #if canImport(Charts)
-import Charts
 struct WeightEntryView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
     @State private var weightDate = Date()
     @State private var weightValue = ""
+    @State private var showingHistory = false
     
     var body: some View {
         NavigationView {
-            Form {
-                DatePicker("Date", selection: $weightDate, displayedComponents: .date)
-                TextField("Weight (kg)", text: $weightValue)
-                    .keyboardType(.decimalPad)
-            }
-            .navigationTitle("Add Weight")
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Save") {
-                        saveWeight()
+            ZStack {
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 20) {
+                    // Header
+                    VStack(spacing: 10) {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text("Add Weight")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                Text("Track your baby's growth")
+                                    .font(.subheadline)
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
+                            
+                            Spacer()
+                        }
                     }
-                    .disabled(weightValue.isEmpty)
+                    .padding()
+                    .background(Color.white.opacity(0.1))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                    
+                    // Form Content
+                    VStack(spacing: 15) {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Date")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            DatePicker("", selection: $weightDate, displayedComponents: .date)
+                                .datePickerStyle(.compact)
+                                .labelsHidden()
+                                .colorScheme(.dark)
+                        }
+                        .padding(.horizontal)
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Weight (kg)")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                            TextField("Enter weight", text: $weightValue)
+                                .textFieldStyle(CustomTextFieldStyle())
+                                .keyboardType(.decimalPad)
+                        }
+                        .padding(.horizontal)
+                    }
+                    
+                    Spacer()
                 }
             }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    HStack {
+                        Button {
+                            showingHistory = true
+                        } label: {
+                            Image(systemName: "clock.arrow.circlepath")
+                                .foregroundColor(.white)
+                        }
+                        
+                        Button("Save") {
+                            saveWeight()
+                        }
+                        .foregroundColor(.white)
+                        .disabled(weightValue.isEmpty)
+                    }
+                }
+            }
+        }
+        .sheet(isPresented: $showingHistory) {
+            WeightHistoryView()
         }
     }
     
@@ -1627,7 +1713,6 @@ struct WeightEntryView: View {
 
 // MARK: - Height Entry View
 #if canImport(Charts)
-import Charts
 struct HeightEntryView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1672,7 +1757,6 @@ struct HeightEntryView: View {
 
 // MARK: - Head Circumference Entry View
 #if canImport(Charts)
-import Charts
 struct HeadCircumferenceEntryView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @Environment(\.dismiss) var dismiss
@@ -1715,4 +1799,4 @@ struct HeadCircumferenceEntryView: View {
 #Preview {
     TrackingView()
         .environmentObject(BabyDataManager())
-} 
+}

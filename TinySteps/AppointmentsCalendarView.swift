@@ -25,7 +25,7 @@ struct AppointmentsCalendarView: View {
     var body: some View {
         ZStack {
             // Background gradient
-            TinyStepsDesign.Colors.background
+            Color.clear
                 .ignoresSafeArea()
             
             VStack {
@@ -188,7 +188,6 @@ struct DayCalendarView: View {
     var body: some View {
         Text("Day View (coming soon)")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
     }
 }
 
@@ -197,7 +196,6 @@ struct YearCalendarView: View {
     var body: some View {
         Text("Year View (coming soon)")
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
     }
 }
 
@@ -223,40 +221,35 @@ struct AddAppointmentSheet: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                TinyStepsDesign.Colors.background
-                    .ignoresSafeArea()
-                
-                Form {
-                    Section(header: Text("Title")) {
-                        TextField("Appointment Title", text: $title)
+            Form {
+                Section(header: Text("Title")) {
+                    TextField("Appointment Title", text: $title)
+                }
+                Section(header: Text("Location")) {
+                    TextField("Location", text: $location)
+                }
+                Section {
+                    Toggle("All-day", isOn: $isAllDay)
+                    DatePicker("Start", selection: $startDate, displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute])
+                    DatePicker("End", selection: $endDate, displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute])
+                }
+                Section(header: Text("Notes")) {
+                    TextEditor(text: $notes)
+                        .frame(minHeight: 60)
+                }
+                Section(header: Text("Reminder")) {
+                    Picker("Alert", selection: $reminderMinutes) {
+                        Text("None").tag(0)
+                        Text("At time of event").tag(0)
+                        Text("5 minutes before").tag(5)
+                        Text("10 minutes before").tag(10)
+                        Text("15 minutes before").tag(15)
+                        Text("30 minutes before").tag(30)
+                        Text("1 hour before").tag(60)
+                        Text("2 hours before").tag(120)
+                        Text("1 day before").tag(1440)
                     }
-                    Section(header: Text("Location")) {
-                        TextField("Location", text: $location)
-                    }
-                    Section {
-                        Toggle("All-day", isOn: $isAllDay)
-                        DatePicker("Start", selection: $startDate, displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute])
-                        DatePicker("End", selection: $endDate, displayedComponents: isAllDay ? [.date] : [.date, .hourAndMinute])
-                    }
-                    Section(header: Text("Notes")) {
-                        TextEditor(text: $notes)
-                            .frame(minHeight: 60)
-                    }
-                    Section(header: Text("Reminder")) {
-                        Picker("Alert", selection: $reminderMinutes) {
-                            Text("None").tag(0)
-                            Text("At time of event").tag(0)
-                            Text("5 minutes before").tag(5)
-                            Text("10 minutes before").tag(10)
-                            Text("15 minutes before").tag(15)
-                            Text("30 minutes before").tag(30)
-                            Text("1 hour before").tag(60)
-                            Text("2 hours before").tag(120)
-                            Text("1 day before").tag(1440)
-                        }
-                        .pickerStyle(.menu)
-                    }
+                    .pickerStyle(.menu)
                 }
             }
             .navigationTitle("New Appointment")
@@ -311,7 +304,7 @@ struct EditAppointmentSheet: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                TinyStepsDesign.Colors.background
+                Color.clear
                     .ignoresSafeArea()
                 Form {
                     Section(header: Text("Title")) {

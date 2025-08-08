@@ -77,8 +77,9 @@ struct NewReminderView: View {
                         Text("Time")
                             .font(.headline)
                             .foregroundColor(.white)
-                        TextField("e.g., 09:00", text: $time)
-                            .textFieldStyle(CustomTextFieldStyle())
+                        DatePicker("", selection: $date, displayedComponents: .hourAndMinute)
+                            .datePickerStyle(CompactDatePickerStyle())
+                            .labelsHidden()
                     }
                     
                     // Repeat

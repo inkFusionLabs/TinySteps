@@ -77,8 +77,9 @@ struct NewAppointmentView: View {
                         Text("Time")
                             .font(.headline)
                             .foregroundColor(.white)
-                        TextField("e.g., 09:00 AM", text: $time)
-                            .textFieldStyle(CustomTextFieldStyle())
+                        DatePicker("", selection: $date, displayedComponents: .hourAndMinute)
+                            .datePickerStyle(CompactDatePickerStyle())
+                            .labelsHidden()
                     }
                     
                     // Location
@@ -137,18 +138,28 @@ struct NewAppointmentView: View {
     }
     
     private func saveAppointment() {
-        let appointment = Appointment(
+        var appointment = Appointment(
             title: title,
-            date: date,
-            time: time,
             location: location,
+            isAllDay: false,
+            startDate: date,
+            endDate: Calendar.current.date(byAdding: .hour, value: 1, to: date) ?? date,
             notes: notes.isEmpty ? nil : notes,
-            type: type
+            reminderMinutes: 15
         )
+        
+        appointment.type = type
+        appointment.time = timeFormatter.string(from: date)
         
         dataManager.addAppointment(appointment)
         dismiss()
     }
+    
+    private let timeFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter
+    }()
 }
 
 #Preview {

@@ -28,7 +28,7 @@ struct AvatarBuilderView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                Color.clear
                     .ignoresSafeArea()
                 
                 VStack(spacing: 20) {
@@ -43,7 +43,7 @@ struct AvatarBuilderView: View {
                             .frame(width: 120, height: 120)
                             .background(
                                 Circle()
-                                    .fill(Color.white.opacity(0.1))
+                                    .fill(Color.white.opacity(0.03))
                                     .frame(width: 140, height: 140)
                             )
                     }
@@ -69,7 +69,7 @@ struct AvatarBuilderView: View {
                                     .padding(.vertical, 8)
                                     .background(
                                         RoundedRectangle(cornerRadius: 8)
-                                            .fill(selectedCategory == category ? Color.blue : Color.white.opacity(0.1))
+                                            .fill(selectedCategory == category ? Color.blue : Color.white.opacity(0.03))
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -99,7 +99,7 @@ struct AvatarBuilderView: View {
                                     .frame(maxWidth: .infinity)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.white.opacity(0.1))
+                                            .fill(Color.white.opacity(0.03))
                                     )
                                 }
                                 .buttonStyle(PlainButtonStyle())

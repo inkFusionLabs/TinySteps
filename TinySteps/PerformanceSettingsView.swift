@@ -17,7 +17,7 @@ struct PerformanceSettingsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                Color.clear
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -54,7 +54,7 @@ struct PerformanceSettingsView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.white.opacity(0.03))
                         .cornerRadius(12)
                         
                         // Performance Monitor
@@ -76,7 +76,7 @@ struct PerformanceSettingsView: View {
                             }
                             .padding(.horizontal, 20)
                             .padding(.vertical, 15)
-                            .background(Color.white.opacity(0.1))
+                            .background(Color.white.opacity(0.03))
                             .cornerRadius(12)
                         }
                         
@@ -136,7 +136,7 @@ struct PerformanceSettingsView: View {
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.white.opacity(0.03))
                         .cornerRadius(12)
                         
                         // Information Cards

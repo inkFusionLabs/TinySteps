@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import LocalAuthentication
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -21,8 +20,7 @@ struct SettingsView: View {
     @State private var showingPerformance = false
     @State private var showingEditContact = false
     @State private var editingContact: EmergencyContact? = nil
-    @State private var faceIDEnabled: Bool = false
-    @State private var touchIDEnabled: Bool = false
+    @State private var showingPasscodeSetup = false
     @State private var showingResetPassword = false
     @State private var newPassword: String = ""
     @State private var confirmNewPassword: String = ""
@@ -30,21 +28,26 @@ struct SettingsView: View {
     @State private var resetPasswordSuccess: Bool = false
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Dad Settings Banner
-            VStack(alignment: .leading, spacing: 5) {
-                Text("Dad's Settings")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundColor(.white)
-                Text("Manage your preferences and app settings.")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
-            }
-            .padding(.horizontal)
-            .padding(.top)
-            // Main Content
-            ScrollView {
+        ZStack {
+            // Background
+            TinyStepsDesign.Colors.background
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Dad Settings Banner
+                VStack(alignment: .leading, spacing: 5) {
+                    Text("Dad's Settings")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    Text("Manage your preferences and app settings.")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
+                }
+                .padding(.horizontal)
+                .padding(.top)
+                // Main Content
+                ScrollView {
                 VStack(spacing: 20) {
                     // Security Section
                     VStack(spacing: 15) {
@@ -58,20 +61,12 @@ struct SettingsView: View {
                                 .accessibilityAddTraits(.isHeader)
                             Spacer()
                         }
-                        Toggle(isOn: $faceIDEnabled) {
-                            Label("Enable Face ID", systemImage: "faceid")
+                        Button(action: { showingPasscodeSetup = true }) {
+                            Label("Set Passcode", systemImage: "key.fill")
+                                .foregroundColor(.blue)
                         }
-                        .disabled(!isFaceIDAvailable())
-                        .foregroundColor(.white)
-                        .accessibilityLabel("Enable Face ID")
-                        .accessibilityHint("Toggle Face ID authentication on or off.")
-                        Toggle(isOn: $touchIDEnabled) {
-                            Label("Enable Touch ID", systemImage: "touchid")
-                        }
-                        .disabled(!isTouchIDAvailable())
-                        .foregroundColor(.white)
-                        .accessibilityLabel("Enable Touch ID")
-                        .accessibilityHint("Toggle Touch ID authentication on or off.")
+                        .accessibilityLabel("Set Passcode")
+                        .accessibilityHint("Open the passcode setup screen.")
                         Button(action: { showingResetPassword = true }) {
                             Label("Reset Password", systemImage: "key.fill")
                                 .foregroundColor(.red)
@@ -80,7 +75,7 @@ struct SettingsView: View {
                         .accessibilityHint("Open the form to reset your password.")
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    
                     .cornerRadius(16)
                     
                     // Emergency Contacts Section (moved above Data Management)
@@ -98,11 +93,37 @@ struct SettingsView: View {
                                     showingEditContact = true
                                 })
                             }
-                        }
-                        .padding()
-                        .background(.ultraThinMaterial)
+                                            }
+                    .padding()
+                    
                         .cornerRadius(16)
                     }
+                    
+                    // Notifications Section
+                    VStack(spacing: 15) {
+                        HStack {
+                            Image(systemName: "bell.fill")
+                                .foregroundColor(.orange)
+                            Text("Notifications")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .accessibilityLabel("Notification settings")
+                                .accessibilityAddTraits(.isHeader)
+                            Spacer()
+                        }
+                        
+                        NavigationLink(destination: NotificationSettingsView()) {
+                            ProfileInfoRow(
+                                icon: "bell.fill",
+                                title: "Notification Settings",
+                                value: "Configure",
+                                color: .orange
+                            )
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                    .padding()
+                    .background(Color.clear)
                     
                     // App Information Section
                     VStack(spacing: 15) {
@@ -173,10 +194,7 @@ struct SettingsView: View {
                     }
                     .padding(.horizontal, 20)
                     .padding(.vertical, 15)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.1))
-                    )
+                    .background(Color.clear)
                     
                     // App Icon Section
                     VStack(spacing: 15) {
@@ -216,7 +234,7 @@ struct SettingsView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    
                     .cornerRadius(16)
                     
                     // Support Email Section
@@ -244,13 +262,12 @@ struct SettingsView: View {
                         .accessibilityHint("Opens your email app to contact support.")
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    
                     .cornerRadius(16)
                 }
                 .padding()
             }
         }
-        .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
         .sheet(isPresented: $showingPrivacyPolicy) {
             PrivacyPolicyView()
         }
@@ -315,34 +332,27 @@ struct SettingsView: View {
                 .foregroundColor(.red)
             }
             .padding()
-            .background(Color.white.opacity(0.95))
-            .cornerRadius(16)
+            .background(Color.clear)
             .padding()
+        }
+        .sheet(isPresented: $showingPasscodeSetup) {
+            PasscodeSetupView()
+        }
         }
     }
     
     private func getURLForContact(_ contact: String) -> URL? {
         switch contact {
-        case "NHS 111": return URL(string: "tel:111")
-        case "NHS 999": return URL(string: "tel:999")
+        case "Emergency Services": return URL(string: "tel:999") // Default to UK emergency
+        case "Non-Emergency Medical": return URL(string: "tel:111") // Default to UK non-emergency
         case "Bliss Helpline": return URL(string: "tel:08088010322")
         case "NCT Helpline": return URL(string: "tel:03003300700")
         case "Samaritans": return URL(string: "tel:116123")
         case "CALM": return URL(string: "tel:0800585858")
+        case "March of Dimes": return URL(string: "tel:18886634637")
+        case "NICU Parent Support": return nil // No direct phone number, would link to local resources
         default: return nil
         }
-    }
-    
-    // Helper functions for biometrics
-    private func isFaceIDAvailable() -> Bool {
-        let context = LAContext()
-        var error: NSError?
-        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) && context.biometryType == .faceID
-    }
-    private func isTouchIDAvailable() -> Bool {
-        let context = LAContext()
-        var error: NSError?
-        return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error) && context.biometryType == .touchID
     }
 }
 
@@ -352,7 +362,7 @@ struct PrivacyPolicyView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                Color.clear
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -466,7 +476,7 @@ struct EmergencyContactCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        
         .cornerRadius(12)
         .shadow(radius: 4)
     }
@@ -535,7 +545,7 @@ struct HelpSupportView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                Color.clear
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -613,7 +623,7 @@ struct AboutTinyStepsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                Color.clear
                     .ignoresSafeArea()
                 
                 ScrollView {
@@ -687,6 +697,98 @@ struct AboutTinyStepsView: View {
                         dismiss()
                     }
                 }
+            }
+        }
+    }
+} 
+
+// MARK: - Passcode Setup View
+struct PasscodeSetupView: View {
+    @Environment(\.dismiss) var dismiss
+    @State private var passcode = ""
+    @State private var confirmPasscode = ""
+    @State private var showingError = false
+    @State private var errorMessage = ""
+    @State private var showingSuccess = false
+    
+    var body: some View {
+        NavigationView {
+            ZStack {
+                Color.clear
+                    .ignoresSafeArea()
+                
+                VStack(spacing: 30) {
+                    // Header
+                    VStack(spacing: 10) {
+                        Image(systemName: "lock.shield")
+                            .font(.system(size: 60))
+                            .foregroundColor(.blue)
+                        
+                        Text("Set Up Passcode")
+                            .font(.title)
+                            .fontWeight(.bold)
+                            .foregroundColor(.white)
+                        
+                        Text("Create a 4-digit passcode to protect your data")
+                            .font(.body)
+                            .foregroundColor(.white.opacity(0.7))
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    // Passcode Input
+                    VStack(spacing: 20) {
+                        SecureField("Enter passcode", text: $passcode)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.numberPad)
+                            .frame(maxWidth: 200)
+                        
+                        SecureField("Confirm passcode", text: $confirmPasscode)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .keyboardType(.numberPad)
+                            .frame(maxWidth: 200)
+                    }
+                    
+                    // Buttons
+                    VStack(spacing: 15) {
+                        Button("Set Passcode") {
+                            if passcode.count < 4 {
+                                errorMessage = "Passcode must be at least 4 digits"
+                                showingError = true
+                            } else if passcode != confirmPasscode {
+                                errorMessage = "Passcodes don't match"
+                                showingError = true
+                            } else {
+                                UserDefaults.standard.set(passcode, forKey: "app_passcode")
+                                showingSuccess = true
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                                    dismiss()
+                                }
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(passcode.isEmpty || confirmPasscode.isEmpty)
+                        
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    
+                    Spacer()
+                }
+                .padding()
+            }
+            .navigationTitle("Passcode Setup")
+            .navigationBarTitleDisplayMode(.inline)
+            .alert("Error", isPresented: $showingError) {
+                Button("OK") { }
+            } message: {
+                Text(errorMessage)
+            }
+            .alert("Success", isPresented: $showingSuccess) {
+                Button("OK") { }
+            } message: {
+                Text("Passcode set successfully!")
             }
         }
     }

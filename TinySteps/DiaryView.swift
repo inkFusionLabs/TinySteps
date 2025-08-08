@@ -7,7 +7,7 @@ struct DiaryView: View {
     var body: some View {
         ZStack {
             // Background gradient
-            TinyStepsDesign.Colors.background
+            Color.clear
                 .ignoresSafeArea()
             
             NavigationView {

@@ -76,7 +76,7 @@ struct WelcomeView: View {
                         Image(systemName: "lock.shield")
                             .font(.system(size: 80))
                             .foregroundColor(.green)
-                        Text("Protect your baby's journey with password and Face ID/Touch ID security.")
+                        Text("Protect your baby's journey with passcode security.")
                             .font(.body)
                             .foregroundColor(.white.opacity(0.85))
                             .multilineTextAlignment(.center)

@@ -42,49 +42,72 @@ struct JournalView: View {
     ]
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Dad Journal Banner (Support & Care style)
-            VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text("Dad's Journal")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                        .foregroundColor(.white)
-                    Spacer()
-                    Button(action: { showNewEntry = true }) {
-                        Image(systemName: "plus.circle.fill")
-                            .font(.title2)
+        ZStack {
+            // Theme Background
+            TinyStepsDesign.Colors.background
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Dad Journal Banner (Support & Care style)
+                VStack(alignment: .leading, spacing: 5) {
+                    HStack {
+                        Text("Dad's Journal")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
                             .foregroundColor(.white)
+                        Spacer()
+                        Button(action: { showNewEntry = true }) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.title2)
+                                .foregroundColor(.white)
+                        }
                     }
+                    Text("Record your thoughts and memories")
+                        .font(.subheadline)
+                        .foregroundColor(.white.opacity(0.8))
                 }
-                Text("Record your thoughts and memories")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
-            }
-            .padding(.horizontal)
-            .padding(.top)
-            // Main Content
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Example Card
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Recent Entries")
-                            .font(TinyStepsDesign.Typography.subheader)
-                            .foregroundColor(TinyStepsDesign.Colors.accent)
-                        // ... existing journal content ...
+                .padding(.horizontal)
+                .padding(.top)
+                
+                // Main Content
+                ScrollView {
+                    VStack(spacing: 20) {
+                        if entries.isEmpty {
+                            EmptyJournalView()
+                        } else {
+                            // Recent Entries Section
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("Recent Entries")
+                                    .font(.title2)
+                                    .fontWeight(.bold)
+                                    .foregroundColor(.white)
+                                
+                                LazyVStack(spacing: 16) {
+                                    ForEach(entries) { entry in
+                                        JournalEntryCard(entry: entry) {
+                                            deleteEntry(entry)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
                     }
-                    .padding(.horizontal, 20)
-                    .padding(.vertical, 15)
-                    .background(
-                        RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.1))
-                    )
-                    // ... repeat for other cards/buttons ...
+                    .padding()
                 }
-                .padding()
             }
         }
-        .background(TinyStepsDesign.Colors.background.ignoresSafeArea())
+        .sheet(isPresented: $showNewEntry) {
+            NewEntryView(
+                entryText: $entryText,
+                selectedMood: $selectedMood,
+                selectedTags: $selectedTags,
+                availableTags: availableTags,
+                onSave: {
+                    saveEntry()
+                }
+            )
+        }
     }
     
     private func saveEntry() {
@@ -110,7 +133,14 @@ struct JournalView: View {
             showNewEntry = false
         }
     }
+    
+    private func deleteEntry(_ entry: JournalEntry) {
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.8)) {
+            entries.removeAll { $0.id == entry.id }
+        }
+    }
 }
+
 
 struct NewEntryView: View {
     @Binding var entryText: String
@@ -141,10 +171,10 @@ struct NewEntryView: View {
                                 .frame(width: 50, height: 50)
                                 .background(
                                     Circle()
-                                        .fill(selectedMood == mood ? mood.color.opacity(0.3) : TinyStepsDesign.Colors.cardBackground)
+                                        .fill(selectedMood == mood ? mood.color.opacity(0.3) : Color.clear)
                                         .overlay(
                                             Circle()
-                                                .stroke(selectedMood == mood ? mood.color : TinyStepsDesign.Colors.cardBackground.opacity(0.3), lineWidth: selectedMood == mood ? 2 : 1)
+                                                .stroke(selectedMood == mood ? mood.color : Color.clear, lineWidth: selectedMood == mood ? 2 : 1)
                                         )
                                 )
                                 .scaleEffect(selectedMood == mood ? 1.2 : 1.0)
@@ -165,15 +195,7 @@ struct NewEntryView: View {
                 TextEditor(text: $entryText)
                     .frame(minHeight: 120)
                     .padding(12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(TinyStepsDesign.Colors.cardBackground)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .stroke(TinyStepsDesign.Colors.cardBackground.opacity(0.2), lineWidth: 1)
-                            )
-                    )
-                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    .foregroundColor(.black)
             }
             
             // Tags Selector
@@ -214,29 +236,15 @@ struct NewEntryView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 16)
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [Color.blue, Color.blue.opacity(0.8)]),
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(entryText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? Color.gray : Color.blue)
                 )
-                .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
             }
             .disabled(entryText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
             .opacity(entryText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.6 : 1.0)
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(TinyStepsDesign.Colors.cardBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(TinyStepsDesign.Colors.cardBackground.opacity(0.2), lineWidth: 1)
-                )
-        )
+        .background(Color.clear)
     }
 }
 
@@ -281,6 +289,7 @@ struct TagButton: View {
 
 struct JournalEntryCard: View {
     let entry: JournalEntry
+    let onDelete: () -> Void
     @State private var isHovered = false
     @State private var showFullText = false
     
@@ -306,9 +315,18 @@ struct JournalEntryCard: View {
                 
                 Spacer()
                 
-                Image(systemName: "bookmark.fill")
-                    .foregroundColor(entry.mood.color)
-                    .font(.title3)
+                HStack(spacing: 12) {
+                    Image(systemName: "bookmark.fill")
+                        .foregroundColor(entry.mood.color)
+                        .font(.title3)
+                    
+                    Button(action: onDelete) {
+                        Image(systemName: "trash.fill")
+                            .foregroundColor(.red)
+                            .font(.title3)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                }
             }
             
             // Content
@@ -334,27 +352,15 @@ struct JournalEntryCard: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 8)
                                 .padding(.vertical, 4)
-                                .background(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .fill(entry.mood.color.opacity(0.3))
-                                )
+                                .background(Color.clear)
                         }
                     }
                 }
             }
         }
         .padding(20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(Color.clear)
-                .background(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(entry.mood.color.opacity(0.3), lineWidth: 1)
-                )
-        )
+        .background(Color.clear)
         .scaleEffect(isHovered ? 1.02 : 1.0)
-        .shadow(color: entry.mood.color.opacity(0.2), radius: isHovered ? 15 : 10, x: 0, y: 5)
         .animation(.easeInOut(duration: 0.2), value: isHovered)
         .onHover { hovering in
             isHovered = hovering

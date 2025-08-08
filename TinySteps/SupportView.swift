@@ -15,24 +15,15 @@ import CoreLocation
 
 struct SupportView: View {
     @State private var selectedSection: SupportSection = .healthVisitor
-    @State private var showNewReminder = false
-    @State private var showNewAppointment = false
-    @State private var showNewMilestone = false
     @State private var showHealthInfo = false
     @State private var showHealthVisitor = false
-    @State private var showAppointments = false
-    @State private var showReminders = false
     @State private var showParentingTips = false
-    @State private var showMilestones = false
     @State private var showHospitalMap = false
     @State private var showSupportServices = false
     
     enum SupportSection: String, CaseIterable {
         case healthVisitor = "Health Visitor"
-        case appointments = "Appointments"
-        case reminders = "Reminders"
         case tips = "Parenting Tips"
-        case milestones = "Milestones"
         case healthcareMap = "Hospital Map"
         case healthInfo = "Health Info"
         case supportServices = "Support"
@@ -40,10 +31,7 @@ struct SupportView: View {
         var icon: String {
             switch self {
             case .healthVisitor: return "cross.case.fill"
-            case .appointments: return "calendar"
-            case .reminders: return "bell.fill"
             case .tips: return "lightbulb.fill"
-            case .milestones: return "star.fill"
             case .healthcareMap: return "map.fill"
             case .healthInfo: return "heart.text.square"
             case .supportServices: return "heart.fill"
@@ -53,10 +41,7 @@ struct SupportView: View {
         var color: Color {
             switch self {
             case .healthVisitor: return .blue
-            case .appointments: return .green
-            case .reminders: return .orange
             case .tips: return .yellow
-            case .milestones: return .purple
             case .healthcareMap: return .red
             case .healthInfo: return .pink
             case .supportServices: return TinyStepsDesign.Colors.success
@@ -66,6 +51,7 @@ struct SupportView: View {
     
     var body: some View {
         ZStack {
+            // Background
             TinyStepsDesign.Colors.background
                 .ignoresSafeArea()
             
@@ -86,97 +72,76 @@ struct SupportView: View {
                         Spacer()
                     }
                     .padding(.horizontal)
-                    
-                    // Compact Section Picker
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
-                        ForEach(SupportSection.allCases, id: \.self) { section in
-                            Button(action: {
-                                switch section {
-                                case .healthVisitor:
-                                    showHealthVisitor = true
-                                case .appointments:
-                                    showAppointments = true
-                                case .reminders:
-                                    showReminders = true
-                                case .tips:
-                                    showParentingTips = true
-                                case .milestones:
-                                    showMilestones = true
-                                case .healthcareMap:
-                                    showHospitalMap = true
-                                case .healthInfo:
-                                    showHealthInfo = true
-                                case .supportServices:
-                                    showSupportServices = true
-                                }
-                            }) {
-                                VStack(spacing: 8) {
-                                    // Colored circular icon background
-                                    ZStack {
-                                        Circle()
-                                            .fill(section.color)
-                                            .frame(width: 40, height: 40)
-                                        
-                                        Image(systemName: section.icon)
-                                            .font(.system(size: 18, weight: .medium))
-                                            .foregroundColor(.white)
-                                    }
-                                    
-                                    Text(section.rawValue)
-                                        .font(.system(size: 11, weight: .medium))
-                                        .foregroundColor(.white)
-                                        .multilineTextAlignment(.center)
-                                        .lineLimit(2)
-                                }
-                                .frame(height: 80)
-                                .frame(maxWidth: .infinity)
+                
+                // Compact Section Picker
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
+                    ForEach(SupportSection.allCases, id: \.self) { section in
+                        Button(action: {
+                            switch section {
+                            case .healthVisitor:
+                                showHealthVisitor = true
+                            case .tips:
+                                showParentingTips = true
+                            case .healthcareMap:
+                                showHospitalMap = true
+                            case .healthInfo:
+                                showHealthInfo = true
+                            case .supportServices:
+                                showSupportServices = true
                             }
+                        }) {
+                            VStack(spacing: 8) {
+                                // Colored circular icon background
+                                ZStack {
+                                    Circle()
+                                        .fill(section.color)
+                                        .frame(width: 40, height: 40)
+                                    
+                                    Image(systemName: section.icon)
+                                        .font(.system(size: 18, weight: .medium))
+                                        .foregroundColor(.white)
+                                }
+                                
+                                Text(section.rawValue)
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                            }
+                            .frame(height: 80)
+                            .frame(maxWidth: .infinity)
                         }
                     }
-                    .padding(.horizontal)
                 }
-                .padding(.top)
-                
-                // Content - Show a welcome message since all sections now open as modals
-                VStack(spacing: 20) {
-                    VStack(spacing: 16) {
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.white.opacity(0.7))
-                        
-                        Text("Support & Care")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("Tap any card above to access specific support services and information for your baby's journey.")
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.8))
-                            .multilineTextAlignment(.center)
-                            .padding(.horizontal)
-                    }
-                    .padding(.vertical, 40)
+                .padding(.horizontal)
+            }
+            .padding(.top)
+            
+            // Content - Show a welcome message since all sections now open as modals
+            VStack(spacing: 20) {
+                VStack(spacing: 16) {
+                    Image(systemName: "heart.fill")
+                        .font(.system(size: 60))
+                        .foregroundColor(.white.opacity(0.7))
                     
-                    Spacer()
+                    Text("Support & Care")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                    
+                    Text("Tap any card above to access specific support services and information for your baby's journey.")
+                        .font(.body)
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                 }
-                .padding()
+                .padding(.vertical, 40)
+                
+                Spacer()
             }
+            .padding()
         }
-        .sheet(isPresented: $showNewReminder) {
-            NavigationView {
-                NewReminderView()
-            }
-        }
-        .sheet(isPresented: $showNewAppointment) {
-            NavigationView {
-                NewAppointmentView()
-            }
-        }
-        .sheet(isPresented: $showNewMilestone) {
-            NavigationView {
-                NewMilestoneView()
-            }
-        }
+
         .sheet(isPresented: $showHealthInfo) {
             NavigationView {
                 CountryHealthInfoView()
@@ -187,26 +152,13 @@ struct SupportView: View {
                 HealthVisitorView()
             }
         }
-        .sheet(isPresented: $showAppointments) {
-            NavigationView {
-                AppointmentsView()
-            }
-        }
-        .sheet(isPresented: $showReminders) {
-            NavigationView {
-                RemindersView()
-            }
-        }
+
         .sheet(isPresented: $showParentingTips) {
             NavigationView {
                 ParentingTipsView()
             }
         }
-        .sheet(isPresented: $showMilestones) {
-            NavigationView {
-                MilestonesView()
-            }
-        }
+
         .sheet(isPresented: $showHospitalMap) {
             NavigationView {
                 HealthcareMapView()
@@ -217,6 +169,7 @@ struct SupportView: View {
                 SupportServicesView()
             }
         }
+
     }
 }
 
@@ -266,7 +219,7 @@ struct SupportReminderCard: View {
                 .frame(width: 12, height: 12)
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        
         .cornerRadius(12)
     }
 }
@@ -287,7 +240,7 @@ struct SupportTipCard: View {
                     .font(.caption)
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
-                    .background(Color.yellow.opacity(0.3))
+                    
                     .cornerRadius(8)
             }
             
@@ -296,7 +249,7 @@ struct SupportTipCard: View {
                 .foregroundColor(.white.opacity(0.8))
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        
         .cornerRadius(12)
     }
 }
@@ -334,44 +287,8 @@ struct MilestoneProgressCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        
         .cornerRadius(12)
-    }
-}
-
-class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
-    private let locationManager = CLLocationManager()
-    @Published var currentLocation: CLLocation?
-    @Published var locationStatus: CLAuthorizationStatus = .notDetermined
-    
-    override init() {
-        super.init()
-        locationManager.delegate = self
-        locationManager.desiredAccuracy = kCLLocationAccuracyBest
-        print("LocationManager initialized")
-    }
-    
-    func requestLocationPermission() {
-        print("Requesting location permission...")
-        locationManager.requestWhenInUseAuthorization()
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        currentLocation = locations.last
-        print("Location updated: \(locations.last?.coordinate.latitude ?? 0), \(locations.last?.coordinate.longitude ?? 0)")
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
-        print("Location authorization changed to: \(status.rawValue)")
-        locationStatus = status
-        if status == .authorizedWhenInUse || status == .authorizedAlways {
-            print("Starting location updates...")
-            locationManager.startUpdatingLocation()
-        }
-    }
-    
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("Location manager failed with error: \(error.localizedDescription)")
     }
 }
 
@@ -424,11 +341,11 @@ struct SupportServicesView: View {
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
-                    .background(Color.red.opacity(0.2))
+                    
                     .cornerRadius(8)
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -473,7 +390,6 @@ struct SupportServicesView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -501,6 +417,8 @@ struct SupportServicesView: View {
     }
 }
 
+}
+
 struct ServiceRowCompact: View {
     let service: NeonatalService
     
@@ -517,7 +435,7 @@ struct ServiceRowCompact: View {
                         .font(.caption)
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color.orange.opacity(0.3))
+                        
                         .foregroundColor(.orange)
                         .cornerRadius(4)
                 }
@@ -558,7 +476,6 @@ struct ServiceRowCompact: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.05))
         .cornerRadius(8)
     }
 }

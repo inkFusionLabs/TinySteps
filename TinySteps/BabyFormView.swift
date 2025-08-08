@@ -198,17 +198,7 @@ struct BabyFormView: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
-                            .background(
-                                RoundedRectangle(cornerRadius: 16)
-                                    .fill(
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [Color.blue, Color.blue.opacity(0.8)]),
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                            )
-                            .shadow(color: Color.blue.opacity(0.3), radius: 10, x: 0, y: 5)
+                            .background(Color.clear)
                         }
                         .disabled(name.isEmpty)
                         .opacity(name.isEmpty ? 0.6 : 1.0)
@@ -230,8 +220,7 @@ struct BabyFormView: View {
                                     .padding(.top, 4)
                             }
                             .padding()
-                            .background(Color.white.opacity(0.1))
-                            .cornerRadius(12)
+                            .background(Color.clear)
                         }
                     }
                     .padding(20)

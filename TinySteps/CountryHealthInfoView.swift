@@ -63,7 +63,7 @@ struct CountryHealthInfoView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color.white.opacity(0.03))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -227,7 +227,7 @@ struct VaccinationCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.white.opacity(0.03))
         .cornerRadius(12)
     }
 }
@@ -276,7 +276,7 @@ struct GrowthStandardsView: View {
                                 .multilineTextAlignment(.leading)
                         }
                         .padding()
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.white.opacity(0.03))
                         .cornerRadius(12)
                     }
                     .padding(.horizontal)
@@ -325,7 +325,7 @@ struct GrowthInfoCard: View {
             Spacer()
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.white.opacity(0.03))
         .cornerRadius(12)
     }
 }
@@ -401,7 +401,7 @@ struct GuidelineCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.white.opacity(0.03))
         .cornerRadius(12)
     }
 }
@@ -499,7 +499,7 @@ struct EmergencyInfoCard: View {
             Spacer()
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.white.opacity(0.03))
         .cornerRadius(12)
     }
 }

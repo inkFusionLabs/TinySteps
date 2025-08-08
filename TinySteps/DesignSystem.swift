@@ -23,12 +23,22 @@ struct TinyStepsDesign {
 
         // Backgrounds
         static let background = LinearGradient(
-            gradient: Gradient(colors: [primary, accent]),
+            gradient: Gradient(colors: [
+                Color(red: 0.05, green: 0.1, blue: 0.2),  // Very dark blue
+                Color(red: 0.1, green: 0.2, blue: 0.4),   // Dark blue
+                Color(red: 0.2, green: 0.4, blue: 0.8)    // Medium blue
+            ]),
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
-        static let cardBackground = Color.white.opacity(0.10)
+        static let backgroundSolid = primary
+        static let cardBackground = Color.white.opacity(0.08)
         static let cardBackgroundDark = Color(red: 0.09, green: 0.11, blue: 0.18)
+        
+        // Glassmorphism Effects
+        static let glassBackground = Color.white.opacity(0.15)
+        static let glassBorder = Color.white.opacity(0.2)
+        static let glassShadow = Color.black.opacity(0.1)
 
         // Text
         static let textPrimary = Color.white
@@ -92,6 +102,77 @@ struct TinyStepsDesign {
         static let medium = Shadow(color: .black.opacity(0.15), radius: 4, x: 0, y: 2)
         static let large = Shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
     }
+    
+    // MARK: - Glassmorphism Modifiers
+    struct Glassmorphism {
+        struct GlassEffect: ViewModifier {
+            func body(content: Content) -> some View {
+                content
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(TinyStepsDesign.Colors.glassBackground)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(TinyStepsDesign.Colors.glassBorder, lineWidth: 1)
+                            )
+                            .shadow(color: TinyStepsDesign.Colors.glassShadow, radius: 10, x: 0, y: 5)
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.ultraThinMaterial)
+                    )
+            }
+        }
+        
+        struct SubtleGlass: ViewModifier {
+            func body(content: Content) -> some View {
+                content
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(Color.white.opacity(0.1))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 0.5)
+                            )
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 12)
+                            .fill(.ultraThinMaterial)
+                    )
+            }
+        }
+        
+        struct CardGlass: ViewModifier {
+            func body(content: Content) -> some View {
+                content
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(Color.white.opacity(0.12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .stroke(Color.white.opacity(0.18), lineWidth: 1)
+                            )
+                            .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                    )
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.thinMaterial)
+                    )
+            }
+        }
+        
+        static func glassEffect() -> GlassEffect {
+            GlassEffect()
+        }
+        
+        static func subtleGlass() -> SubtleGlass {
+            SubtleGlass()
+        }
+        
+        static func cardGlass() -> CardGlass {
+            CardGlass()
+        }
+    }
 
     // MARK: - Dad-Themed Icons/Illustrations (future)
     // static let dadIcon = Image("DadIcon")
@@ -131,7 +212,6 @@ struct TinyStepsCard<Content: View>: View {
             .background(
                 RoundedRectangle(cornerRadius: cornerRadius)
                     .fill(Color.clear)
-                    .background(.ultraThinMaterial)
                     .overlay(
                         RoundedRectangle(cornerRadius: cornerRadius)
                             .stroke(Color.white.opacity(0.1), lineWidth: 1)
@@ -335,14 +415,16 @@ struct UKGuidelines2025 {
         "Sun protection: Keep out of direct sun, use appropriate sunscreen from 6 months"
     ]
     
-    // Emergency Contacts
+    // Emergency Contacts (Location-based)
     static let emergencyContacts = [
-        ("NHS 111", "Non-emergency medical advice"),
-        ("NHS 999", "Emergency services"),
-        ("Bliss Helpline", "0808 801 0322 - Premature baby support"),
-        ("NCT Helpline", "0300 330 0700 - Parenting support"),
-        ("Samaritans", "116 123 - Mental health support"),
-        ("CALM", "0800 58 58 58 - Men's mental health")
+        ("Emergency Services", "911 (US) / 999 (UK) / 112 (EU) - Emergency"),
+        ("Non-Emergency Medical", "111 (UK) / 311 (US) - Medical advice"),
+        ("Bliss Helpline", "0808 801 0322 - Premature baby support (UK)"),
+        ("NCT Helpline", "0300 330 0700 - Parenting support (UK)"),
+        ("Samaritans", "116 123 - Mental health support (UK)"),
+        ("CALM", "0800 58 58 58 - Men's mental health (UK)"),
+        ("March of Dimes", "1-888-MODIMES - Premature baby support (US)"),
+        ("NICU Parent Support", "Local hospital NICU - Parent support groups")
     ]
 } 
 

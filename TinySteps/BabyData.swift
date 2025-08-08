@@ -836,136 +836,178 @@ class BabyDataManager: ObservableObject {
     
     private func loadDataFromStorage() -> [String: Any] {
         var data: [String: Any] = [:]
-        let dataQueue = DispatchQueue(label: "com.tinysteps.datasafety")
         
-        // Load all data in parallel
-        let group = DispatchGroup()
-        let queue = DispatchQueue(label: "com.tinysteps.dataloading", attributes: .concurrent)
-        
+        // Load all data sequentially to avoid race conditions
         // Baby data
-        group.enter()
-        queue.async {
-            if let babyData = self.userDefaults.data(forKey: "baby") {
-                do {
-                    let baby = try JSONDecoder().decode(Baby.self, from: babyData)
-                    dataQueue.async {
-                        data["baby"] = baby
-                    }
-                } catch {
-                    print("Error decoding baby data: \(error)")
-                }
+        if let babyData = self.userDefaults.data(forKey: "baby") {
+            do {
+                let baby = try JSONDecoder().decode(Baby.self, from: babyData)
+                data["baby"] = baby
+            } catch {
+                print("Error decoding baby data: \(error)")
             }
-            group.leave()
         }
         
         // Feeding records
-        group.enter()
-        queue.async {
-            if let feedingData = self.userDefaults.data(forKey: "feedingRecords") {
-                do {
-                    let feedings = try JSONDecoder().decode([FeedingRecord].self, from: feedingData)
-                    dataQueue.async {
-                        data["feedingRecords"] = feedings
-                    }
-                } catch {
-                    print("Error decoding feeding records: \(error)")
-                }
+        if let feedingData = self.userDefaults.data(forKey: "feedingRecords") {
+            do {
+                let feedings = try JSONDecoder().decode([FeedingRecord].self, from: feedingData)
+                data["feedingRecords"] = feedings
+            } catch {
+                print("Error decoding feeding records: \(error)")
             }
-            group.leave()
         }
         
         // Nappy records
-        group.enter()
-        queue.async {
-            if let nappyData = self.userDefaults.data(forKey: "nappyRecords") {
-                do {
-                    let nappies = try JSONDecoder().decode([NappyRecord].self, from: nappyData)
-                    dataQueue.async {
-                        data["nappyRecords"] = nappies
-                    }
-                } catch {
-                    print("Error decoding nappy records: \(error)")
-                }
+        if let nappyData = self.userDefaults.data(forKey: "nappyRecords") {
+            do {
+                let nappies = try JSONDecoder().decode([NappyRecord].self, from: nappyData)
+                data["nappyRecords"] = nappies
+            } catch {
+                print("Error decoding nappy records: \(error)")
             }
-            group.leave()
         }
         
         // Sleep records
-        group.enter()
-        queue.async {
-            if let sleepData = self.userDefaults.data(forKey: "sleepRecords") {
-                do {
-                    let sleeps = try JSONDecoder().decode([SleepRecord].self, from: sleepData)
-                    dataQueue.async {
-                        data["sleepRecords"] = sleeps
-                    }
-                } catch {
-                    print("Error decoding sleep records: \(error)")
-                }
-            }
-            group.leave()
-        }
-        
-        // Other records (load in batches for efficiency)
-        let recordKeys = ["milestones", "achievements", "reminders", "vaccinations", "solidFoodRecords", "wellnessEntries", "partnerSupports", "emergencyContacts", "quickActions", "growthPredictions", "developmentChecklists", "appointments", "healthVisitorVisits"]
-        
-        for key in recordKeys {
-            group.enter()
-            queue.async {
-                if let recordData = self.userDefaults.data(forKey: key) {
-                    do {
-                        switch key {
-                        case "milestones":
-                            let records = try JSONDecoder().decode([Milestone].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "achievements":
-                            let records = try JSONDecoder().decode([DadAchievement].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "reminders":
-                            let records = try JSONDecoder().decode([Reminder].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "vaccinations":
-                            let records = try JSONDecoder().decode([VaccinationRecord].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "solidFoodRecords":
-                            let records = try JSONDecoder().decode([SolidFoodRecord].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "wellnessEntries":
-                            let records = try JSONDecoder().decode([WellnessEntry].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "partnerSupports":
-                            let records = try JSONDecoder().decode([PartnerSupport].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "emergencyContacts":
-                            let records = try JSONDecoder().decode([EmergencyContact].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "quickActions":
-                            let records = try JSONDecoder().decode([QuickAction].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "growthPredictions":
-                            let records = try JSONDecoder().decode([GrowthPrediction].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "developmentChecklists":
-                            let records = try JSONDecoder().decode([DevelopmentChecklist].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "appointments":
-                            let records = try JSONDecoder().decode([Appointment].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        case "healthVisitorVisits":
-                            let records = try JSONDecoder().decode([HealthVisitorVisit].self, from: recordData)
-                            dataQueue.async { data[key] = records }
-                        default:
-                            break
-                        }
-                    } catch {
-                        print("Error decoding \(key): \(error)")
-                    }
-                }
-                group.leave()
+        if let sleepData = self.userDefaults.data(forKey: "sleepRecords") {
+            do {
+                let sleeps = try JSONDecoder().decode([SleepRecord].self, from: sleepData)
+                data["sleepRecords"] = sleeps
+            } catch {
+                print("Error decoding sleep records: \(error)")
             }
         }
         
-        group.wait()
+        // Milestones
+        if let milestoneData = self.userDefaults.data(forKey: "milestones") {
+            do {
+                let milestones = try JSONDecoder().decode([Milestone].self, from: milestoneData)
+                data["milestones"] = milestones
+            } catch {
+                print("Error decoding milestones: \(error)")
+            }
+        }
+        
+        // Achievements
+        if let achievementData = self.userDefaults.data(forKey: "achievements") {
+            do {
+                let achievements = try JSONDecoder().decode([DadAchievement].self, from: achievementData)
+                data["achievements"] = achievements
+            } catch {
+                print("Error decoding achievements: \(error)")
+            }
+        }
+        
+        // Reminders
+        if let reminderData = self.userDefaults.data(forKey: "reminders") {
+            do {
+                let reminders = try JSONDecoder().decode([Reminder].self, from: reminderData)
+                data["reminders"] = reminders
+            } catch {
+                print("Error decoding reminders: \(error)")
+            }
+        }
+        
+        // Vaccinations
+        if let vaccinationData = self.userDefaults.data(forKey: "vaccinations") {
+            do {
+                let vaccinations = try JSONDecoder().decode([VaccinationRecord].self, from: vaccinationData)
+                data["vaccinations"] = vaccinations
+            } catch {
+                print("Error decoding vaccinations: \(error)")
+            }
+        }
+        
+        // Solid food records
+        if let solidFoodData = self.userDefaults.data(forKey: "solidFoodRecords") {
+            do {
+                let solidFoodRecords = try JSONDecoder().decode([SolidFoodRecord].self, from: solidFoodData)
+                data["solidFoodRecords"] = solidFoodRecords
+            } catch {
+                print("Error decoding solid food records: \(error)")
+            }
+        }
+        
+        // Wellness entries
+        if let wellnessData = self.userDefaults.data(forKey: "wellnessEntries") {
+            do {
+                let wellnessEntries = try JSONDecoder().decode([WellnessEntry].self, from: wellnessData)
+                data["wellnessEntries"] = wellnessEntries
+            } catch {
+                print("Error decoding wellness entries: \(error)")
+            }
+        }
+        
+        // Partner supports
+        if let partnerData = self.userDefaults.data(forKey: "partnerSupports") {
+            do {
+                let partnerSupports = try JSONDecoder().decode([PartnerSupport].self, from: partnerData)
+                data["partnerSupports"] = partnerSupports
+            } catch {
+                print("Error decoding partner supports: \(error)")
+            }
+        }
+        
+        // Emergency contacts
+        if let contactData = self.userDefaults.data(forKey: "emergencyContacts") {
+            do {
+                let emergencyContacts = try JSONDecoder().decode([EmergencyContact].self, from: contactData)
+                data["emergencyContacts"] = emergencyContacts
+            } catch {
+                print("Error decoding emergency contacts: \(error)")
+            }
+        }
+        
+        // Quick actions
+        if let quickActionData = self.userDefaults.data(forKey: "quickActions") {
+            do {
+                let quickActions = try JSONDecoder().decode([QuickAction].self, from: quickActionData)
+                data["quickActions"] = quickActions
+            } catch {
+                print("Error decoding quick actions: \(error)")
+            }
+        }
+        
+        // Growth predictions
+        if let growthData = self.userDefaults.data(forKey: "growthPredictions") {
+            do {
+                let growthPredictions = try JSONDecoder().decode([GrowthPrediction].self, from: growthData)
+                data["growthPredictions"] = growthPredictions
+            } catch {
+                print("Error decoding growth predictions: \(error)")
+            }
+        }
+        
+        // Development checklists
+        if let checklistData = self.userDefaults.data(forKey: "developmentChecklists") {
+            do {
+                let developmentChecklists = try JSONDecoder().decode([DevelopmentChecklist].self, from: checklistData)
+                data["developmentChecklists"] = developmentChecklists
+            } catch {
+                print("Error decoding development checklists: \(error)")
+            }
+        }
+        
+        // Appointments
+        if let appointmentData = self.userDefaults.data(forKey: "appointments") {
+            do {
+                let appointments = try JSONDecoder().decode([Appointment].self, from: appointmentData)
+                data["appointments"] = appointments
+            } catch {
+                print("Error decoding appointments: \(error)")
+            }
+        }
+        
+        // Health visitor visits
+        if let visitData = self.userDefaults.data(forKey: "healthVisitorVisits") {
+            do {
+                let healthVisitorVisits = try JSONDecoder().decode([HealthVisitorVisit].self, from: visitData)
+                data["healthVisitorVisits"] = healthVisitorVisits
+            } catch {
+                print("Error decoding health visitor visits: \(error)")
+            }
+        }
+        
         return data
     }
     
@@ -1360,28 +1402,87 @@ class BabyDataManager: ObservableObject {
     private func setupDefaultMilestones() {
         // Always ensure premade milestones are present
         let premade: [Milestone] = [
+            // 0-3 Months
             Milestone(title: "Lifts head when on tummy", description: "Baby can lift their head briefly when placed on their tummy", category: .physical, achievedDate: nil, expectedAge: 4, isAchieved: false, notes: nil, ageRange: "0-1 months", period: .months(1)),
-            Milestone(title: "Smiles socially", description: "Baby smiles in response to social interaction", category: .social, achievedDate: nil, expectedAge: 6, isAchieved: false, notes: nil, ageRange: "1-2 months", period: .months(2)),
+            Milestone(title: "Smiles socially", description: "Baby smiles in response to social interaction and faces", category: .social, achievedDate: nil, expectedAge: 6, isAchieved: false, notes: nil, ageRange: "1-2 months", period: .months(2)),
+            Milestone(title: "Follows objects with eyes", description: "Baby follows moving objects with their eyes", category: .cognitive, achievedDate: nil, expectedAge: 8, isAchieved: false, notes: nil, ageRange: "1-2 months", period: .months(2)),
+            Milestone(title: "Makes cooing sounds", description: "Baby makes cooing and gurgling sounds", category: .language, achievedDate: nil, expectedAge: 8, isAchieved: false, notes: nil, ageRange: "1-2 months", period: .months(2)),
             Milestone(title: "Rolls from tummy to back", description: "Baby can roll from tummy to back position", category: .physical, achievedDate: nil, expectedAge: 12, isAchieved: false, notes: nil, ageRange: "2-3 months", period: .months(3)),
+            Milestone(title: "Reaches for objects", description: "Baby reaches for and tries to grab objects", category: .physical, achievedDate: nil, expectedAge: 12, isAchieved: false, notes: nil, ageRange: "2-3 months", period: .months(3)),
+            
+            // 3-6 Months
+            Milestone(title: "Rolls from back to tummy", description: "Baby can roll from back to tummy position", category: .physical, achievedDate: nil, expectedAge: 16, isAchieved: false, notes: nil, ageRange: "3-4 months", period: .months(4)),
+            Milestone(title: "Sits with support", description: "Baby can sit with support and hold head steady", category: .physical, achievedDate: nil, expectedAge: 20, isAchieved: false, notes: nil, ageRange: "4-5 months", period: .months(5)),
             Milestone(title: "Babbles and coos", description: "Baby makes babbling sounds and coos", category: .language, achievedDate: nil, expectedAge: 16, isAchieved: false, notes: nil, ageRange: "3-4 months", period: .months(4)),
+            Milestone(title: "Laughs out loud", description: "Baby laughs out loud in response to play", category: .social, achievedDate: nil, expectedAge: 20, isAchieved: false, notes: nil, ageRange: "4-5 months", period: .months(5)),
+            Milestone(title: "Recognizes familiar faces", description: "Baby recognizes and responds to familiar faces", category: .cognitive, achievedDate: nil, expectedAge: 20, isAchieved: false, notes: nil, ageRange: "4-5 months", period: .months(5)),
+            Milestone(title: "Brings objects to mouth", description: "Baby brings objects to mouth to explore", category: .physical, achievedDate: nil, expectedAge: 24, isAchieved: false, notes: nil, ageRange: "5-6 months", period: .months(6)),
+            
+            // 6-9 Months
             Milestone(title: "Sits without support", description: "Baby can sit independently for short periods", category: .physical, achievedDate: nil, expectedAge: 24, isAchieved: false, notes: nil, ageRange: "6-7 months", period: .months(7)),
+            Milestone(title: "Crawls on hands and knees", description: "Baby crawls using hands and knees", category: .physical, achievedDate: nil, expectedAge: 28, isAchieved: false, notes: nil, ageRange: "7-8 months", period: .months(8)),
+            Milestone(title: "Responds to name", description: "Baby turns head when name is called", category: .language, achievedDate: nil, expectedAge: 28, isAchieved: false, notes: nil, ageRange: "7-8 months", period: .months(8)),
             Milestone(title: "Says 'mama' or 'dada'", description: "Baby says first words like mama or dada", category: .language, achievedDate: nil, expectedAge: 32, isAchieved: false, notes: nil, ageRange: "8-9 months", period: .months(9)),
+            Milestone(title: "Shows stranger anxiety", description: "Baby shows anxiety around strangers", category: .social, achievedDate: nil, expectedAge: 32, isAchieved: false, notes: nil, ageRange: "8-9 months", period: .months(9)),
+            Milestone(title: "Uses pincer grasp", description: "Baby picks up small objects with thumb and finger", category: .physical, achievedDate: nil, expectedAge: 36, isAchieved: false, notes: nil, ageRange: "8-9 months", period: .months(9)),
+            
+            // 9-12 Months
+            Milestone(title: "Pulls to stand", description: "Baby pulls themselves up to standing position", category: .physical, achievedDate: nil, expectedAge: 36, isAchieved: false, notes: nil, ageRange: "9-10 months", period: .months(10)),
             Milestone(title: "Waves goodbye", description: "Baby waves goodbye when someone leaves", category: .social, achievedDate: nil, expectedAge: 36, isAchieved: false, notes: nil, ageRange: "9-10 months", period: .months(10)),
+            Milestone(title: "Understands 'no'", description: "Baby understands and responds to 'no'", category: .language, achievedDate: nil, expectedAge: 40, isAchieved: false, notes: nil, ageRange: "10-11 months", period: .months(11)),
+            Milestone(title: "Says 2-3 words", description: "Baby can say 2-3 words clearly", category: .language, achievedDate: nil, expectedAge: 44, isAchieved: false, notes: nil, ageRange: "11-12 months", period: .months(12)),
+            Milestone(title: "Walks with support", description: "Baby walks while holding onto furniture", category: .physical, achievedDate: nil, expectedAge: 44, isAchieved: false, notes: nil, ageRange: "11-12 months", period: .months(12)),
+            Milestone(title: "Plays peek-a-boo", description: "Baby enjoys and participates in peek-a-boo", category: .social, achievedDate: nil, expectedAge: 48, isAchieved: false, notes: nil, ageRange: "12 months", period: .months(12)),
+            
+            // 12-18 Months
             Milestone(title: "Walks independently", description: "Baby takes first steps without support", category: .physical, achievedDate: nil, expectedAge: 52, isAchieved: false, notes: nil, ageRange: "12-14 months", period: .months(14)),
-            Milestone(title: "Says 5-10 words", description: "Baby can say 5-10 words", category: .language, achievedDate: nil, expectedAge: 60, isAchieved: false, notes: nil, ageRange: "15-18 months", period: .months(18)),
-            Milestone(title: "Runs and climbs", description: "Baby can run and climb", category: .physical, achievedDate: nil, expectedAge: 78, isAchieved: false, notes: nil, ageRange: "2 years", period: .years(2)),
-            Milestone(title: "Combines 2 words", description: "Baby combines two words together", category: .language, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2.5 years", period: .years(2)),
-            Milestone(title: "Shows independence", description: "Baby shows desire to do things independently", category: .social, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2.5 years", period: .years(2))
+            Milestone(title: "Says 5-10 words", description: "Baby can say 5-10 words clearly", category: .language, achievedDate: nil, expectedAge: 60, isAchieved: false, notes: nil, ageRange: "15-18 months", period: .months(18)),
+            Milestone(title: "Points to objects", description: "Baby points to objects they want or recognize", category: .language, achievedDate: nil, expectedAge: 56, isAchieved: false, notes: nil, ageRange: "14-16 months", period: .months(16)),
+            Milestone(title: "Follows simple commands", description: "Baby follows simple commands like 'come here'", category: .cognitive, achievedDate: nil, expectedAge: 60, isAchieved: false, notes: nil, ageRange: "15-18 months", period: .months(18)),
+            Milestone(title: "Shows affection", description: "Baby shows affection with hugs and kisses", category: .social, achievedDate: nil, expectedAge: 60, isAchieved: false, notes: nil, ageRange: "15-18 months", period: .months(18)),
+            Milestone(title: "Climbs stairs", description: "Baby can climb stairs with help", category: .physical, achievedDate: nil, expectedAge: 64, isAchieved: false, notes: nil, ageRange: "16-18 months", period: .months(18)),
+            
+            // 18-24 Months
+            Milestone(title: "Runs and climbs", description: "Baby can run and climb on furniture", category: .physical, achievedDate: nil, expectedAge: 78, isAchieved: false, notes: nil, ageRange: "18-24 months", period: .months(24)),
+            Milestone(title: "Combines 2 words", description: "Baby combines two words together", category: .language, achievedDate: nil, expectedAge: 78, isAchieved: false, notes: nil, ageRange: "18-24 months", period: .months(24)),
+            Milestone(title: "Shows independence", description: "Baby shows desire to do things independently", category: .social, achievedDate: nil, expectedAge: 78, isAchieved: false, notes: nil, ageRange: "18-24 months", period: .months(24)),
+            Milestone(title: "Understands 200+ words", description: "Baby understands 200+ words", category: .language, achievedDate: nil, expectedAge: 82, isAchieved: false, notes: nil, ageRange: "20-24 months", period: .months(24)),
+            Milestone(title: "Plays pretend", description: "Baby engages in pretend play", category: .cognitive, achievedDate: nil, expectedAge: 82, isAchieved: false, notes: nil, ageRange: "20-24 months", period: .months(24)),
+            Milestone(title: "Kicks a ball", description: "Baby can kick a ball forward", category: .physical, achievedDate: nil, expectedAge: 86, isAchieved: false, notes: nil, ageRange: "22-24 months", period: .months(24)),
+            
+            // 2-3 Years
+            Milestone(title: "Speaks in sentences", description: "Baby speaks in 2-3 word sentences", category: .language, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2-3 years", period: .years(3)),
+            Milestone(title: "Jumps with both feet", description: "Baby can jump with both feet off the ground", category: .physical, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2-3 years", period: .years(3)),
+            Milestone(title: "Shares with others", description: "Baby shares toys and objects with others", category: .social, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2-3 years", period: .years(3)),
+            Milestone(title: "Recognizes colors", description: "Baby can identify and name basic colors", category: .cognitive, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2-3 years", period: .years(3)),
+            Milestone(title: "Uses toilet", description: "Baby shows interest in using the toilet", category: .physical, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2-3 years", period: .years(3)),
+            Milestone(title: "Follows 2-step instructions", description: "Baby can follow 2-step instructions", category: .cognitive, achievedDate: nil, expectedAge: 104, isAchieved: false, notes: nil, ageRange: "2-3 years", period: .years(3))
         ]
         var didAdd = false
-        for pre in premade {
-            if !milestones.contains(where: { $0.title == pre.title }) {
-                milestones.append(pre)
-                didAdd = true
+        
+        // If milestones array is empty, add all premade milestones
+        if milestones.isEmpty {
+            milestones = premade
+            didAdd = true
+        } else {
+            // Otherwise, only add missing ones
+            for pre in premade {
+                if !milestones.contains(where: { $0.title == pre.title }) {
+                    milestones.append(pre)
+                    didAdd = true
+                }
             }
         }
+        
         if didAdd {
             saveData()
+        }
+    }
+    
+    // Force load default milestones if none exist
+    func ensureDefaultMilestones() {
+        if milestones.isEmpty {
+            setupDefaultMilestones()
         }
     }
     
@@ -1645,7 +1746,6 @@ class BabyDataManager: ObservableObject {
     func markHealthVisitorVisitCompleted(_ visit: HealthVisitorVisit) {
         // For now, we'll just update the visit to today's date to mark it as completed
         if let idx = healthVisitorVisits.firstIndex(where: { $0.id == visit.id }) {
-            var updatedVisit = visit
             // Since date is let, we'll need to create a new visit with today's date
             let completedVisit = HealthVisitorVisit(
                 title: visit.title,

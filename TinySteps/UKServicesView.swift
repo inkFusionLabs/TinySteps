@@ -14,7 +14,7 @@ struct UKServicesView: View {
     var body: some View {
         ZStack {
             // Background gradient
-            TinyStepsDesign.Colors.background
+            Color.clear
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
@@ -113,7 +113,7 @@ struct UKServicesView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.white.opacity(0.03))
                     .cornerRadius(15)
                     .padding(.horizontal)
                 }
@@ -201,7 +201,7 @@ struct UKServicesView: View {
             }
         }
         .sheet(isPresented: $showingCountrySelector) {
-            CountrySelectorView(countryManager: countryManager, healthInfoManager: nil)
+            CountrySelectorView(countryManager: countryManager, healthInfoManager: CountryHealthInfoManager())
         }
     }
 }
@@ -214,7 +214,7 @@ struct CountrySelectorView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                Color.clear
                     .ignoresSafeArea()
                 
                 VStack(spacing: 20) {
@@ -289,7 +289,7 @@ struct CountryCard: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.blue : Color.white.opacity(0.1))
+                    .fill(isSelected ? Color.blue : Color.white.opacity(0.03))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -375,7 +375,7 @@ struct ServiceRow: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.white.opacity(0.03))
         .cornerRadius(12)
     }
 }

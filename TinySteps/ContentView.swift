@@ -14,13 +14,14 @@ import AppKit
 #endif
 
 struct ContentView: View {
-    @AppStorage("userName") private var userName: String = ""
+    @AppStorage("userName") private var userName: String = "Dad"
     @State private var showNameEntry = false
-    @Binding var selectedTab: Tab
+    @Binding var selectedTab: NavigationTab
     @State private var showProfile = false
+    @State private var showSidebar = false
     
-    enum Tab: String, CaseIterable, Identifiable {
-        case home, journal, tracking, support, settings
+    enum NavigationTab: String, CaseIterable, Identifiable {
+        case home, journal, tracking, support, settings, information, wellness, appointments, reminders, milestones, chat, analytics, data, medicalSearch
         var id: String { rawValue }
         var title: String {
             switch self {
@@ -29,6 +30,15 @@ struct ContentView: View {
             case .tracking: return "Tracking"
             case .support: return "Support"
             case .settings: return "Settings"
+            case .information: return "Information Hub"
+            case .wellness: return "Dad Wellness"
+            case .appointments: return "Appointments"
+            case .reminders: return "Reminders"
+            case .milestones: return "Milestones"
+            case .chat: return "Chat Support"
+            case .analytics: return "Analytics"
+            case .data: return "Data & Export"
+            case .medicalSearch: return "Medical Search"
             }
         }
         var icon: String {
@@ -38,25 +48,39 @@ struct ContentView: View {
             case .tracking: return "chart.bar.fill"
             case .support: return "heart.fill"
             case .settings: return "gear"
+            case .information: return "info.circle.fill"
+            case .wellness: return "heart.text.square"
+            case .appointments: return "calendar"
+            case .reminders: return "bell.fill"
+            case .milestones: return "star.fill"
+            case .chat: return "message.fill"
+            case .analytics: return "chart.line.uptrend.xyaxis"
+            case .data: return "externaldrive.fill"
+            case .medicalSearch: return "magnifyingglass"
+            }
+        }
+        var color: Color {
+            switch self {
+            case .home: return .blue
+            case .journal: return .green
+            case .tracking: return .orange
+            case .support: return .red
+            case .settings: return .gray
+            case .information: return .purple
+            case .wellness: return .pink
+            case .appointments: return .green
+            case .reminders: return .orange
+            case .milestones: return .yellow
+            case .chat: return .blue
+            case .analytics: return .cyan
+            case .data: return .indigo
+            case .medicalSearch: return .indigo
             }
         }
     }
 
-    init(selectedTab: Binding<Tab>) {
+    init(selectedTab: Binding<NavigationTab>) {
         self._selectedTab = selectedTab
-#if canImport(UIKit)
-        let appearance = UITabBarAppearance()
-        appearance.configureWithOpaqueBackground()
-        appearance.backgroundColor = UIColor(
-            red: 0.1, green: 0.2, blue: 0.4, alpha: 1.0
-        )
-        appearance.stackedLayoutAppearance.selected.iconColor = UIColor(Color.blue)
-        appearance.stackedLayoutAppearance.selected.titleTextAttributes = [.foregroundColor: UIColor(Color.blue)]
-        appearance.stackedLayoutAppearance.normal.iconColor = UIColor.white.withAlphaComponent(0.7)
-        appearance.stackedLayoutAppearance.normal.titleTextAttributes = [.foregroundColor: UIColor.white.withAlphaComponent(0.7)]
-        UITabBar.appearance().standardAppearance = appearance
-        UITabBar.appearance().scrollEdgeAppearance = appearance
-#endif
     }
 
     var body: some View {
@@ -67,53 +91,230 @@ struct ContentView: View {
                 WelcomeView(showNameEntry: $showNameEntry)
             }
         } else {
-            TabView(selection: $selectedTab) {
-                NavigationView { 
-                    HomeView()
-                }
-                .tabItem {
-                    Label("Home", systemImage: "house.fill")
-                }
-                .tag(Tab.home)
+            ZStack {
+                // Background
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
                 
+                // Main Content View
                 NavigationView {
-                    JournalView()
+                    Group {
+                        switch selectedTab {
+                        case .home:
+                            HomeView(showSidebar: $showSidebar)
+                        case .journal:
+                            JournalView()
+                        case .tracking:
+                            TrackingView()
+                        case .support:
+                            SupportView()
+                        case .settings:
+                            SettingsView()
+                        case .information:
+                            InformationHubView()
+                        case .wellness:
+                            DadWellnessView()
+                        case .appointments:
+                            AppointmentsView()
+                        case .reminders:
+                            RemindersView()
+                        case .milestones:
+                            MilestonesView()
+                        case .chat:
+                            ChatView(selectedTab: $selectedTab)
+                        case .analytics:
+                            EnhancedAnalyticsView(selectedTab: $selectedTab)
+                        case .data:
+                            DataExportView()
+                        case .medicalSearch:
+                            MedicalSearchView()
+                        }
+                    }
+                    .onChange(of: selectedTab) { oldValue, newValue in
+                        print("Tab changed from \(oldValue.title) to \(newValue.title)")
+                    }
+                    .navigationBarHidden(true)
                 }
-                .tabItem {
-                    Label("Journal", systemImage: "book.fill")
+                .sheet(isPresented: $showProfile) {
+                    NavigationView {
+                        ProfileView()
+                    }
                 }
-                .tag(Tab.journal)
                 
-                NavigationView { 
-                    TrackingView()
+                // Sidebar Menu
+                if showSidebar {
+                    Color.black.opacity(0.3)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showSidebar = false
+                            }
+                        }
+                    
+                    HStack {
+                        SidebarMenuView(selectedTab: $selectedTab, showSidebar: $showSidebar)
+                            .frame(width: 280)
+                            .offset(x: showSidebar ? 0 : -280)
+                            .animation(.easeInOut(duration: 0.3), value: showSidebar)
+                        
+                        Spacer()
+                    }
                 }
-                .tabItem {
-                    Label("Tracking", systemImage: "chart.bar.fill")
-                }
-                .tag(Tab.tracking)
-                
-                NavigationView { 
-                    SupportView()
-                }
-                .tabItem {
-                    Label("Support", systemImage: "heart.fill")
-                }
-                .tag(Tab.support)
-                
-                NavigationView { 
-                    SettingsView()
-                }
-                .tabItem {
-                    Label("Settings", systemImage: "gear")
-                }
-                .tag(Tab.settings)
             }
-            .accentColor(TinyStepsDesign.Colors.accent)
-            .background(TinyStepsDesign.Colors.background)
-            .sheet(isPresented: $showProfile) {
-                NavigationView {
-                    ProfileView()
+            .gesture(
+                DragGesture()
+                    .onEnded { value in
+                        if value.translation.width > 50 && !showSidebar {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showSidebar = true
+                            }
+                        } else if value.translation.width < -50 && showSidebar {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showSidebar = false
+                            }
+                        }
+                    }
+            )
+        }
+    }
+}
+
+// Sidebar Menu View
+struct SidebarMenuView: View {
+    @Binding var selectedTab: ContentView.NavigationTab
+    @Binding var showSidebar: Bool
+    @AppStorage("userName") private var userName: String = ""
+    @State private var showProfile = false
+    
+    var body: some View {
+        ZStack {
+            // Background
+            TinyStepsDesign.Colors.background
+                .ignoresSafeArea()
+            
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Header
+                    HStack(spacing: 16) {
+                        Image(systemName: "person.circle.fill")
+                            .font(.title)
+                            .foregroundColor(.white.opacity(0.8))
+                        
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Welcome back,")
+                                .font(.subheadline)
+                                .foregroundColor(.white.opacity(0.7))
+                            
+                            Text(userName.isEmpty ? "Dad" : userName)
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.top, 20)
+                    .padding(.bottom, 30)
+                    .onAppear {
+                        print("SidebarMenuView appeared")
+                    }
+                
+                // Menu Items
+                VStack(spacing: 0) {
+                // Main Navigation
+                VStack(spacing: 0) {
+                    Text("MAIN")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white.opacity(0.6))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                    
+                    ForEach([ContentView.NavigationTab.home, ContentView.NavigationTab.journal, ContentView.NavigationTab.tracking], id: \.self) { tab in
+                        MenuItemView(tab: tab, selectedTab: $selectedTab, showSidebar: $showSidebar)
+                            .onAppear {
+                                print("Menu item appeared: \(tab.title)")
+                            }
+                    }
                 }
+                
+                // Support & Care
+                VStack(spacing: 0) {
+                    Text("SUPPORT & CARE")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white.opacity(0.6))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                    
+                    ForEach([ContentView.NavigationTab.support, ContentView.NavigationTab.appointments, ContentView.NavigationTab.reminders, ContentView.NavigationTab.milestones, ContentView.NavigationTab.medicalSearch], id: \.self) { tab in
+                        MenuItemView(tab: tab, selectedTab: $selectedTab, showSidebar: $showSidebar)
+                    }
+                }
+                
+                // Information & Resources
+                VStack(spacing: 0) {
+                    Text("INFORMATION & RESOURCES")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white.opacity(0.6))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                    
+                    ForEach([ContentView.NavigationTab.information, ContentView.NavigationTab.wellness, ContentView.NavigationTab.chat], id: \.self) { tab in
+                        MenuItemView(tab: tab, selectedTab: $selectedTab, showSidebar: $showSidebar)
+                    }
+                }
+                
+                // Tools & Settings
+                VStack(spacing: 0) {
+                    Text("TOOLS & SETTINGS")
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white.opacity(0.6))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                    
+                    ForEach([ContentView.NavigationTab.analytics, ContentView.NavigationTab.data, ContentView.NavigationTab.settings], id: \.self) { tab in
+                        MenuItemView(tab: tab, selectedTab: $selectedTab, showSidebar: $showSidebar)
+                    }
+                }
+                }
+                
+                Spacer()
+            }
+            
+            // Bottom Section
+            VStack(spacing: 16) {
+                Divider()
+                    .background(Color.white.opacity(0.2))
+                
+                Button(action: { showProfile = true }) {
+                    HStack(spacing: 16) {
+                        Image(systemName: "person.circle.fill")
+                            .font(.title2)
+                            .foregroundColor(.white.opacity(0.8))
+                        
+                        Text("Profile")
+                            .font(.body)
+                            .foregroundColor(.white)
+                        
+                        Spacer()
+                    }
+                    .padding(.horizontal, 20)
+                    .padding(.vertical, 16)
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+            .padding(.bottom, 20)
+        }
+        }
+        .sheet(isPresented: $showProfile) {
+            NavigationView {
+                ProfileView()
             }
         }
     }
@@ -252,7 +453,7 @@ struct DashboardView: View {
                         .padding(.horizontal)
                         
                         VStack(spacing: 12) {
-                            EmergencyContactRow(
+                            DashboardEmergencyContactRow(
                                 name: "NHS 111",
                                 number: "111",
                                 description: "Non-emergency medical advice",
@@ -261,7 +462,7 @@ struct DashboardView: View {
                             .offset(x: animateCards ? 0 : -100)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.0), value: animateCards)
                             
-                            EmergencyContactRow(
+                            DashboardEmergencyContactRow(
                                 name: "Bliss Helpline",
                                 number: "0808 801 0322",
                                 description: "Support for premature babies",
@@ -270,7 +471,7 @@ struct DashboardView: View {
                             .offset(x: animateCards ? 0 : 100)
                             .animation(.spring(response: 0.6, dampingFraction: 0.8).delay(1.1), value: animateCards)
                             
-                            EmergencyContactRow(
+                            DashboardEmergencyContactRow(
                                 name: "NCT Helpline",
                                 number: "0300 330 0771",
                                 description: "Parenting support",
@@ -394,7 +595,7 @@ struct DashboardTipCard: View {
     }
 }
 
-struct EmergencyContactRow: View {
+struct DashboardEmergencyContactRow: View {
     let name: String
     let number: String
     let description: String
@@ -979,6 +1180,51 @@ struct WarningSignRow: View {
     }
 }
 
+// MARK: - Menu Item View
+struct MenuItemView: View {
+    let tab: ContentView.NavigationTab
+    @Binding var selectedTab: ContentView.NavigationTab
+    @Binding var showSidebar: Bool
+    
+    var body: some View {
+        Button(action: {
+            print("Menu item tapped: \(tab.title)")
+            selectedTab = tab
+            print("Selected tab changed to: \(selectedTab.title)")
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showSidebar = false
+            }
+        }) {
+            HStack(spacing: 16) {
+                Image(systemName: tab.icon)
+                    .font(.title3)
+                    .foregroundColor(selectedTab == tab ? tab.color : .white.opacity(0.8))
+                    .frame(width: 24)
+                
+                Text(tab.title)
+                    .font(.body)
+                    .fontWeight(selectedTab == tab ? .semibold : .medium)
+                    .foregroundColor(selectedTab == tab ? tab.color : .white)
+                
+                Spacer()
+                
+                if selectedTab == tab {
+                    Circle()
+                        .fill(tab.color)
+                        .frame(width: 8, height: 8)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(
+                selectedTab == tab ? 
+                tab.color.opacity(0.1) : 
+                Color.clear
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
 
 
 #if DEBUG
