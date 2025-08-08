@@ -150,7 +150,7 @@ struct MedicalSearchView: View {
                     }
                     .padding(.horizontal, horizontalSizeClass == .regular ? 20 : 16)
                     .padding(.vertical, horizontalSizeClass == .regular ? 16 : 12)
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.clear)
                     .cornerRadius(12)
                     
                     // Predictive Suggestions
@@ -175,18 +175,18 @@ struct MedicalSearchView: View {
                                     }
                                     .padding(.horizontal, horizontalSizeClass == .regular ? 20 : 16)
                                     .padding(.vertical, horizontalSizeClass == .regular ? 12 : 8)
-                                    .background(Color.white.opacity(0.05))
+                                    .background(Color.clear)
                                 }
                                 .buttonStyle(PlainButtonStyle())
                                 
                                 if suggestion != predictiveSuggestions.prefix(5).last {
                                     Divider()
-                                        .background(Color.white.opacity(0.2))
+                                        .background(Color.clear)
                                         .padding(.leading, horizontalSizeClass == .regular ? 40 : 36)
                                 }
                             }
                         }
-                        .background(Color.white.opacity(0.1))
+                        .background(Color.clear)
                         .cornerRadius(12)
                         .padding(.top, 1)
                     }
@@ -224,7 +224,7 @@ struct MedicalSearchView: View {
                                     }
                                     .frame(maxWidth: .infinity, alignment: .leading)
                                     .padding(horizontalSizeClass == .regular ? 16 : 12)
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color.clear)
                                     .cornerRadius(8)
                                 }
                                 .buttonStyle(PlainButtonStyle())
@@ -477,7 +477,7 @@ struct MedicalTermCard: View {
                                     .foregroundColor(.white.opacity(0.8))
                                     .padding(.horizontal, horizontalSizeClass == .regular ? 8 : 6)
                                     .padding(.vertical, horizontalSizeClass == .regular ? 4 : 2)
-                                    .background(Color.white.opacity(0.1))
+                                    .background(Color.clear)
                                     .cornerRadius(6)
                             }
                         }
@@ -486,7 +486,7 @@ struct MedicalTermCard: View {
             }
         }
         .padding(horizontalSizeClass == .regular ? 20 : 16)
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
     }
 }

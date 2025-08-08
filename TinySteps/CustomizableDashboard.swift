@@ -97,7 +97,7 @@ struct DashboardCard: View {
             .toggleStyle(SwitchToggleStyle(tint: cardType.color))
         }
         .padding()
-        .background(Color.white.opacity(isEnabled ? 0.1 : 0.05))
+        .background(Color.clear)
         .cornerRadius(12)
     }
 }
@@ -159,14 +159,14 @@ struct DashboardSettingsView: View {
                                 }
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
-                                .background(Color.white.opacity(allCardsEnabled ? 0.15 : 0.05))
+                                .background(Color.clear)
                                 .cornerRadius(8)
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.clear)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -346,7 +346,7 @@ struct DailySummaryCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
     }
 }
@@ -386,7 +386,7 @@ struct QuickActionsCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
         .sheet(isPresented: $showingFeedingLog) {
             FeedingLogView()
@@ -422,7 +422,7 @@ struct QuickActionButton: View {
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
-            .background(Color.white.opacity(0.05))
+            .background(Color.clear)
             .cornerRadius(8)
         }
         .buttonStyle(PlainButtonStyle())
@@ -459,7 +459,7 @@ struct BabyStatusCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
     }
 }
@@ -519,7 +519,7 @@ struct AppointmentsCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
     }
 }
@@ -631,7 +631,7 @@ struct DadMoodCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
         .onAppear {
             loadSavedMoods()
@@ -672,7 +672,7 @@ struct RecentMilestonesCard: View {
             MilestoneContentView(milestones: dataManager.milestones)
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
     }
 }
@@ -757,7 +757,7 @@ struct DailyTipCard: View {
                 .multilineTextAlignment(.leading)
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
     }
 }
@@ -837,7 +837,7 @@ struct EmergencyContactsCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
         .onAppear {
             loadEmergencyContacts()
@@ -903,7 +903,7 @@ struct PhotoGalleryCard: View {
         }
         .buttonStyle(PlainButtonStyle())
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
         .sheet(isPresented: $showingPhotoGallery) {
             PhotoGalleryView()
@@ -938,7 +938,7 @@ struct PhotoGalleryView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.clear)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -1038,7 +1038,7 @@ struct ResourcesCard: View {
             }
         }
         .padding()
-        .background(Color.white.opacity(0.1))
+        .background(Color.clear)
         .cornerRadius(12)
     }
 }

@@ -50,7 +50,7 @@ struct ProfileView: View {
                                         .foregroundColor(.white)
                                         .background(
                                             Circle()
-                                                .fill(Color.white.opacity(0.2))
+                                                .fill(Color.clear)
                                                 .frame(width: 120, height: 120)
                                         )
                                 }
@@ -148,7 +148,7 @@ struct ProfileView: View {
                         .padding(.vertical, 15)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.1))
+                                .fill(Color.clear)
                         )
                         
                         // Support Section
@@ -201,7 +201,7 @@ struct ProfileView: View {
                         .padding(.vertical, 15)
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.white.opacity(0.1))
+                                .fill(Color.clear)
                         )
                     }
                     .padding(.horizontal)
@@ -237,7 +237,7 @@ struct ProfileView: View {
                                 Spacer()
                             }
                             .padding()
-                            .background(Color.white.opacity(0.1))
+                            .background(Color.clear)
                             .cornerRadius(12)
                         }
                         .buttonStyle(PlainButtonStyle())

@@ -85,14 +85,14 @@ struct BabyInfoCard: View {
                 .foregroundColor(.blue)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(Color.white.opacity(0.15))
+                .background(Color.clear)
                 .cornerRadius(8)
             }
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 20)
-                .fill(Color.white.opacity(0.03))
+                .fill(Color.clear)
                 .shadow(color: Color.blue.opacity(0.2), radius: 10, x: 0, y: 5)
         )
     }

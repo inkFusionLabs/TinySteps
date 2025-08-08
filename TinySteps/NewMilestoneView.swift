@@ -36,7 +36,7 @@ struct NewMilestoneView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.03))
+                .background(Color.clear)
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -113,7 +113,7 @@ struct NewMilestoneView: View {
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.03))
+                .background(Color.clear)
                 .cornerRadius(12)
                 .padding(.horizontal)
                 

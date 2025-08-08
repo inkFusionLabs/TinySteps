@@ -480,7 +480,7 @@ struct TrackingView: View {
                     .padding(.vertical, 15)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
-                            .fill(Color.white.opacity(0.03))
+                            .fill(Color.clear)
                     )
                     
                     // Enhanced Recent Activity
@@ -1074,7 +1074,7 @@ struct FeedingLogView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.clear)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -1635,7 +1635,7 @@ struct WeightEntryView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.clear)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     

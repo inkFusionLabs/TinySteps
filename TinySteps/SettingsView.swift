@@ -440,7 +440,7 @@ struct EmergencyContactCard: View {
                             .font(.title2)
                             .foregroundColor(.green)
                             .padding(8)
-                            .background(Circle().fill(Color.white.opacity(0.2)))
+                            .background(Circle().fill(Color.clear))
                     }
                 }
                 if let onEdit = onEdit {
@@ -449,7 +449,7 @@ struct EmergencyContactCard: View {
                             .font(.title2)
                             .foregroundColor(.yellow)
                             .padding(8)
-                            .background(Circle().fill(Color.white.opacity(0.2)))
+                            .background(Circle().fill(Color.clear))
                     }
                 }
             }

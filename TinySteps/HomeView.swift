@@ -130,7 +130,7 @@ struct HomeView: View {
                                 }
                                 .padding(.horizontal)
                                 .padding(.vertical, 12)
-                                .background(Color.white.opacity(0.1))
+                                .background(Color.clear)
                                 .cornerRadius(12)
                                 .contentShape(Rectangle())
                             }

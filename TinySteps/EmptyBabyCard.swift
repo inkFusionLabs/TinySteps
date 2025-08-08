@@ -87,16 +87,7 @@ struct EmptyBabyCard: View {
         .padding(32)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.15),
-                            Color.white.opacity(0.02)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(Color.clear)
                 .overlay(
                     RoundedRectangle(cornerRadius: 24)
                         .stroke(

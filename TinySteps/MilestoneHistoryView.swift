@@ -39,7 +39,7 @@ struct MilestoneHistoryView: View {
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    .background(Color.clear)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -149,7 +149,7 @@ struct MilestoneHistoryRow: View {
             }
         }
         .padding(.vertical, 8)
-        .listRowBackground(Color.white.opacity(0.1))
+                                .listRowBackground(Color.clear)
     }
 }
 

@@ -475,7 +475,7 @@ struct EnhancedMilestoneCard: View {
                             .padding(.vertical, 4)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.white.opacity(0.15))
+                                    .fill(Color.clear)
                             )
                             .foregroundColor(.white.opacity(0.9))
                         
@@ -507,7 +507,7 @@ struct EnhancedMilestoneCard: View {
                                     endPoint: .bottomTrailing
                                 ) :
                                 LinearGradient(
-                                    gradient: Gradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.1)]),
+                                    gradient: Gradient(colors: [Color.clear, Color.clear]),
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
@@ -557,16 +557,7 @@ struct EnhancedMilestoneCard: View {
         .padding(20)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color.white.opacity(0.1),
-                            Color.white.opacity(0.05)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .fill(Color.clear)
                 .overlay(
                     RoundedRectangle(cornerRadius: 16)
                         .stroke(
