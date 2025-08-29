@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 struct NewAppointmentView: View {
     @EnvironmentObject var dataManager: BabyDataManager
@@ -12,7 +13,7 @@ struct NewAppointmentView: View {
     
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            NeumorphicThemeManager.NeumorphicColors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
@@ -23,18 +24,18 @@ struct NewAppointmentView: View {
                             Text("New Appointment")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                             
                             Text("Schedule a healthcare appointment")
                                 .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
                         }
                         
                         Spacer()
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color(red: 0.18, green: 0.21, blue: 0.28).opacity(0.95))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -44,7 +45,7 @@ struct NewAppointmentView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Title")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         TextField("e.g., Check-up", text: $title)
                             .textFieldStyle(CustomTextFieldStyle())
                     }
@@ -53,20 +54,36 @@ struct NewAppointmentView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Type")
                             .font(.headline)
-                            .foregroundColor(.white)
-                        Picker("Type", selection: $type) {
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                        Menu {
                             ForEach(Appointment.AppointmentType.allCases, id: \.self) { appointmentType in
-                                Text(appointmentType.rawValue).tag(appointmentType)
+                                Button(appointmentType.rawValue) {
+                                    type = appointmentType
+                                }
                             }
+                        } label: {
+                            HStack {
+                                Text(type.rawValue)
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                Spacer()
+                                Image(systemName: "chevron.down")
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
+                            .padding()
+                            .background(Color(red: 0.18, green: 0.21, blue: 0.28).opacity(0.95))
+                            .cornerRadius(8)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(TinyStepsDesign.Colors.cardBackground.opacity(0.2), lineWidth: 1)
+                            )
                         }
-                        .pickerStyle(SegmentedPickerStyle())
                     }
                     
                     // Date
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Date")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         DatePicker("", selection: $date, displayedComponents: .date)
                             .datePickerStyle(CompactDatePickerStyle())
                             .labelsHidden()
@@ -76,7 +93,7 @@ struct NewAppointmentView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Time")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         DatePicker("", selection: $date, displayedComponents: .hourAndMinute)
                             .datePickerStyle(CompactDatePickerStyle())
                             .labelsHidden()
@@ -86,7 +103,7 @@ struct NewAppointmentView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Location")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         TextField("e.g., Neonatal Unit", text: $location)
                             .textFieldStyle(CustomTextFieldStyle())
                     }
@@ -95,14 +112,14 @@ struct NewAppointmentView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Notes (Optional)")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         TextField("Add any additional notes...", text: $notes, axis: .vertical)
                             .textFieldStyle(CustomTextFieldStyle())
                             .lineLimit(3...6)
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(Color(red: 0.18, green: 0.21, blue: 0.28).opacity(0.95))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -115,7 +132,7 @@ struct NewAppointmentView: View {
                         Text("Create Appointment")
                     }
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(title.isEmpty ? Color.gray : Color.green)
@@ -132,7 +149,7 @@ struct NewAppointmentView: View {
                 Button("Done") {
                     dismiss()
                 }
-                .foregroundColor(.white)
+                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
             }
         }
     }
@@ -155,11 +172,7 @@ struct NewAppointmentView: View {
         dismiss()
     }
     
-    private let timeFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter
-    }()
+    // Using global timeFormatter from BabyData.swift
 }
 
 #Preview {

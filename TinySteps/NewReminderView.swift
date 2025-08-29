@@ -6,13 +6,14 @@ struct NewReminderView: View {
     @State private var title = ""
     @State private var notes = ""
     @State private var date = Date()
-    @State private var time = ""
     @State private var category: ReminderCategory = .feeding
     @State private var repeatOption: Reminder.RepeatType = .none
     
+    // Using global timeFormatter from BabyData.swift
+    
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            NeumorphicThemeManager.NeumorphicColors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
@@ -23,19 +24,18 @@ struct NewReminderView: View {
                             Text("New Reminder")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
-                            
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+
                             Text("Create a new reminder for baby care")
                                 .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(TinyStepsDesign.Colors.textSecondary)
                         }
                         
                         Spacer()
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
-                .cornerRadius(12)
+                .neumorphicCard()
                 .padding(.horizontal)
                 
                 // Form
@@ -44,7 +44,7 @@ struct NewReminderView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Title")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         TextField("e.g., Feed baby", text: $title)
                             .textFieldStyle(CustomTextFieldStyle())
                     }
@@ -53,40 +53,54 @@ struct NewReminderView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Category")
                             .font(.headline)
-                            .foregroundColor(.white)
-                        Picker("Category", selection: $category) {
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                        Menu {
                             ForEach(ReminderCategory.allCases, id: \.self) { cat in
-                                Text(cat.rawValue).tag(cat)
+                                Button(cat.rawValue) {
+                                    category = cat
+                                }
                             }
+                        } label: {
+                            HStack {
+                                Text(category.rawValue)
+                                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                                Spacer()
+                                Image(systemName: "chevron.down")
+                                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                            }
+                            .padding()
+                            .neumorphicButton()
                         }
-                        .pickerStyle(SegmentedPickerStyle())
                     }
                     
-                    // Date
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Date")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        DatePicker("", selection: $date, displayedComponents: .date)
-                            .datePickerStyle(CompactDatePickerStyle())
-                            .labelsHidden()
-                    }
-                    
-                    // Time
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Time")
-                            .font(.headline)
-                            .foregroundColor(.white)
-                        DatePicker("", selection: $date, displayedComponents: .hourAndMinute)
-                            .datePickerStyle(CompactDatePickerStyle())
-                            .labelsHidden()
+                    // Date and Time
+                    HStack(spacing: 15) {
+                        // Date
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Date")
+                                .font(.headline)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            DatePicker("", selection: $date, displayedComponents: .date)
+                                .datePickerStyle(CompactDatePickerStyle())
+                                .labelsHidden()
+                        }
+                        
+                        // Time
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Time")
+                                .font(.headline)
+                                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                            DatePicker("", selection: $date, displayedComponents: .hourAndMinute)
+                                .datePickerStyle(CompactDatePickerStyle())
+                                .labelsHidden()
+                        }
                     }
                     
                     // Repeat
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Repeat")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         Picker("Repeat", selection: $repeatOption) {
                             ForEach(Reminder.RepeatType.allCases, id: \.self) { option in
                                 Text(option.rawValue).tag(option)
@@ -99,14 +113,14 @@ struct NewReminderView: View {
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Notes (Optional)")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                         TextField("Add any additional notes...", text: $notes, axis: .vertical)
                             .textFieldStyle(CustomTextFieldStyle())
                             .lineLimit(3...6)
                     }
                 }
                 .padding()
-                .background(Color.white.opacity(0.1))
+                .background(TinyStepsDesign.Colors.cardBackground.opacity(0.1))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 
@@ -119,7 +133,7 @@ struct NewReminderView: View {
                         Text("Create Reminder")
                     }
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
                     .frame(maxWidth: .infinity)
                     .padding()
                     .background(title.isEmpty ? Color.gray : Color.orange)
@@ -136,7 +150,7 @@ struct NewReminderView: View {
                 Button("Done") {
                     dismiss()
                 }
-                .foregroundColor(.white)
+                .foregroundColor(TinyStepsDesign.Colors.textPrimary)
             }
         }
     }
@@ -149,7 +163,7 @@ struct NewReminderView: View {
             isCompleted: false,
             category: category,
             repeatType: repeatOption,
-            time: time,
+            time: timeFormatter.string(from: date),
             notes: notes.isEmpty ? nil : notes
         )
         
