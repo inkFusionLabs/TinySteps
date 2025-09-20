@@ -10,16 +10,41 @@ import SwiftUI
 // MARK: - Design System
 struct TinyStepsDesign {
     
-    // MARK: - Dad-Focused Color Palette
+    // MARK: - Animation Constants
+    struct Animations {
+        static let quick = SwiftUI.Animation.easeInOut(duration: 0.2)
+        static let smooth = SwiftUI.Animation.easeInOut(duration: 0.3)
+        static let gentle = SwiftUI.Animation.easeInOut(duration: 0.5)
+        static let bouncy = SwiftUI.Animation.spring(response: 0.6, dampingFraction: 0.8, blendDuration: 0)
+        static let snappy = SwiftUI.Animation.spring(response: 0.4, dampingFraction: 0.9, blendDuration: 0)
+        static let slow = SwiftUI.Animation.easeInOut(duration: 0.8)
+        
+        // Micro-interactions
+        static let tap = SwiftUI.Animation.easeInOut(duration: 0.1)
+        static let hover = SwiftUI.Animation.easeInOut(duration: 0.15)
+        static let focus = SwiftUI.Animation.easeInOut(duration: 0.2)
+        
+        // Page transitions
+        static let pageTransition = SwiftUI.Animation.easeInOut(duration: 0.4)
+        static let slideIn = SwiftUI.Animation.easeOut(duration: 0.3)
+        static let slideOut = SwiftUI.Animation.easeIn(duration: 0.2)
+        
+        // Loading states
+        static let pulse = SwiftUI.Animation.easeInOut(duration: 1.0).repeatForever(autoreverses: true)
+        static let shimmer = SwiftUI.Animation.linear(duration: 1.5).repeatForever(autoreverses: false)
+        static let rotate = SwiftUI.Animation.linear(duration: 2.0).repeatForever(autoreverses: false)
+    }
+    
+    // MARK: - Vibrant Color Palette
     struct Colors {
-        // Primary Dad Colors
-        static let primary = Color(red: 0.07, green: 0.13, blue: 0.28) // Deep Navy
-        static let accent = Color(red: 0.13, green: 0.47, blue: 0.87) // Bold Blue
-        static let highlight = Color(red: 1.0, green: 0.67, blue: 0.13) // Energetic Orange
-        static let success = Color(red: 0.18, green: 0.8, blue: 0.44) // Vibrant Green
-        static let warning = Color(red: 1.0, green: 0.8, blue: 0.2) // Strong Yellow
-        static let error = Color(red: 0.95, green: 0.23, blue: 0.21) // Confident Red
-        static let info = Color(red: 0.13, green: 0.67, blue: 0.87) // Dad Blue
+        // Primary Vibrant Colors
+        static let primary = Color(red: 0.2, green: 0.6, blue: 1.0) // Bright Blue
+        static let accent = Color(red: 0.0, green: 0.8, blue: 0.4) // Vibrant Green
+        static let highlight = Color(red: 1.0, green: 0.6, blue: 0.0) // Energetic Orange
+        static let success = Color(red: 0.0, green: 0.8, blue: 0.4) // Vibrant Green
+        static let warning = Color(red: 1.0, green: 0.8, blue: 0.0) // Bright Yellow
+        static let error = Color(red: 0.9, green: 0.2, blue: 0.2) // Confident Red
+        static let info = Color(red: 0.2, green: 0.6, blue: 1.0) // Bright Blue
 
         // Backgrounds
         static let background = LinearGradient(
@@ -46,7 +71,32 @@ struct TinyStepsDesign {
         static let textTertiary = Color.white.opacity(0.6)
     }
 
-    // MARK: - Dad-Focused Icons
+    // MARK: - Neumorphic Components
+    struct NeumorphicColors {
+        // Base colors for neumorphic effects
+        static let base = TinyStepsDesign.Colors.cardBackground
+        static let background = TinyStepsDesign.Colors.background
+        static let backgroundSecondary = TinyStepsDesign.Colors.cardBackgroundDark
+
+        // Light and dark variants for shadows
+        static let lightShadow = Color.white.opacity(0.7)
+        static let darkShadow = Color.black.opacity(0.15)
+
+        // Semantic colors
+        static let textPrimary = TinyStepsDesign.Colors.textPrimary
+        static let textSecondary = TinyStepsDesign.Colors.textSecondary
+        static let textMuted = TinyStepsDesign.Colors.textTertiary
+
+        // Accent colors
+        static let primary = TinyStepsDesign.Colors.primary
+        static let secondary = TinyStepsDesign.Colors.accent
+        static let success = TinyStepsDesign.Colors.success
+        static let warning = TinyStepsDesign.Colors.warning
+        static let error = TinyStepsDesign.Colors.error
+        static let info = TinyStepsDesign.Colors.info
+    }
+    
+    // MARK: - Neumorphic Icons
     struct Icons {
         static let dad = Image(systemName: "figure.and.child.holdinghands")
         static let tools = Image(systemName: "wrench.and.screwdriver")
@@ -357,6 +407,190 @@ struct TinyStepsInfoCard: View {
     }
 }
 
+// MARK: - Responsive Grid Component
+struct ResponsiveGrid<Content: View>: View {
+    let columns: Int
+    let spacing: CGFloat
+    let content: () -> Content
+    
+    init(columns: Int, spacing: CGFloat = 16, @ViewBuilder content: @escaping () -> Content) {
+        self.columns = columns
+        self.spacing = spacing
+        self.content = content
+    }
+    
+    var body: some View {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: spacing), count: columns), spacing: spacing) {
+            content()
+        }
+    }
+}
+
+// MARK: - Quick Action Button Component
+struct QuickActionButton: View {
+    let title: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    @State private var isPressed = false
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(TinyStepsDesign.NeumorphicColors.base)
+                        .frame(width: 60, height: 60)
+                        .shadow(color: TinyStepsDesign.NeumorphicColors.lightShadow, radius: isPressed ? 2 : 4, x: isPressed ? -1 : -2, y: isPressed ? -1 : -2)
+                        .shadow(color: TinyStepsDesign.NeumorphicColors.darkShadow, radius: isPressed ? 2 : 4, x: isPressed ? 1 : 2, y: isPressed ? 1 : 2)
+                        .scaleEffect(isPressed ? 0.95 : (isHovered ? 1.05 : 1.0))
+                    
+                    Image(systemName: icon)
+                        .font(.title2)
+                        .foregroundColor(color)
+                        .scaleEffect(isPressed ? 0.9 : 1.0)
+                }
+                
+                Text(title)
+                    .font(.caption)
+                    .fontWeight(.medium)
+                    .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
+                    .multilineTextAlignment(.center)
+            }
+            .padding(.vertical, 16)
+            .padding(.horizontal, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(TinyStepsDesign.NeumorphicColors.base)
+                    .shadow(color: TinyStepsDesign.NeumorphicColors.lightShadow, radius: isPressed ? 2 : 3, x: isPressed ? -0.5 : -1, y: isPressed ? -0.5 : -1)
+                    .shadow(color: TinyStepsDesign.NeumorphicColors.darkShadow, radius: isPressed ? 2 : 3, x: isPressed ? 0.5 : 1, y: isPressed ? 0.5 : 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(TinyStepsDesign.Animations.tap, value: isPressed)
+        .animation(TinyStepsDesign.Animations.hover, value: isHovered)
+        .onTapGesture {
+            withAnimation(TinyStepsDesign.Animations.tap) {
+                isPressed = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(TinyStepsDesign.Animations.tap) {
+                    isPressed = false
+                }
+            }
+        }
+        .onHover { hovering in
+            withAnimation(TinyStepsDesign.Animations.hover) {
+                isHovered = hovering
+            }
+        }
+    }
+}
+
+// MARK: - Animated View Modifiers
+struct AnimatedNeumorphicModifier: ViewModifier {
+    @State private var isPressed = false
+    let action: () -> Void
+    
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(isPressed ? 0.95 : 1.0)
+            .animation(TinyStepsDesign.Animations.tap, value: isPressed)
+            .onTapGesture {
+                withAnimation(TinyStepsDesign.Animations.tap) {
+                    isPressed = true
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    withAnimation(TinyStepsDesign.Animations.tap) {
+                        isPressed = false
+                    }
+                }
+                action()
+            }
+    }
+}
+
+struct PulseAnimationModifier: ViewModifier {
+    @State private var isPulsing = false
+    
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(isPulsing ? 1.1 : 1.0)
+            .opacity(isPulsing ? 0.7 : 1.0)
+            .animation(TinyStepsDesign.Animations.pulse, value: isPulsing)
+            .onAppear {
+                isPulsing = true
+            }
+    }
+}
+
+struct ShimmerModifier: ViewModifier {
+    @State private var phase: CGFloat = 0
+    
+    func body(content: Content) -> some View {
+        content
+            .overlay(
+                LinearGradient(
+                    gradient: Gradient(colors: [
+                        Color.clear,
+                        Color.white.opacity(0.3),
+                        Color.clear
+                    ]),
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+                .offset(x: phase * 200 - 100)
+                .animation(TinyStepsDesign.Animations.shimmer, value: phase)
+            )
+            .onAppear {
+                phase = 1
+            }
+    }
+}
+
+struct SlideInModifier: ViewModifier {
+    let direction: SlideDirection
+    @State private var offset: CGFloat = 0
+    
+    enum SlideDirection {
+        case fromLeft, fromRight, fromTop, fromBottom
+    }
+    
+    func body(content: Content) -> some View {
+        content
+            .offset(
+                x: direction == .fromLeft ? -offset : (direction == .fromRight ? offset : 0),
+                y: direction == .fromTop ? -offset : (direction == .fromBottom ? offset : 0)
+            )
+            .animation(TinyStepsDesign.Animations.slideIn, value: offset)
+            .onAppear {
+                offset = 300
+            }
+    }
+}
+
+// MARK: - View Extensions for Animations
+extension View {
+    func animatedNeumorphic(action: @escaping () -> Void) -> some View {
+        self.modifier(AnimatedNeumorphicModifier(action: action))
+    }
+    
+    func pulseAnimation() -> some View {
+        self.modifier(PulseAnimationModifier())
+    }
+    
+    func shimmerEffect() -> some View {
+        self.modifier(ShimmerModifier())
+    }
+    
+    func slideIn(from direction: SlideInModifier.SlideDirection) -> some View {
+        self.modifier(SlideInModifier(direction: direction))
+    }
+}
+
 // MARK: - Animations
 struct TinyStepsAnimations {
     static let spring = Animation.spring(response: 0.6, dampingFraction: 0.8)
@@ -426,6 +660,7 @@ struct UKGuidelines2025 {
         ("March of Dimes", "1-888-MODIMES - Premature baby support (US)"),
         ("NICU Parent Support", "Local hospital NICU - Parent support groups")
     ]
-} 
+}
+
 
  

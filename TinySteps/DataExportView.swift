@@ -57,6 +57,8 @@ struct DataExportView: View {
         }
     }
     
+    @State private var isAnimating = false
+    
     var body: some View {
         ZStack {
             // Background gradient
@@ -83,6 +85,7 @@ struct DataExportView: View {
                 .padding(.horizontal)
                 .padding(.top, 10)
                 .padding(.bottom, 20)
+                .slideIn(from: .fromTop)
                 
                 // Main Content
                 VStack(spacing: 20) {
@@ -91,19 +94,28 @@ struct DataExportView: View {
                         Image(systemName: "square.and.arrow.up")
                             .font(.system(size: 50))
                             .foregroundColor(.blue)
+                            .scaleEffect(isAnimating ? 1.0 : 0.8)
+                            .animation(TinyStepsDesign.Animations.bouncy.delay(0.2), value: isAnimating)
                         
                         Text("Export Baby Data")
                             .font(.title2)
                             .fontWeight(.bold)
                             .foregroundColor(.white)
+                            .slideIn(from: .fromBottom)
                         
                         Text("Export your baby's data for backup or sharing with healthcare providers")
                             .font(.body)
                             .foregroundColor(.white.opacity(0.8))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
+                            .slideIn(from: .fromBottom)
                     }
                     .padding(.top)
+                    .onAppear {
+                        withAnimation(TinyStepsDesign.Animations.gentle) {
+                            isAnimating = true
+                        }
+                    }
                     
                     // Export type selector
                     VStack(alignment: .leading, spacing: 12) {
@@ -111,16 +123,21 @@ struct DataExportView: View {
                             .font(.headline)
                             .foregroundColor(.white)
                             .padding(.horizontal)
+                            .slideIn(from: .fromLeft)
                         
                         ScrollView {
                             VStack(spacing: 12) {
-                                ForEach(ExportType.allCases, id: \.self) { type in
+                                ForEach(Array(ExportType.allCases.enumerated()), id: \.element) { index, type in
                                     ExportTypeCard(
                                         type: type,
                                         isSelected: selectedExportType == type
                                     ) {
-                                        selectedExportType = type
+                                        withAnimation(TinyStepsDesign.Animations.bouncy) {
+                                            selectedExportType = type
+                                        }
                                     }
+                                    .slideIn(from: .fromRight)
+                                    .animation(TinyStepsDesign.Animations.slideIn.delay(Double(index) * 0.1), value: isAnimating)
                                 }
                             }
                             .padding(.horizontal)
@@ -130,10 +147,24 @@ struct DataExportView: View {
                     Spacer()
                     
                     // Export button
-                    Button(action: {
-                        exportData = generateExportData()
-                        showingShareSheet = true
-                    }) {
+                    TinyStepsButton(
+                        backgroundColor: TinyStepsDesign.NeumorphicColors.primary,
+                        foregroundColor: .white,
+                        cornerRadius: 12,
+                        isEnabled: !isExporting,
+                        action: {
+                            withAnimation(TinyStepsDesign.Animations.tap) {
+                                isExporting = true
+                            }
+                            exportData = generateExportData()
+                            showingShareSheet = true
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                withAnimation(TinyStepsDesign.Animations.tap) {
+                                    isExporting = false
+                                }
+                            }
+                        }
+                    ) {
                         HStack {
                             if isExporting {
                                 ProgressView()
@@ -146,12 +177,8 @@ struct DataExportView: View {
                         }
                         .font(.headline)
                         .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(Color.blue)
-                        .cornerRadius(12)
                     }
-                    .disabled(isExporting)
+                    .slideIn(from: .fromBottom)
                     .padding(.horizontal)
                     .padding(.bottom)
                 }
@@ -479,23 +506,25 @@ struct ExportTypeCard: View {
     let type: DataExportView.ExportType
     let isSelected: Bool
     let action: () -> Void
+    @State private var isPressed = false
     
     var body: some View {
         Button(action: action) {
             HStack(spacing: 16) {
                 Image(systemName: type.icon)
                     .font(.title2)
-                    .foregroundColor(isSelected ? .white : .blue)
+                    .foregroundColor(isSelected ? .white : TinyStepsDesign.NeumorphicColors.primary)
                     .frame(width: 30)
+                    .scaleEffect(isPressed ? 0.9 : 1.0)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(type.rawValue)
                         .font(.headline)
-                        .foregroundColor(isSelected ? .white : .white)
+                        .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
                     
                     Text(type.description)
                         .font(.caption)
-                        .foregroundColor(isSelected ? .white.opacity(0.8) : .white.opacity(0.7))
+                        .foregroundColor(TinyStepsDesign.NeumorphicColors.textSecondary)
                         .lineLimit(2)
                 }
                 
@@ -503,21 +532,46 @@ struct ExportTypeCard: View {
                 
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.white)
+                        .foregroundColor(TinyStepsDesign.NeumorphicColors.success)
                         .font(.title3)
+                        .scaleEffect(isPressed ? 0.9 : 1.0)
                 }
             }
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color.blue : Color.black.opacity(0.3))
+                    .fill(isSelected ? TinyStepsDesign.NeumorphicColors.primary : TinyStepsDesign.NeumorphicColors.base)
+                    .shadow(
+                        color: isSelected ? TinyStepsDesign.NeumorphicColors.primary.opacity(0.3) : TinyStepsDesign.NeumorphicColors.lightShadow,
+                        radius: isPressed ? 2 : 4,
+                        x: isPressed ? -1 : -2,
+                        y: isPressed ? -1 : -2
+                    )
+                    .shadow(
+                        color: isSelected ? TinyStepsDesign.NeumorphicColors.primary.opacity(0.3) : TinyStepsDesign.NeumorphicColors.darkShadow,
+                        radius: isPressed ? 2 : 4,
+                        x: isPressed ? 1 : 2,
+                        y: isPressed ? 1 : 2
+                    )
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(isSelected ? Color.blue : Color.white.opacity(0.2), lineWidth: 1)
+                    .stroke(isSelected ? TinyStepsDesign.NeumorphicColors.primary : TinyStepsDesign.NeumorphicColors.lightShadow.opacity(0.3), lineWidth: 1)
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(TinyStepsDesign.Animations.tap, value: isPressed)
+        .onTapGesture {
+            withAnimation(TinyStepsDesign.Animations.tap) {
+                isPressed = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(TinyStepsDesign.Animations.tap) {
+                    isPressed = false
+                }
+            }
+        }
     }
 }
 

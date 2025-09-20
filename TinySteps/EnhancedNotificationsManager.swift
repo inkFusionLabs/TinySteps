@@ -462,56 +462,63 @@ struct NotificationInteraction: Codable {
 struct NotificationSettingsView: View {
     @StateObject private var notificationManager = EnhancedNotificationsManager.shared
     @State private var showingAuthorizationAlert = false
+    @State private var isAnimating = false
     
     var body: some View {
         NavigationView {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [Color.blue, Color.purple]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                .ignoresSafeArea()
+                TinyStepsDesign.Colors.background
+                    .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 24) {
                         // Authorization Status
                         VStack(spacing: 15) {
                             HStack {
                                 Image(systemName: notificationManager.isAuthorized ? "bell.fill" : "bell.slash.fill")
-                                    .foregroundColor(notificationManager.isAuthorized ? .green : .red)
+                                    .foregroundColor(notificationManager.isAuthorized ? TinyStepsDesign.NeumorphicColors.success : TinyStepsDesign.NeumorphicColors.error)
                                     .font(.title2)
+                                    .scaleEffect(isAnimating ? 1.0 : 0.8)
+                                    .animation(TinyStepsDesign.Animations.bouncy.delay(0.2), value: isAnimating)
                                 
                                 VStack(alignment: .leading, spacing: 4) {
                                     Text("Notifications")
                                         .font(.headline)
-                                        .foregroundColor(.white)
+                                        .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
+                                        .slideIn(from: .fromLeft)
                                     
                                     Text(notificationManager.isAuthorized ? "Enabled" : "Disabled")
                                         .font(.subheadline)
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(TinyStepsDesign.NeumorphicColors.textSecondary)
+                                        .slideIn(from: .fromLeft)
                                 }
                                 
                                 Spacer()
                                 
                                 if !notificationManager.isAuthorized {
-                                    Button("Enable") {
-                                        requestAuthorization()
+                                    TinyStepsButton(
+                                        backgroundColor: TinyStepsDesign.NeumorphicColors.primary,
+                                        foregroundColor: .white,
+                                        cornerRadius: 8,
+                                        isEnabled: true,
+                                        action: {
+                                            requestAuthorization()
+                                        }
+                                    ) {
+                                        Text("Enable")
+                                            .font(.subheadline)
+                                            .fontWeight(.medium)
                                     }
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 6)
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 8)
-                                            .fill(Color.blue)
-                                    )
+                                    .slideIn(from: .fromRight)
                                 }
                             }
                         }
                         .padding()
                         .background(
                             RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.clear)
+                                .fill(TinyStepsDesign.NeumorphicColors.base)
+                                .shadow(color: TinyStepsDesign.NeumorphicColors.lightShadow, radius: 4, x: -2, y: -2)
+                                .shadow(color: TinyStepsDesign.NeumorphicColors.darkShadow, radius: 4, x: 2, y: 2)
                         )
                         .padding(.horizontal)
                         
@@ -519,8 +526,9 @@ struct NotificationSettingsView: View {
                         VStack(alignment: .leading, spacing: 15) {
                             Text("Notification Types")
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
                                 .padding(.horizontal)
+                                .slideIn(from: .fromTop)
                             
                             VStack(spacing: 10) {
                                 NotificationTypeToggle(
@@ -642,6 +650,11 @@ struct NotificationSettingsView: View {
             }
             .navigationTitle("Notifications")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                withAnimation(TinyStepsDesign.Animations.gentle) {
+                    isAnimating = true
+                }
+            }
             .onChange(of: notificationManager.notificationSettings) { oldValue, newValue in
                 notificationManager.saveSettings()
             }
@@ -676,6 +689,7 @@ struct NotificationTypeToggle: View {
     @Binding var isOn: Bool
     let icon: String
     let color: Color
+    @State private var isPressed = false
     
     var body: some View {
         HStack(spacing: 12) {
@@ -683,28 +697,54 @@ struct NotificationTypeToggle: View {
                 .foregroundColor(color)
                 .font(.title2)
                 .frame(width: 30)
+                .scaleEffect(isPressed ? 0.9 : 1.0)
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
                     .font(.subheadline)
                     .fontWeight(.semibold)
-                    .foregroundColor(.white)
+                    .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
                 
                 Text(description)
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.8))
+                    .foregroundColor(TinyStepsDesign.NeumorphicColors.textSecondary)
             }
             
             Spacer()
             
             Toggle("", isOn: $isOn)
                 .tint(color)
+                .scaleEffect(isPressed ? 0.9 : 1.0)
         }
         .padding()
         .background(
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.white.opacity(0.05))
+            RoundedRectangle(cornerRadius: 12)
+                .fill(TinyStepsDesign.NeumorphicColors.base)
+                .shadow(
+                    color: isPressed ? TinyStepsDesign.NeumorphicColors.lightShadow.opacity(0.5) : TinyStepsDesign.NeumorphicColors.lightShadow,
+                    radius: isPressed ? 2 : 4,
+                    x: isPressed ? -1 : -2,
+                    y: isPressed ? -1 : -2
+                )
+                .shadow(
+                    color: isPressed ? TinyStepsDesign.NeumorphicColors.darkShadow.opacity(0.5) : TinyStepsDesign.NeumorphicColors.darkShadow,
+                    radius: isPressed ? 2 : 4,
+                    x: isPressed ? 1 : 2,
+                    y: isPressed ? 1 : 2
+                )
         )
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .animation(TinyStepsDesign.Animations.tap, value: isPressed)
+        .onTapGesture {
+            withAnimation(TinyStepsDesign.Animations.tap) {
+                isPressed = true
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                withAnimation(TinyStepsDesign.Animations.tap) {
+                    isPressed = false
+                }
+            }
+        }
     }
 }
 

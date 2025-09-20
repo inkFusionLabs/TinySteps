@@ -20,20 +20,22 @@ struct DataRestoreView: View {
     @State private var showingRestoreAlert = false
     @State private var backupToRestore: TinyStepsBackup?
     
+    @State private var isAnimating = false
+    
     var body: some View {
         NavigationView {
             ZStack {
-                Color.clear
+                TinyStepsDesign.Colors.background
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    VStack(spacing: 24) {
                         // Header
                         TinyStepsSectionHeader(
                             title: "Backup & Restore",
-                            icon: "arrow.clockwise",
-                            color: TinyStepsDesign.Colors.accent
+                            icon: "arrow.clockwise"
                         )
+                        .slideIn(from: .fromTop)
                         
                         // Current Status
                         VStack(spacing: 15) {
@@ -43,6 +45,7 @@ struct DataRestoreView: View {
                                 value: restoreManager.lastBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never",
                                 color: .green
                             )
+                            .slideIn(from: .fromLeft)
                             
                             ProfileInfoRow(
                                 icon: "archivebox.fill",
@@ -50,6 +53,7 @@ struct DataRestoreView: View {
                                 value: "\(restoreManager.availableBackups.count)",
                                 color: .blue
                             )
+                            .slideIn(from: .fromRight)
                             
                             if restoreManager.shouldAutoBackup() {
                                 ProfileInfoRow(
@@ -67,66 +71,71 @@ struct DataRestoreView: View {
                         
                         // Backup Actions
                         VStack(spacing: 15) {
-                            Button(action: {
-                                Task {
-                                    await restoreManager.createBackup(from: dataManager)
+                            TinyStepsButton(
+                                backgroundColor: TinyStepsDesign.NeumorphicColors.success,
+                                foregroundColor: .white,
+                                cornerRadius: 12,
+                                isEnabled: !restoreManager.isBackingUp,
+                                action: {
+                                    Task {
+                                        await restoreManager.createBackup(from: dataManager)
+                                    }
                                 }
-                            }) {
+                            ) {
                                 HStack {
                                     Image(systemName: "plus.circle.fill")
                                         .font(.title2)
                                     Text("Create Backup")
                                         .font(.headline)
                                 }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.green)
-                                .cornerRadius(12)
                             }
-                            .disabled(restoreManager.isBackingUp)
+                            .slideIn(from: .fromLeft)
                             
-                            Button(action: {
-                                if let backupURL = restoreManager.exportBackup(from: dataManager) {
-                                    let activityVC = UIActivityViewController(
-                                        activityItems: [backupURL],
-                                        applicationActivities: nil
-                                    )
-                                    
-                                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                                       let window = windowScene.windows.first {
-                                        window.rootViewController?.present(activityVC, animated: true)
+                            TinyStepsButton(
+                                backgroundColor: TinyStepsDesign.NeumorphicColors.primary,
+                                foregroundColor: .white,
+                                cornerRadius: 12,
+                                isEnabled: true,
+                                action: {
+                                    if let backupURL = restoreManager.exportBackup(from: dataManager) {
+                                        let activityVC = UIActivityViewController(
+                                            activityItems: [backupURL],
+                                            applicationActivities: nil
+                                        )
+                                        
+                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                                           let window = windowScene.windows.first {
+                                            window.rootViewController?.present(activityVC, animated: true)
+                                        }
                                     }
                                 }
-                            }) {
+                            ) {
                                 HStack {
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.title2)
                                     Text("Export Backup")
                                         .font(.headline)
                                 }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(12)
                             }
+                            .slideIn(from: .fromRight)
                             
-                            Button(action: {
-                                showingFilePicker = true
-                            }) {
+                            TinyStepsButton(
+                                backgroundColor: TinyStepsDesign.NeumorphicColors.warning,
+                                foregroundColor: .white,
+                                cornerRadius: 12,
+                                isEnabled: true,
+                                action: {
+                                    showingFilePicker = true
+                                }
+                            ) {
                                 HStack {
                                     Image(systemName: "square.and.arrow.down")
                                         .font(.title2)
                                     Text("Import Backup")
                                         .font(.headline)
                                 }
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.orange)
-                                .cornerRadius(12)
                             }
+                            .slideIn(from: .fromBottom)
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
@@ -222,6 +231,11 @@ struct DataRestoreView: View {
                         .padding(.horizontal, TinyStepsDesign.Spacing.md)
                     }
                     .padding()
+                    .onAppear {
+                        withAnimation(TinyStepsDesign.Animations.gentle) {
+                            isAnimating = true
+                        }
+                    }
                 }
             }
             .navigationTitle("Backup & Restore")

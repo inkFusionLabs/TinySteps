@@ -13,7 +13,7 @@ struct NewAppointmentView: View {
     
     var body: some View {
         ZStack {
-            NeumorphicThemeManager.NeumorphicColors.background
+            Color.blue.opacity(0.1)
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {

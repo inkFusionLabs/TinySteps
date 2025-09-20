@@ -157,7 +157,27 @@ struct RemindersView: View {
         }
         .sheet(isPresented: $showingAddReminder) {
             NavigationView {
-                NewReminderView()
+                VStack {
+                    Text("Add New Reminder")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .padding()
+                    
+                    Text("Reminder creation feature coming soon!")
+                        .foregroundColor(.secondary)
+                        .padding()
+                    
+                    Spacer()
+                }
+                .navigationTitle("New Reminder")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") {
+                            showingAddReminder = false
+                        }
+                    }
+                }
             }
         }
     }
