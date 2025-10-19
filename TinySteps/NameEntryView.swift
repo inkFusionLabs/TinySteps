@@ -21,7 +21,7 @@ struct NameEntryView: View {
                     .font(.title)
                     .foregroundColor(.white)
                 TextField("Your name", text: $tempName)
-                    .textFieldStyle(CustomTextFieldStyle())
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
                     .frame(width: 260)
                     .onSubmit { submitName() }
                 if showError {
@@ -42,7 +42,7 @@ struct NameEntryView: View {
             }
         }
         .sheet(isPresented: $showAvatarBuilder, onDismiss: saveAvatar) {
-            AvatarBuilderView(avatar: $userAvatar)
+            // Avatar builder removed - simplified app
         }
         .confirmationDialog("Would you like to create your avatar now, or set it up later?", isPresented: $showAvatarPrompt, titleVisibility: .visible) {
             Button("Create Avatar") { showAvatarBuilder = true }

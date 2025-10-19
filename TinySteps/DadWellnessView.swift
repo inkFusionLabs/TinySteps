@@ -49,6 +49,7 @@ struct DadWellnessView: View {
     @State private var moodNotes = ""
     @State private var showingMoodEntry = false
     @State private var savedMoodEntries: [MoodEntry] = []
+    @StateObject private var countryManager = CountryHealthServicesManager()
     
     enum WellnessTab: String, CaseIterable {
         case mood = "Mood"
@@ -74,7 +75,7 @@ struct DadWellnessView: View {
     
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            DesignSystem.Colors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -322,6 +323,8 @@ struct StressManagementView: View {
 }
 
 struct PostnatalDepressionView: View {
+    @StateObject private var countryManager = CountryHealthServicesManager()
+    
     var body: some View {
         VStack(spacing: 20) {
             // Information Section
@@ -371,21 +374,21 @@ struct PostnatalDepressionView: View {
                     EmergencyResourceCard(
                         title: "Crisis Helpline",
                         description: "24/7 support for mental health crises",
-                        phone: "988",
+                        phone: "116 123",
                         color: .red
                     )
                     
                     EmergencyResourceCard(
                         title: "Postpartum Support",
                         description: "Specialized support for new parents",
-                        phone: "1-800-944-4773",
+                        phone: "0808 1961 776",
                         color: .blue
                     )
                     
                     EmergencyResourceCard(
                         title: "Emergency Services",
                         description: "If you're in immediate danger",
-                        phone: "911",
+                        phone: countryManager.getEmergencyNumber(),
                         color: .red
                     )
                 }
@@ -817,7 +820,7 @@ struct MoodEntryView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
                 VStack(spacing: 20) {

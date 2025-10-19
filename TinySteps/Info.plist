@@ -2,26 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDisplayName</key>
-	<string>TinySteps</string>
-	<key>CFBundleName</key>
-	<string>TinySteps</string>
-	<key>CFBundleVersion</key>
-	<string>2</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.1</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs location access to find nearby healthcare facilities for your baby's care</string>
-	<key>NSFaceIDUsageDescription</key>
-	<string>TinySteps uses Face ID to securely access your baby's information and keep your data private.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>TinySteps uses the camera to let you take photos of your baby's milestones and memories.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>TinySteps accesses your photo library to let you add photos of your baby's milestones and memories.</string>
+	<key>LSRequiresIPhoneOS</key>
+	<true/>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
-		<false/>
+		<true/>
 		<key>UISceneConfigurations</key>
 		<dict>
 			<key>UIWindowSceneSessionRoleApplication</key>
@@ -37,20 +23,5 @@
 	</dict>
 	<key>UILaunchScreen</key>
 	<dict/>
-	<key>UIStatusBarStyle</key>
-	<string>UIStatusBarStyleDefault</string>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
 </dict>
 </plist>

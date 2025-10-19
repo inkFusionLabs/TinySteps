@@ -96,7 +96,7 @@ class CountryHealthInfoManager: ObservableObject {
             HealthGuideline(title: "Emergency Services", description: "NHS 111 for non-emergency, 999 for emergency", frequency: "24/7 availability")
         ],
         "US": [
-            HealthGuideline(title: "Well-Child Visits", description: "Regular pediatric check-ups", frequency: "Birth, 1, 2, 4, 6, 9, 12, 15, 18, 24, 30, 36 months"),
+            HealthGuideline(title: "Well-Child Visits", description: "Regular paediatric check-ups", frequency: "Birth, 1, 2, 4, 6, 9, 12, 15, 18, 24, 30, 36 months"),
             HealthGuideline(title: "WIC Program", description: "Nutrition support for women, infants, and children", frequency: "Monthly benefits"),
             HealthGuideline(title: "Early Intervention", description: "Developmental screening and support", frequency: "Available from birth to 3 years"),
             HealthGuideline(title: "Emergency Services", description: "911 for emergency services", frequency: "24/7 availability")

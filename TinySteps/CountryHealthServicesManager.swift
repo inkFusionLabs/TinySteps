@@ -163,7 +163,9 @@ class CountryHealthServicesManager: NSObject, ObservableObject {
     
     override init() {
         super.init()
-        // Set default to UK services
+        // Set default to UK services as primary focus
+        self.currentCountryCode = "GB"
+        self.currentCountry = "United Kingdom"
         self.healthServices = countryServices["GB"] ?? []
     }
     
@@ -199,14 +201,16 @@ class CountryHealthServicesManager: NSObject, ObservableObject {
         if let services = countryServices[upperCountryCode] {
             healthServices = services
         } else {
-            // Fallback to UK services for unsupported countries
+            // Always fallback to UK services as primary focus
             healthServices = countryServices["GB"] ?? []
+            currentCountryCode = "GB"
+            currentCountry = "United Kingdom"
             errorMessage = "Services for \(currentCountry) are not yet available. Showing UK services as default."
         }
     }
     
     func getEmergencyNumber() -> String {
-        return emergencyNumbers[currentCountryCode] ?? "911"
+        return emergencyNumbers[currentCountryCode] ?? "999"
     }
     
     func getCountryName() -> String {

@@ -8,11 +8,14 @@ struct EmptyBabyCard: View {
         VStack(spacing: 24) {
             // Enhanced Icon with Animation
             ZStack {
-                // Background glow
+                // Background glow with design system colors
                 Circle()
                     .fill(
                         LinearGradient(
-                            gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.2)]),
+                            gradient: Gradient(colors: [
+                                DesignSystem.Colors.accent.opacity(0.3), 
+                                DesignSystem.Colors.primary.opacity(0.2)
+                            ]),
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -26,7 +29,7 @@ struct EmptyBabyCard: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 60, height: 60)
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                     .scaleEffect(isHovered ? 1.05 : 1.0)
                     .animation(.easeInOut(duration: 0.3), value: isHovered)
             }
@@ -37,13 +40,13 @@ struct EmptyBabyCard: View {
             // Enhanced Text
             VStack(spacing: 8) {
                 Text("Welcome to Baby Profile")
-                    .font(.title2)
+                    .font(DesignSystem.Typography.title2)
                     .fontWeight(.bold)
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 
                 Text("Start tracking your baby's development and milestones")
-                    .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.8))
+                    .font(DesignSystem.Typography.subheadline)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
@@ -54,7 +57,7 @@ struct EmptyBabyCard: View {
                     Image(systemName: "plus.circle.fill")
                         .font(.title3)
                     Text("Add Baby Profile")
-                        .font(.headline)
+                        .font(DesignSystem.Typography.button)
                         .fontWeight(.semibold)
                 }
                 .foregroundColor(.white)
@@ -64,12 +67,15 @@ struct EmptyBabyCard: View {
                     RoundedRectangle(cornerRadius: 25)
                         .fill(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color.blue, Color.purple]),
+                                gradient: Gradient(colors: [
+                                    DesignSystem.Colors.accent, 
+                                    DesignSystem.Colors.primary
+                                ]),
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
-                        .shadow(color: Color.blue.opacity(0.4), radius: 8, x: 0, y: 4)
+                        .shadow(color: DesignSystem.Colors.accent.opacity(0.4), radius: 8, x: 0, y: 4)
                 )
                 .scaleEffect(isHovered ? 1.05 : 1.0)
                 .animation(.easeInOut(duration: 0.2), value: isHovered)
@@ -87,19 +93,22 @@ struct EmptyBabyCard: View {
         .padding(32)
         .background(
             RoundedRectangle(cornerRadius: 24)
-                .fill(Color.clear)
+                .fill(DesignSystem.Colors.backgroundSecondary)
                 .overlay(
                     RoundedRectangle(cornerRadius: 24)
                         .stroke(
                             LinearGradient(
-                                gradient: Gradient(colors: [Color.blue.opacity(0.3), Color.purple.opacity(0.2)]),
+                                gradient: Gradient(colors: [
+                                    DesignSystem.Colors.accent.opacity(0.3), 
+                                    DesignSystem.Colors.primary.opacity(0.2)
+                                ]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
                             lineWidth: 1
                         )
                 )
-                .shadow(color: Color.blue.opacity(0.2), radius: 20, x: 0, y: 10)
+                .shadow(color: DesignSystem.Colors.shadow, radius: 6, x: 0, y: 3)
         )
     }
 }
@@ -111,13 +120,13 @@ struct FeatureRow: View {
     var body: some View {
         HStack(spacing: 12) {
             Image(systemName: icon)
-                .font(.subheadline)
-                .foregroundColor(.blue)
+                .font(DesignSystem.Typography.subheadline)
+                .foregroundColor(DesignSystem.Colors.accent)
                 .frame(width: 20)
             
             Text(text)
-                .font(.subheadline)
-                .foregroundColor(.white.opacity(0.9))
+                .font(DesignSystem.Typography.subheadline)
+                .foregroundColor(DesignSystem.Colors.textSecondary)
             
             Spacer()
         }

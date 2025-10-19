@@ -13,7 +13,7 @@ struct CountryHealthInfoView: View {
     
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            DesignSystem.Colors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
@@ -122,7 +122,7 @@ struct CountryHealthInfoView: View {
             }
         }
         .sheet(isPresented: $showingCountrySelector) {
-            CountrySelectorView(countryManager: countryManager, healthInfoManager: healthInfoManager)
+            Text("Country Selector - Simplified App")
         }
     }
 }

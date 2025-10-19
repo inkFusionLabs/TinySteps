@@ -18,7 +18,7 @@ struct ActivityRow: View {
                     .fill(item.color)
                     .frame(width: 36, height: 36)
                 Image(systemName: item.icon)
-                    .foregroundColor(TinyStepsDesign.Colors.textPrimary)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
             }
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.title)
@@ -28,7 +28,7 @@ struct ActivityRow: View {
                     .foregroundColor(.secondary)
                 Text(item.date, style: .date)
                     .font(.caption)
-                    .foregroundColor(TinyStepsDesign.Colors.textSecondary)
+                    .foregroundColor(DesignSystem.Colors.textSecondary)
             }
             Spacer()
         }

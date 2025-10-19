@@ -645,7 +645,7 @@ struct QuickAction: Identifiable, Codable {
     enum ActionType: String, CaseIterable, Codable {
         case callPartner = "Call Partner"
         case callHospital = "Call Hospital"
-        case callPediatrician = "Call Pediatrician"
+        case callPaediatrician = "Call Paediatrician"
         case emergencyServices = "Emergency Services"
         case lactationConsultant = "Lactation Consultant"
         case mentalHealth = "Mental Health Support"
@@ -654,7 +654,7 @@ struct QuickAction: Identifiable, Codable {
             switch self {
             case .callPartner: return "phone.fill"
             case .callHospital: return "cross.fill"
-            case .callPediatrician: return "stethoscope"
+            case .callPaediatrician: return "stethoscope"
             case .emergencyServices: return "exclamationmark.triangle.fill"
             case .lactationConsultant: return "drop.fill"
             case .mentalHealth: return "brain.head.profile"
@@ -665,7 +665,7 @@ struct QuickAction: Identifiable, Codable {
             switch self {
             case .callPartner: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
             case .callHospital: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
-            case .callPediatrician: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
+            case .callPaediatrician: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
             case .emergencyServices: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
             case .lactationConsultant: return Color(red: 0.5, green: 0.6, blue: 1.0) // Very light blue
             case .mentalHealth: return Color(red: 0.1, green: 0.2, blue: 0.7) // Medium-dark blue
@@ -769,6 +769,12 @@ class BabyDataManager: ObservableObject {
     
     // Lazy loading support
     private var isInitialized = false
+    
+    // Performance monitoring
+    
+    // Memory management
+    private let maxRecordsInMemory = 1000
+    private var isMemoryOptimized = false
     
     init() {
         loadData()
@@ -1315,18 +1321,18 @@ class BabyDataManager: ObservableObject {
         
         // Get recent feedings
         let recentFeedings = Array(feedingRecords.suffix(limit))
-        recentRecords.append(contentsOf: recentFeedings.map { .feeding($0) })
+        recentRecords.append(contentsOf: recentFeedings.map { RecordType.feeding($0) })
         
         // Get recent sleep records
         let recentSleeps = Array(sleepRecords.suffix(limit))
-        recentRecords.append(contentsOf: recentSleeps.map { .sleep($0) })
+        recentRecords.append(contentsOf: recentSleeps.map { RecordType.sleep($0) })
         
         // Get recent nappy records
         let recentNappies = Array(nappyRecords.suffix(limit))
-        recentRecords.append(contentsOf: recentNappies.map { .nappy($0) })
+        recentRecords.append(contentsOf: recentNappies.map { RecordType.nappy($0) })
         
         // Sort by date and return limited results
-        return recentRecords.sorted { $0.recordDate > $1.recordDate }.prefix(limit).map { $0 }
+        return Array(recentRecords.sorted(by: { $0.recordDate > $1.recordDate }).prefix(limit))
     }
     
     func getRecordsForDate(_ date: Date) -> [RecordType] {
@@ -1339,21 +1345,21 @@ class BabyDataManager: ObservableObject {
         let dayFeedings = feedingRecords.filter { record in
             record.date >= startOfDay && record.date < endOfDay
         }
-        dayRecords.append(contentsOf: dayFeedings.map { .feeding($0) })
+        dayRecords.append(contentsOf: dayFeedings.map { RecordType.feeding($0) })
         
         // Get sleep records for the day
         let daySleeps = sleepRecords.filter { record in
             record.startTime >= startOfDay && record.startTime < endOfDay
         }
-        dayRecords.append(contentsOf: daySleeps.map { .sleep($0) })
+        dayRecords.append(contentsOf: daySleeps.map { RecordType.sleep($0) })
         
         // Get nappy records for the day
         let dayNappies = nappyRecords.filter { record in
             record.date >= startOfDay && record.date < endOfDay
         }
-        dayRecords.append(contentsOf: dayNappies.map { .nappy($0) })
+        dayRecords.append(contentsOf: dayNappies.map { RecordType.nappy($0) })
         
-        return dayRecords.sorted { $0.recordDate > $1.recordDate }
+        return dayRecords.sorted(by: { $0.recordDate > $1.recordDate })
     }
     
     // MARK: - Performance Monitoring
@@ -1393,6 +1399,68 @@ class BabyDataManager: ObservableObject {
         feedingRecords.sort { $0.date > $1.date }
         nappyRecords.sort { $0.date > $1.date }
         sleepRecords.sort { $0.startTime > $1.startTime }
+        
+        invalidateCache()
+        saveData()
+    }
+    
+    // MARK: - Performance Optimization Methods
+    
+    func enablePerformanceOptimization() {
+        isMemoryOptimized = true
+    }
+    
+    func disablePerformanceOptimization() {
+        isMemoryOptimized = false
+    }
+    
+    func optimizeMemoryUsage() {
+        // Limit records in memory
+        if feedingRecords.count > maxRecordsInMemory {
+            feedingRecords = Array(feedingRecords.prefix(maxRecordsInMemory))
+        }
+        
+        if nappyRecords.count > maxRecordsInMemory {
+            nappyRecords = Array(nappyRecords.prefix(maxRecordsInMemory))
+        }
+        
+        if sleepRecords.count > maxRecordsInMemory {
+            sleepRecords = Array(sleepRecords.prefix(maxRecordsInMemory))
+        }
+        
+        // Memory optimization complete
+        
+        invalidateCache()
+        saveData()
+    }
+    
+    func preloadData() {
+        // Data is already loaded when needed
+    }
+    
+    func getPerformanceMetrics() -> [String: Any] {
+        var metrics = getPerformanceStats()
+        metrics["isMemoryOptimized"] = isMemoryOptimized
+        metrics["recordCount"] = feedingRecords.count + nappyRecords.count + sleepRecords.count
+        return metrics
+    }
+    
+    func batchAddRecords<T>(_ records: [T], type: RecordType) {
+        // Batch add records for better performance
+        switch type {
+        case .feeding:
+            if let feedingRecords = records as? [FeedingRecord] {
+                self.feedingRecords.append(contentsOf: feedingRecords)
+            }
+        case .nappy:
+            if let nappyRecords = records as? [NappyRecord] {
+                self.nappyRecords.append(contentsOf: nappyRecords)
+            }
+        case .sleep:
+            if let sleepRecords = records as? [SleepRecord] {
+                self.sleepRecords.append(contentsOf: sleepRecords)
+            }
+        }
         
         invalidateCache()
         saveData()
@@ -1796,7 +1864,7 @@ class BabyDataManager: ObservableObject {
         var checklist: [String] = []
         
         if !isInNeonatalPeriod() {
-            checklist.append("Schedule first pediatrician visit")
+            checklist.append("Schedule first paediatrician visit")
             checklist.append("Set up home monitoring")
             checklist.append("Plan follow-up appointments")
             checklist.append("Review discharge instructions")

@@ -36,7 +36,7 @@ struct HealthVisitorView: View {
     
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            DesignSystem.Colors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {
@@ -221,7 +221,7 @@ struct AddHealthVisitorVisitView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
                 VStack(spacing: 20) {

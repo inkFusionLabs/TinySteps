@@ -17,81 +17,90 @@ struct ProfileView: View {
     @State private var showingImageOptions = false
     @State private var selectedImageItem: PhotosPickerItem?
     @Environment(\.presentationMode) var presentationMode
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+    
+    // MARK: - Computed Properties
+    private var profileHeaderSection: some View {
+        VStack(spacing: isIPad ? 24 : 20) {
+            // Profile Avatar
+            Button(action: {
+                showingImageOptions = true
+            }) {
+                ZStack {
+                    if let imageData = userProfileImageData,
+                       let uiImage = UIImage(data: imageData) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: isIPad ? 140 : 120, height: isIPad ? 140 : 120)
+                            .clipShape(Circle())
+                            .overlay(
+                                Circle()
+                                    .stroke(themeManager.currentTheme.colors.border, lineWidth: 3)
+                            )
+                    } else {
+                        Image(systemName: "person.circle.fill")
+                            .font(.system(size: isIPad ? 120 : 100))
+                            .foregroundColor(themeManager.currentTheme.colors.accent)
+                            .background(
+                                Circle()
+                                    .fill(themeManager.currentTheme.colors.backgroundSecondary)
+                                    .frame(width: isIPad ? 140 : 120, height: isIPad ? 140 : 120)
+                            )
+                    }
+                    
+                    // Camera icon overlay
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Image(systemName: "camera.circle.fill")
+                                .font(isIPad ? .title : .title2)
+                                .foregroundColor(themeManager.currentTheme.colors.primary)
+                                .background(Circle().fill(themeManager.currentTheme.colors.background))
+                                .offset(x: isIPad ? -18 : -15, y: isIPad ? 8 : 5)
+                        }
+                    }
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
+            .accessibilityLabel("Profile avatar")
+            .accessibilityHint("Tap to change your profile picture")
+            
+            // User Name
+            VStack(spacing: isIPad ? 12 : 8) {
+                Text(userName.isEmpty ? "User" : userName)
+                    .font(isIPad ? .system(size: 32, weight: .bold) : .title)
+                    .fontWeight(.bold)
+                    .themedText(style: .primary)
+                    .accessibilityLabel(userName.isEmpty ? "User" : userName)
+                    .accessibilityAddTraits(.isHeader)
+                
+                Text("TinySteps User")
+                    .font(isIPad ? .system(size: 18) : .subheadline)
+                    .themedText(style: .secondary)
+                    .accessibilityLabel("TinySteps User")
+            }
+        }
+        .padding(.top, isIPad ? 32 : 20)
+    }
     
     var body: some View {
         ZStack {
             // Background gradient
-            TinyStepsDesign.Colors.background
+            themeManager.currentTheme.colors.backgroundGradient
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: 30) {
-                    // Profile Header
-                    VStack(spacing: 20) {
-                        // Profile Avatar
-                        Button(action: {
-                            showingImageOptions = true
-                        }) {
-                            ZStack {
-                                if let imageData = userProfileImageData,
-                                   let uiImage = UIImage(data: imageData) {
-                                    Image(uiImage: uiImage)
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 120, height: 120)
-                                        .clipShape(Circle())
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.white.opacity(0.3), lineWidth: 2)
-                                        )
-                                } else {
-                                    Image(systemName: "person.circle.fill")
-                                        .font(.system(size: 100))
-                                        .foregroundColor(.white)
-                                        .background(
-                                            Circle()
-                                                .fill(Color.clear)
-                                                .frame(width: 120, height: 120)
-                                        )
-                                }
-                                
-                                // Camera icon overlay
-                                VStack {
-                                    Spacer()
-                                    HStack {
-                                        Spacer()
-                                        Image(systemName: "camera.circle.fill")
-                                            .font(.title2)
-                                            .foregroundColor(.blue)
-                                            .background(Circle().fill(Color.white))
-                                            .offset(x: -15, y: 5)
-                                    }
-                                }
-                            }
-                        }
-                        .buttonStyle(PlainButtonStyle())
-                        .accessibilityLabel("Profile avatar")
-                        .accessibilityHint("Tap to change your profile picture")
-                        
-                        // User Name
-                        VStack(spacing: 8) {
-                            Text(userName.isEmpty ? "User" : userName)
-                                .font(.title)
-                                .fontWeight(.bold)
-                                .foregroundColor(.white)
-                                .accessibilityLabel(userName.isEmpty ? "User" : userName)
-                                .accessibilityAddTraits(.isHeader)
-                            
-                            Text("TinySteps User")
-                                .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
-                                .accessibilityLabel("TinySteps User")
-                        }
-                    }
-                    .padding(.top, 20)
+                VStack(spacing: isIPad ? 40 : 30) {
+                    profileHeaderSection
                     
                     // Profile Options
-                    VStack(spacing: 15) {
+                    VStack(spacing: isIPad ? 20 : 15) {
                         // Edit Profile Button
                         Button(action: {
                             tempUserName = userName
@@ -99,146 +108,117 @@ struct ProfileView: View {
                         }) {
                             HStack {
                                 Image(systemName: "pencil.circle.fill")
-                                    .font(.title2)
-                                    .foregroundColor(.blue)
+                                    .font(isIPad ? .title : .title2)
+                                    .foregroundColor(themeManager.currentTheme.colors.primary)
                                 
                                 Text("Edit Profile")
-                                    .font(.body)
+                                    .font(isIPad ? .system(size: 18, weight: .medium) : .body)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.white)
+                                    .themedText(style: .primary)
                                 
                                 Spacer()
                                 
                                 Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.6))
+                                    .font(isIPad ? .body : .caption)
+                                    .themedText(style: .tertiary)
                             }
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 15)
-                            .background(Color.clear)
+                            .padding(.horizontal, isIPad ? 24 : 20)
+                            .padding(.vertical, isIPad ? 18 : 15)
+                            .themedCard()
                         }
                         .buttonStyle(PlainButtonStyle())
                         .accessibilityLabel("Edit Profile")
                         .accessibilityHint("Edit your profile name.")
                         
                         // App Information
-                        VStack(spacing: 15) {
+                        VStack(spacing: isIPad ? 20 : 15) {
                             ProfileInfoRow(
                                 icon: "info.circle.fill",
                                 title: "App Version",
                                 value: "1.0.0",
-                                color: .green
+                                color: themeManager.currentTheme.colors.success
                             )
                             
                             ProfileInfoRow(
                                 icon: "calendar.circle.fill",
                                 title: "Member Since",
                                 value: "Today",
-                                color: .orange
+                                color: themeManager.currentTheme.colors.warning
                             )
                             
                             ProfileInfoRow(
                                 icon: "heart.circle.fill",
                                 title: "Baby Care Journey",
                                 value: "Active",
-                                color: .red
+                                color: themeManager.currentTheme.colors.error
                             )
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.clear)
-                        )
+                        .padding(.horizontal, isIPad ? 24 : 20)
+                        .padding(.vertical, isIPad ? 20 : 15)
+                        .themedCard()
                         
-                        // Support Section
-                        VStack(spacing: 15) {
-                            NavigationLink(destination: SupportView()) {
-                                HStack {
-                                    Image(systemName: "questionmark.circle.fill")
-                                        .font(.title2)
-                                        .foregroundColor(.yellow)
-                                    
-                                    Text("Help & Support")
-                                        .font(.body)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(.white)
-                                    
-                                    Spacer()
-                                    
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.6))
-                                }
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .accessibilityLabel("Help and Support")
-                            .accessibilityHint("Get help and support for TinySteps.")
-                            
-                            NavigationLink(destination: AboutTinyStepsView()) {
+                        // About Section
+                        VStack(spacing: isIPad ? 20 : 15) {
+                            NavigationLink(destination: Text("About TinySteps - Coming Soon")) {
                                 HStack {
                                     Image(systemName: "info.circle.fill")
-                                        .font(.title2)
-                                        .foregroundColor(.cyan)
+                                        .font(isIPad ? .title : .title2)
+                                        .foregroundColor(themeManager.currentTheme.colors.info)
                                     
                                     Text("About TinySteps")
-                                        .font(.body)
+                                        .font(isIPad ? .system(size: 18, weight: .medium) : .body)
                                         .fontWeight(.medium)
-                                        .foregroundColor(.white)
+                                        .themedText(style: .primary)
                                     
                                     Spacer()
                                     
                                     Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundColor(.white.opacity(0.6))
+                                        .font(isIPad ? .body : .caption)
+                                        .themedText(style: .tertiary)
                                 }
                             }
                             .buttonStyle(PlainButtonStyle())
                             .accessibilityLabel("About TinySteps")
                             .accessibilityHint("Learn more about TinySteps.")
                         }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 15)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.clear)
-                        )
+                        .padding(.horizontal, isIPad ? 24 : 20)
+                        .padding(.vertical, isIPad ? 20 : 15)
+                        .themedCard()
                     }
-                    .padding(.horizontal)
+                    .padding(.horizontal, isIPad ? 32 : 16)
                 }
-                .padding(.bottom, 30)
+                .padding(.bottom, isIPad ? 40 : 30)
             }
         }
         .navigationTitle("Profile")
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingImageOptions) {
             NavigationView {
-                VStack(spacing: 20) {
+                VStack(spacing: isIPad ? 32 : 20) {
                     Text("Profile Picture")
-                        .font(.title2)
+                        .font(isIPad ? .system(size: 28, weight: .bold) : .title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .themedText(style: .primary)
                     
-                    VStack(spacing: 15) {
+                    VStack(spacing: isIPad ? 20 : 15) {
                         Button(action: {
                             showingImagePicker = true
                             showingImageOptions = false
                         }) {
                             HStack {
                                 Image(systemName: "photo")
-                                    .font(.title2)
-                                    .foregroundColor(.blue)
+                                    .font(isIPad ? .title : .title2)
+                                    .foregroundColor(themeManager.currentTheme.colors.primary)
                                 
                                 Text("Choose from Photo Library")
-                                    .font(.body)
+                                    .font(isIPad ? .system(size: 18, weight: .medium) : .body)
                                     .fontWeight(.medium)
-                                    .foregroundColor(.white)
+                                    .themedText(style: .primary)
                                 
                                 Spacer()
                             }
-                            .padding()
-                            .background(Color.clear)
-                            .cornerRadius(12)
+                            .padding(isIPad ? 20 : 16)
+                            .themedCard()
                         }
                         .buttonStyle(PlainButtonStyle())
                         
@@ -249,19 +229,19 @@ struct ProfileView: View {
                             }) {
                                 HStack {
                                     Image(systemName: "trash")
-                                        .font(.title2)
-                                        .foregroundColor(.red)
+                                        .font(isIPad ? .title : .title2)
+                                        .foregroundColor(themeManager.currentTheme.colors.error)
                                     
                                     Text("Remove Current Picture")
-                                        .font(.body)
+                                        .font(isIPad ? .system(size: 18, weight: .medium) : .body)
                                         .fontWeight(.medium)
-                                        .foregroundColor(.red)
+                                        .foregroundColor(themeManager.currentTheme.colors.error)
                                     
                                     Spacer()
                                 }
-                                .padding()
-                                .background(Color.red.opacity(0.1))
-                                .cornerRadius(12)
+                                .padding(isIPad ? 20 : 16)
+                                .background(themeManager.currentTheme.colors.error.opacity(0.1))
+                                .cornerRadius(isIPad ? 16 : 12)
                             }
                             .buttonStyle(PlainButtonStyle())
                         }
@@ -269,13 +249,13 @@ struct ProfileView: View {
                     
                     Spacer()
                 }
-                .padding()
-                .background(TinyStepsDesign.Colors.background)
+                .padding(isIPad ? 32 : 16)
+                .background(themeManager.currentTheme.colors.background)
                 .navigationBarItems(
                     trailing: Button("Cancel") {
                         showingImageOptions = false
                     }
-                    .foregroundColor(.white)
+                    .themedText(style: .primary)
                 )
             }
         }
@@ -293,45 +273,38 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showingNameEdit) {
             NavigationView {
-                VStack(spacing: 20) {
+                VStack(spacing: isIPad ? 32 : 20) {
                     Text("Edit Profile")
-                        .font(.title2)
+                        .font(isIPad ? .system(size: 28, weight: .bold) : .title2)
                         .fontWeight(.bold)
-                        .foregroundColor(.white)
+                        .themedText(style: .primary)
                     
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: isIPad ? 16 : 8) {
                         Text("Your Name")
-                            .font(.headline)
-                            .foregroundColor(.white)
+                            .font(isIPad ? .system(size: 20, weight: .semibold) : .headline)
+                            .themedText(style: .primary)
                         
                         TextField("Enter your name", text: $tempUserName)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
-                            .padding(.horizontal)
+                            .font(isIPad ? .system(size: 18) : .body)
+                            .padding(.horizontal, isIPad ? 20 : 16)
                     }
+                    .padding(.horizontal, isIPad ? 32 : 16)
                     
                     Spacer()
                 }
-                .padding()
-                .background(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            Color(red: 0.1, green: 0.2, blue: 0.4),
-                            Color(red: 0.2, green: 0.3, blue: 0.6)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
+                .padding(isIPad ? 32 : 16)
+                .background(themeManager.currentTheme.colors.backgroundGradient)
                 .navigationBarItems(
                     leading: Button("Cancel") {
                         showingNameEdit = false
                     }
-                    .foregroundColor(.white),
+                    .themedText(style: .primary),
                     trailing: Button("Save") {
                         userName = tempUserName
                         showingNameEdit = false
                     }
-                    .foregroundColor(.blue)
+                    .foregroundColor(themeManager.currentTheme.colors.primary)
                     .disabled(tempUserName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 )
             }
@@ -339,35 +312,7 @@ struct ProfileView: View {
     }
 }
 
-struct ProfileInfoRow: View {
-    let icon: String
-    let title: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        HStack {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundColor(color)
-            
-            Text(title)
-                .font(.body)
-                .foregroundColor(.white)
-                .accessibilityLabel(title)
-            
-            Spacer()
-            
-            Text(value)
-                .font(.body)
-                .foregroundColor(.white.opacity(0.8))
-                .accessibilityLabel(value)
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .background(Color.clear)
-    }
-}
+// ProfileInfoRow is now defined in SettingsView.swift
 
 #Preview {
     NavigationView {

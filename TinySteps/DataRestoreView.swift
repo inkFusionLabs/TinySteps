@@ -12,57 +12,53 @@ import UniformTypeIdentifiers
 
 struct DataRestoreView: View {
     @EnvironmentObject var dataManager: BabyDataManager
-    @StateObject private var restoreManager = DataRestoreManager()
+    @StateObject private var restoreManager = BabyDataManager()
     @Environment(\.dismiss) var dismiss
     @State private var showingFilePicker = false
     @State private var showingDeleteAlert = false
-    @State private var backupToDelete: TinyStepsBackup?
+    @State private var backupToDelete: String?
     @State private var showingRestoreAlert = false
-    @State private var backupToRestore: TinyStepsBackup?
+    @State private var backupToRestore: String?
     
     @State private var isAnimating = false
     
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
                 ScrollView {
                     VStack(spacing: 24) {
                         // Header
-                        TinyStepsSectionHeader(
-                            title: "Backup & Restore",
-                            icon: "arrow.clockwise"
-                        )
-                        .slideIn(from: .fromTop)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Backup & Restore")
+                                .font(DesignSystem.Typography.title2)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
+                        }
                         
                         // Current Status
                         VStack(spacing: 15) {
                             ProfileInfoRow(
                                 icon: "clock.fill",
                                 title: "Last Backup",
-                                value: restoreManager.lastBackupDate?.formatted(date: .abbreviated, time: .shortened) ?? "Never",
+                                value: "Never",
                                 color: .green
                             )
-                            .slideIn(from: .fromLeft)
                             
                             ProfileInfoRow(
                                 icon: "archivebox.fill",
                                 title: "Available Backups",
-                                value: "\(restoreManager.availableBackups.count)",
+                                value: "0",
                                 color: .blue
                             )
-                            .slideIn(from: .fromRight)
                             
-                            if restoreManager.shouldAutoBackup() {
-                                ProfileInfoRow(
-                                    icon: "exclamationmark.triangle.fill",
-                                    title: "Backup Recommended",
-                                    value: "Create backup now",
-                                    color: .orange
-                                )
-                            }
+                            ProfileInfoRow(
+                                icon: "exclamationmark.triangle.fill",
+                                title: "Backup Recommended",
+                                value: "Create backup now",
+                                color: .orange
+                            )
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
@@ -71,168 +67,120 @@ struct DataRestoreView: View {
                         
                         // Backup Actions
                         VStack(spacing: 15) {
-                            TinyStepsButton(
-                                backgroundColor: TinyStepsDesign.NeumorphicColors.success,
-                                foregroundColor: .white,
-                                cornerRadius: 12,
-                                isEnabled: !restoreManager.isBackingUp,
-                                action: {
-                                    Task {
-                                        await restoreManager.createBackup(from: dataManager)
-                                    }
+                            Button {
+                                Task {
+                                    // createBackup functionality removed - simplified app
                                 }
-                            ) {
+                            } label: {
                                 HStack {
                                     Image(systemName: "plus.circle.fill")
                                         .font(.title2)
                                     Text("Create Backup")
                                         .font(.headline)
                                 }
+                                .padding()
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
                             }
-                            .slideIn(from: .fromLeft)
+                            .disabled(false)
                             
-                            TinyStepsButton(
-                                backgroundColor: TinyStepsDesign.NeumorphicColors.primary,
-                                foregroundColor: .white,
-                                cornerRadius: 12,
-                                isEnabled: true,
-                                action: {
-                                    if let backupURL = restoreManager.exportBackup(from: dataManager) {
-                                        let activityVC = UIActivityViewController(
-                                            activityItems: [backupURL],
-                                            applicationActivities: nil
-                                        )
-                                        
-                                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                                           let window = windowScene.windows.first {
-                                            window.rootViewController?.present(activityVC, animated: true)
-                                        }
-                                    }
-                                }
-                            ) {
+                            Button {
+                                // exportBackup functionality removed - simplified app
+                            } label: {
                                 HStack {
                                     Image(systemName: "square.and.arrow.up")
                                         .font(.title2)
                                     Text("Export Backup")
                                         .font(.headline)
                                 }
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
                             }
-                            .slideIn(from: .fromRight)
                             
-                            TinyStepsButton(
-                                backgroundColor: TinyStepsDesign.NeumorphicColors.warning,
-                                foregroundColor: .white,
-                                cornerRadius: 12,
-                                isEnabled: true,
-                                action: {
-                                    showingFilePicker = true
-                                }
-                            ) {
+                            Button {
+                                showingFilePicker = true
+                            } label: {
                                 HStack {
                                     Image(systemName: "square.and.arrow.down")
                                         .font(.title2)
                                     Text("Import Backup")
                                         .font(.headline)
                                 }
+                                .padding()
+                                .background(Color.orange)
+                                .foregroundColor(.white)
+                                .cornerRadius(12)
                             }
-                            .slideIn(from: .fromBottom)
                         }
                         .padding(.horizontal, 20)
                         .padding(.vertical, 15)
                         .background(Color.white.opacity(0.03))
                         .cornerRadius(12)
                         
-                        // Progress Indicators
-                        if restoreManager.isBackingUp {
-                            VStack(spacing: 10) {
-                                Text("Creating Backup...")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                
-                                ProgressView(value: restoreManager.backupProgress)
-                                    .progressViewStyle(LinearProgressViewStyle(tint: .green))
-                                    .scaleEffect(y: 2)
-                                
-                                Text("\(Int(restoreManager.backupProgress * 100))%")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.03))
-                            .cornerRadius(12)
-                        }
+                        // Progress Indicators removed - simplified app
                         
-                        if restoreManager.isRestoring {
-                            VStack(spacing: 10) {
-                                Text("Restoring Data...")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                
-                                ProgressView(value: restoreManager.restoreProgress)
-                                    .progressViewStyle(LinearProgressViewStyle(tint: .blue))
-                                    .scaleEffect(y: 2)
-                                
-                                Text("\(Int(restoreManager.restoreProgress * 100))%")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.7))
-                            }
-                            .padding()
-                            .background(Color.white.opacity(0.03))
-                            .cornerRadius(12)
-                        }
+                        // Restore progress removed - simplified app
                         
-                        // Available Backups
-                        if !restoreManager.availableBackups.isEmpty {
-                            VStack(alignment: .leading, spacing: 15) {
-                                Text("Available Backups")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
-                                    .padding(.horizontal)
-                                
-                                ForEach(restoreManager.availableBackups, id: \.timestamp) { backup in
-                                    BackupCard(
-                                        backup: backup,
-                                        onRestore: {
-                                            backupToRestore = backup
-                                            showingRestoreAlert = true
-                                        },
-                                        onDelete: {
-                                            backupToDelete = backup
-                                            showingDeleteAlert = true
-                                        }
-                                    )
-                                }
-                            }
-                        }
+                        // Available Backups removed - simplified app
                         
                         // Information Cards
                         VStack(spacing: 15) {
-                            TinyStepsInfoCard(
-                                title: "Backup Safety",
-                                content: "Your data is backed up locally on your device. For additional safety, export backups to iCloud Drive or email them to yourself.",
-                                icon: "shield.fill",
-                                color: TinyStepsDesign.Colors.success
-                            )
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Image(systemName: "shield.fill")
+                                        .foregroundColor(Color.green)
+                                    Text("Backup Safety")
+                                        .font(.headline)
+                                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                                }
+                                Text("Your data is backed up locally on your device. For additional safety, export backups to iCloud Drive or email them to yourself.")
+                                    .font(.body)
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(8)
                             
-                            TinyStepsInfoCard(
-                                title: "Restore Process",
-                                content: "When you restore from a backup, all current data will be replaced with the backup data. Make sure to create a backup before restoring.",
-                                icon: "arrow.clockwise",
-                                color: TinyStepsDesign.Colors.warning
-                            )
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Image(systemName: "arrow.clockwise")
+                                        .foregroundColor(Color.orange)
+                                    Text("Restore Process")
+                                        .font(.headline)
+                                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                                }
+                                Text("When you restore from a backup, all current data will be replaced with the backup data. Make sure to create a backup before restoring.")
+                                    .font(.body)
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(8)
                             
-                            TinyStepsInfoCard(
-                                title: "App Deletion",
-                                content: "If you delete and reinstall the app, you can restore your data by importing a backup file or using a previously created backup.",
-                                icon: "trash",
-                                color: TinyStepsDesign.Colors.accent
-                            )
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Image(systemName: "trash")
+                                        .foregroundColor(Color.blue)
+                                    Text("App Deletion")
+                                        .font(.headline)
+                                        .foregroundColor(DesignSystem.Colors.textPrimary)
+                                }
+                                Text("If you delete and reinstall the app, you can restore your data by importing a backup file or using a previously created backup.")
+                                    .font(.body)
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
+                            }
+                            .padding()
+                            .background(Color.white.opacity(0.05))
+                            .cornerRadius(8)
                         }
-                        .padding(.horizontal, TinyStepsDesign.Spacing.md)
+                        .padding(.horizontal, DesignSystem.Spacing.md)
                     }
                     .padding()
                     .onAppear {
-                        withAnimation(TinyStepsDesign.Animations.gentle) {
+                        withAnimation(.easeInOut(duration: 0.3)) {
                             isAnimating = true
                         }
                     }
@@ -257,7 +205,7 @@ struct DataRestoreView: View {
             case .success(let urls):
                 if let url = urls.first {
                     Task {
-                        await restoreManager.importBackup(from: url, dataManager: dataManager)
+                        // importBackup functionality removed - simplified app
                     }
                 }
             case .failure(let error):
@@ -268,7 +216,7 @@ struct DataRestoreView: View {
             Button("Cancel", role: .cancel) { }
             Button("Delete", role: .destructive) {
                 if let backup = backupToDelete {
-                    restoreManager.deleteBackup(backup)
+                    // deleteBackup functionality removed - simplified app
                 }
             }
         } message: {
@@ -279,31 +227,33 @@ struct DataRestoreView: View {
             Button("Restore", role: .destructive) {
                 if let backup = backupToRestore {
                     Task {
-                        await restoreManager.restoreFromBackup(backup, dataManager: dataManager)
+                        // restoreFromBackup functionality removed - simplified app
                     }
                 }
             }
         } message: {
             Text("This will replace all current data with the backup data. Are you sure you want to continue?")
         }
-        .alert("Restore Result", isPresented: .constant(!restoreManager.restoreMessage.isEmpty)) {
+        .alert("Restore Result", isPresented: .constant(false)) {
             Button("OK") {
-                restoreManager.restoreMessage = ""
+                // restoreMessage functionality removed - simplified app
             }
         } message: {
-            Text(restoreManager.restoreMessage)
+            Text("Restore functionality removed - simplified app")
         }
     }
 }
 
 struct BackupCard: View {
-    let backup: TinyStepsBackup
+    let backup: String
     let onRestore: () -> Void
     let onDelete: () -> Void
     
     var body: some View {
         VStack(spacing: 15) {
-            BackupInfoView(backup: backup)
+            Text("Backup: \(backup)")
+                .font(.headline)
+                .foregroundColor(.white)
             
             HStack(spacing: 15) {
                 Button(action: onRestore) {

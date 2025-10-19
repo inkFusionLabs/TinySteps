@@ -8,12 +8,13 @@ struct OnboardingViewNeumorphic: View {
     
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            DesignSystem.Colors.background
                 .ignoresSafeArea()
             
             VStack {
                 headerSection
-                    .slideIn(from: .fromTop)
+                    .opacity(isAnimating ? 1 : 0)
+                    .offset(y: isAnimating ? 0 : -50)
                 
                 TabView(selection: $currentPage) {
                     welcomePage.tag(0)
@@ -22,13 +23,14 @@ struct OnboardingViewNeumorphic: View {
                     getStartedPage.tag(3)
                 }
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-                .animation(TinyStepsDesign.Animations.pageTransition, value: currentPage)
+                .animation(.easeInOut(duration: 0.3), value: currentPage)
                 
                 navigationControls
-                    .slideIn(from: .fromBottom)
+                    .opacity(isAnimating ? 1 : 0)
+                    .offset(y: isAnimating ? 0 : 50)
             }
             .onAppear {
-                withAnimation(TinyStepsDesign.Animations.gentle) {
+                withAnimation(.easeInOut(duration: 0.8)) {
                     isAnimating = true
                 }
             }
@@ -41,7 +43,7 @@ struct OnboardingViewNeumorphic: View {
                 Button("Skip") {
                     completeOnboarding()
                 }
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textSecondary)
+                .foregroundColor(.secondary)
             } else {
                 Spacer()
             }
@@ -52,8 +54,8 @@ struct OnboardingViewNeumorphic: View {
                 ForEach(0..<4, id: \.self) { index in
                     Circle()
                         .fill(index <= currentPage ? 
-                              TinyStepsDesign.NeumorphicColors.primary : 
-                              TinyStepsDesign.NeumorphicColors.textMuted.opacity(0.3))
+                              Color.blue : 
+                              Color.gray.opacity(0.3))
                         .frame(width: 8, height: 8)
                 }
             }
@@ -67,30 +69,30 @@ struct OnboardingViewNeumorphic: View {
             
             ZStack {
                 Circle()
-                    .fill(TinyStepsDesign.NeumorphicColors.base)
+                    .fill(Color(.systemGray6))
                     .frame(width: 120, height: 120)
-                    .shadow(color: TinyStepsDesign.NeumorphicColors.lightShadow, radius: 8, x: -4, y: -4)
-                    .shadow(color: TinyStepsDesign.NeumorphicColors.darkShadow, radius: 8, x: 4, y: 4)
+                    .shadow(color: Color.white.opacity(0.7), radius: 8, x: -4, y: -4)
+                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 4, y: 4)
                 
                 Image(systemName: "heart.text.square.fill")
                     .font(.system(size: 48))
-                    .foregroundColor(TinyStepsDesign.NeumorphicColors.primary)
+                    .foregroundColor(Color.blue)
             }
             
             VStack(spacing: 12) {
                 Text("Welcome to TinySteps")
                     .font(.largeTitle)
                     .fontWeight(.bold)
-                    .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
+                    .foregroundColor(.primary)
                 
                 Text("For Dads in the NICU and Beyond")
                     .font(.title3)
-                    .foregroundColor(TinyStepsDesign.NeumorphicColors.primary)
+                    .foregroundColor(Color.blue)
             }
             
             Text("Support, track, and celebrate your baby's journey—from the neonatal unit to home and every milestone along the way.")
                 .font(.body)
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textSecondary)
+                .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             
@@ -105,13 +107,13 @@ struct OnboardingViewNeumorphic: View {
             Text("Track Every Step")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
+                .foregroundColor(.primary)
             
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 20) {
-                FeatureCard(icon: "list.bullet.rectangle.portrait", title: "Milestones", color: TinyStepsDesign.NeumorphicColors.primary)
-                FeatureCard(icon: "bell.fill", title: "Reminders", color: TinyStepsDesign.NeumorphicColors.warning)
-                FeatureCard(icon: "chart.line.uptrend.xyaxis", title: "Growth", color: TinyStepsDesign.NeumorphicColors.success)
-                FeatureCard(icon: "heart.fill", title: "Health", color: TinyStepsDesign.NeumorphicColors.error)
+                FeatureCard(icon: "list.bullet.rectangle.portrait", title: "Milestones", color: Color.blue)
+                FeatureCard(icon: "bell.fill", title: "Reminders", color: Color.orange)
+                FeatureCard(icon: "chart.line.uptrend.xyaxis", title: "Growth", color: Color.green)
+                FeatureCard(icon: "heart.fill", title: "Health", color: Color.red)
             }
             .padding(.horizontal, 24)
             
@@ -125,24 +127,24 @@ struct OnboardingViewNeumorphic: View {
             
             ZStack {
                 Circle()
-                    .fill(TinyStepsDesign.NeumorphicColors.base)
+                    .fill(Color(.systemGray6))
                     .frame(width: 120, height: 120)
-                    .shadow(color: TinyStepsDesign.NeumorphicColors.lightShadow, radius: 8, x: -4, y: -4)
-                    .shadow(color: TinyStepsDesign.NeumorphicColors.darkShadow, radius: 8, x: 4, y: 4)
+                    .shadow(color: Color.white.opacity(0.7), radius: 8, x: -4, y: -4)
+                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 4, y: 4)
                 
                 Image(systemName: "lock.shield.fill")
                     .font(.system(size: 48))
-                    .foregroundColor(TinyStepsDesign.NeumorphicColors.success)
+                    .foregroundColor(Color.green)
             }
             
             Text("Your Data, Secure")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
+                .foregroundColor(.primary)
             
             Text("Protect your baby's journey with enterprise-grade security and privacy controls.")
                 .font(.body)
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textSecondary)
+                .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             
@@ -156,24 +158,24 @@ struct OnboardingViewNeumorphic: View {
             
             ZStack {
                 Circle()
-                    .fill(TinyStepsDesign.NeumorphicColors.base)
+                    .fill(Color(.systemGray6))
                     .frame(width: 120, height: 120)
-                    .shadow(color: TinyStepsDesign.NeumorphicColors.lightShadow, radius: 8, x: -4, y: -4)
-                    .shadow(color: TinyStepsDesign.NeumorphicColors.darkShadow, radius: 8, x: 4, y: 4)
+                    .shadow(color: Color.white.opacity(0.7), radius: 8, x: -4, y: -4)
+                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 4, y: 4)
                 
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 48))
-                    .foregroundColor(TinyStepsDesign.NeumorphicColors.success)
+                    .foregroundColor(Color.green)
             }
             
             Text("Ready to Begin?")
                 .font(.largeTitle)
                 .fontWeight(.bold)
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
+                .foregroundColor(.primary)
             
             Text("Start your journey with TinySteps and create lasting memories of your baby's growth and development.")
                 .font(.body)
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textSecondary)
+                .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
             
@@ -189,7 +191,7 @@ struct OnboardingViewNeumorphic: View {
                         currentPage -= 1
                     }
                 }
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textSecondary)
+                .foregroundColor(.secondary)
                 .padding()
             } else {
                 Spacer()
@@ -199,7 +201,7 @@ struct OnboardingViewNeumorphic: View {
             
             if currentPage < 3 {
                 Button("Next") {
-                    withAnimation(TinyStepsDesign.Animations.bouncy) {
+                    withAnimation(Animation.bouncy) {
                         currentPage += 1
                     }
                 }
@@ -208,10 +210,10 @@ struct OnboardingViewNeumorphic: View {
                 .padding(.vertical, 12)
                 .background(
                     RoundedRectangle(cornerRadius: 25)
-                        .fill(TinyStepsDesign.NeumorphicColors.primary)
+                        .fill(Color.blue)
                 )
                 .scaleEffect(isAnimating ? 1.0 : 0.8)
-                .animation(TinyStepsDesign.Animations.bouncy.delay(0.5), value: isAnimating)
+                .animation(Animation.bouncy.delay(0.5), value: isAnimating)
             } else {
                 Button("Get Started") {
                     completeOnboarding()
@@ -221,10 +223,10 @@ struct OnboardingViewNeumorphic: View {
                 .padding(.vertical, 16)
                 .background(
                     RoundedRectangle(cornerRadius: 25)
-                        .fill(TinyStepsDesign.NeumorphicColors.primary)
+                        .fill(Color.blue)
                 )
                 .scaleEffect(isAnimating ? 1.0 : 0.8)
-                .animation(TinyStepsDesign.Animations.bouncy.delay(0.5), value: isAnimating)
+                .animation(Animation.bouncy.delay(0.5), value: isAnimating)
             }
         }
         .padding()
@@ -246,10 +248,10 @@ struct FeatureCard: View {
         VStack(spacing: 12) {
             ZStack {
                 Circle()
-                    .fill(TinyStepsDesign.NeumorphicColors.base)
+                    .fill(Color(.systemGray6))
                     .frame(width: 60, height: 60)
-                    .shadow(color: TinyStepsDesign.NeumorphicColors.lightShadow, radius: isPressed ? 2 : 4, x: isPressed ? -1 : -2, y: isPressed ? -1 : -2)
-                    .shadow(color: TinyStepsDesign.NeumorphicColors.darkShadow, radius: isPressed ? 2 : 4, x: isPressed ? 1 : 2, y: isPressed ? 1 : 2)
+                    .shadow(color: Color.white.opacity(0.7), radius: isPressed ? 2 : 4, x: isPressed ? -1 : -2, y: isPressed ? -1 : -2)
+                    .shadow(color: Color.black.opacity(0.2), radius: isPressed ? 2 : 4, x: isPressed ? 1 : 2, y: isPressed ? 1 : 2)
                     .scaleEffect(isPressed ? 0.95 : 1.0)
                 
                 Image(systemName: icon)
@@ -260,23 +262,23 @@ struct FeatureCard: View {
             
             Text(title)
                 .font(.headline)
-                .foregroundColor(TinyStepsDesign.NeumorphicColors.textPrimary)
+                .foregroundColor(.primary)
         }
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(TinyStepsDesign.NeumorphicColors.base)
-                .shadow(color: TinyStepsDesign.NeumorphicColors.lightShadow, radius: isPressed ? 2 : 3, x: isPressed ? -0.5 : -1, y: isPressed ? -0.5 : -1)
-                .shadow(color: TinyStepsDesign.NeumorphicColors.darkShadow, radius: isPressed ? 2 : 3, x: isPressed ? 0.5 : 1, y: isPressed ? 0.5 : 1)
+                .fill(Color(.systemGray6))
+                .shadow(color: Color.white.opacity(0.7), radius: isPressed ? 2 : 3, x: isPressed ? -0.5 : -1, y: isPressed ? -0.5 : -1)
+                .shadow(color: Color.black.opacity(0.2), radius: isPressed ? 2 : 3, x: isPressed ? 0.5 : 1, y: isPressed ? 0.5 : 1)
         )
         .scaleEffect(isPressed ? 0.95 : 1.0)
-        .animation(TinyStepsDesign.Animations.tap, value: isPressed)
+        .animation(.easeInOut(duration: 0.2), value: isPressed)
         .onTapGesture {
-            withAnimation(TinyStepsDesign.Animations.tap) {
+            withAnimation(.easeInOut(duration: 0.2)) {
                 isPressed = true
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(TinyStepsDesign.Animations.tap) {
+                withAnimation(.easeInOut(duration: 0.2)) {
                     isPressed = false
                 }
             }

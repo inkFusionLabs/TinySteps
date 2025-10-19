@@ -11,22 +11,22 @@ struct EmergencyContactsView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
                 if dataManager.emergencyContacts.isEmpty {
                     VStack(spacing: 20) {
                         Image(systemName: "person.crop.circle.badge.plus")
                             .font(.system(size: 60))
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         Text("No Emergency Contacts")
                             .font(.title2)
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                         
                         Text("Add important contacts for quick access")
                             .font(.subheadline)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                             .multilineTextAlignment(.center)
                         
                         Button(action: { showingAddContact = true }) {
@@ -36,7 +36,7 @@ struct EmergencyContactsView: View {
                             }
                             .padding()
                             .background(Color.blue)
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                             .cornerRadius(10)
                         }
                     }
@@ -72,7 +72,7 @@ struct EmergencyContactsView: View {
                     Button("Close") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
@@ -80,7 +80,7 @@ struct EmergencyContactsView: View {
                         showingAddContact = true
                     } label: {
                         Image(systemName: "plus")
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                     }
                 }
             }
@@ -121,7 +121,7 @@ struct EmergencyContactRow: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(contact.name)
                         .font(.headline)
-                        .foregroundColor(.white)
+                        .foregroundColor(DesignSystem.Colors.textPrimary)
                     
                     Text(contact.relationship)
                         .font(.subheadline)
@@ -160,12 +160,12 @@ struct EmergencyContactRow: View {
             if let notes = contact.notes, !notes.isEmpty {
                 Text(notes)
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.7))
+                    .foregroundColor(DesignSystem.Colors.textTertiary)
                     .padding(.top, 4)
             }
         }
         .padding(.vertical, 8)
-        .listRowBackground(Color.white.opacity(0.1))
+        .listRowBackground(DesignSystem.Colors.backgroundSecondary)
     }
 }
 
@@ -199,7 +199,7 @@ struct AddEmergencyContactView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
                 VStack(spacing: 20) {
@@ -210,18 +210,18 @@ struct AddEmergencyContactView: View {
                                 Text(editingContact == nil ? "Add Contact" : "Edit Contact")
                                     .font(.title2)
                                     .fontWeight(.bold)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
                                 
                                 Text("Add important contact details")
                                     .font(.subheadline)
-                                    .foregroundColor(.white.opacity(0.8))
+                                    .foregroundColor(DesignSystem.Colors.textSecondary)
                             }
                             
                             Spacer()
                         }
                     }
                     .padding()
-                    .background(Color.white.opacity(0.1))
+                    .background(DesignSystem.Colors.backgroundSecondary)
                     .cornerRadius(12)
                     .padding(.horizontal)
                     
@@ -230,45 +230,45 @@ struct AddEmergencyContactView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Name")
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             TextField("Enter name", text: $name)
-                                .textFieldStyle(CustomTextFieldStyle())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                         }
                         .padding(.horizontal)
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Relationship")
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             TextField("Enter relationship", text: $relationship)
-                                .textFieldStyle(CustomTextFieldStyle())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                         }
                         .padding(.horizontal)
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Phone Number")
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             TextField("Enter phone number", text: $phoneNumber)
-                                .textFieldStyle(CustomTextFieldStyle())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .keyboardType(.phonePad)
                         }
                         .padding(.horizontal)
                         
                         Toggle("Emergency Contact", isOn: $isEmergency)
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                             .padding(.horizontal)
                         
                         Toggle("Can Pick Up Baby", isOn: $canPickup)
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                             .padding(.horizontal)
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Notes (Optional)")
                                 .font(.headline)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             TextField("Add any additional notes", text: $notes, axis: .vertical)
-                                .textFieldStyle(CustomTextFieldStyle())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .frame(height: 100)
                         }
                         .padding(.horizontal)
@@ -283,7 +283,7 @@ struct AddEmergencyContactView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
@@ -299,7 +299,7 @@ struct AddEmergencyContactView: View {
                         onSave(contact)
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                     .disabled(name.isEmpty || relationship.isEmpty || phoneNumber.isEmpty)
                 }
             }

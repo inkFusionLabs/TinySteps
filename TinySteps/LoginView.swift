@@ -73,7 +73,7 @@ struct LoginView: View {
             }
         }
         .sheet(isPresented: $showingPasscodeSetup) {
-            PasscodeSetupView()
+            Text("Passcode Setup")
         }
     }
     

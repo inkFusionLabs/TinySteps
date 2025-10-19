@@ -15,7 +15,8 @@ import UIKit
 struct TinyStepsApp: App {
     @State private var selectedTab: ContentView.NavigationTab = .home
     @StateObject private var dataManager = BabyDataManager()
-    @StateObject private var notificationManager = EnhancedNotificationsManager.shared
+    @StateObject private var notificationManager = BabyDataManager()
+    @StateObject private var themeManager = ThemeManager.shared
     @AppStorage("isLoggedIn") private var isLoggedIn: Bool = true
     @AppStorage("app_passcode") private var appPasscode: String = ""
     @State private var showAuth: Bool = false
@@ -24,8 +25,8 @@ struct TinyStepsApp: App {
         // Configure Firebase
         // FirebaseApp.configure()
         
-        // Setup enhanced notifications
-        EnhancedNotificationsManager.shared.setupNotificationCategories()
+        // Setup enhanced notifications - removed for simplified app
+        // EnhancedNotificationsManager.shared.setupNotificationCategories()
     }
 
     var body: some Scene {
@@ -33,6 +34,7 @@ struct TinyStepsApp: App {
             ContentView(selectedTab: $selectedTab)
                 .environmentObject(dataManager)
                 .environmentObject(notificationManager)
+                .environmentObject(themeManager)
                 .onOpenURL { url in
                     guard url.scheme == "tinysteps",
                           url.host == "category",

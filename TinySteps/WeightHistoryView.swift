@@ -19,7 +19,7 @@ struct WeightHistoryView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                TinyStepsDesign.Colors.background
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 
                 VStack(spacing: 20) {

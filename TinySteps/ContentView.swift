@@ -19,62 +19,38 @@ struct ContentView: View {
     @Binding var selectedTab: NavigationTab
     @State private var showProfile = false
     @State private var showSidebar = false
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
     
     enum NavigationTab: String, CaseIterable, Identifiable {
-        case home, journal, tracking, support, settings, information, wellness, appointments, reminders, milestones, chat, analytics, data, medicalSearch
+        case home, progress, journal, info
         var id: String { rawValue }
         var title: String {
             switch self {
             case .home: return "Home"
+            case .progress: return "Progress"
             case .journal: return "Journal"
-            case .tracking: return "Tracking"
-            case .support: return "Support"
-            case .settings: return "Settings"
-            case .information: return "Information Hub"
-            case .wellness: return "Dad Wellness"
-            case .appointments: return "Appointments"
-            case .reminders: return "Reminders"
-            case .milestones: return "Milestones"
-            case .chat: return "Chat Support"
-            case .analytics: return "Analytics"
-            case .data: return "Data & Export"
-            case .medicalSearch: return "Medical Search"
+            case .info: return "NICU Info"
             }
         }
         var icon: String {
             switch self {
             case .home: return "house.fill"
+            case .progress: return "chart.line.uptrend.xyaxis"
             case .journal: return "book.fill"
-            case .tracking: return "chart.bar.fill"
-            case .support: return "heart.fill"
-            case .settings: return "gear"
-            case .information: return "info.circle.fill"
-            case .wellness: return "heart.text.square"
-            case .appointments: return "calendar"
-            case .reminders: return "bell.fill"
-            case .milestones: return "star.fill"
-            case .chat: return "message.fill"
-            case .analytics: return "chart.line.uptrend.xyaxis"
-            case .data: return "externaldrive.fill"
-            case .medicalSearch: return "magnifyingglass"
+            case .info: return "stethoscope"
             }
         }
         var color: Color {
+            let theme = ThemeManager.shared.currentTheme.colors
             switch self {
-            case .home: return .blue
-            case .journal: return .green
-            case .tracking: return .orange
-            case .support: return .red
-            case .settings: return .gray
-            case .information: return .purple
-            case .wellness: return .pink
-            case .appointments: return .green
-            case .reminders: return .orange
-            case .milestones: return .yellow
-            case .chat: return .blue
-            case .analytics: return .cyan
-            case .data: return .indigo
-            case .medicalSearch: return .indigo
+            case .home: return theme.primary
+            case .progress: return theme.accent
+            case .journal: return theme.warning
+            case .info: return theme.info
             }
         }
     }
@@ -88,46 +64,89 @@ struct ContentView: View {
             if showNameEntry {
                 NameEntryView()
             } else {
-                WelcomeView(showNameEntry: $showNameEntry)
+                OnboardingViewNeumorphic(showNameEntry: $showNameEntry)
             }
         } else {
-            ZStack {
-                // Background
-                TinyStepsDesign.Colors.background
-                    .ignoresSafeArea()
-                
+            // Check if running on iPad
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                // iPad Layout with Split View
+                iPadLayout
+                    .onAppear {
+                        print("🔍 iPad Layout is being used!")
+                        print("🔍 Device Model: \(UIDevice.current.model)")
+                        print("🔍 Device Name: \(UIDevice.current.name)")
+                        print("🔍 User Interface Idiom: \(UIDevice.current.userInterfaceIdiom.rawValue)")
+                    }
+            } else {
+                // iPhone Layout with Tab Bar
+                iPhoneLayout
+                    .onAppear {
+                        print("🔍 iPhone Layout is being used!")
+                        print("🔍 Device Model: \(UIDevice.current.model)")
+                        print("🔍 Device Name: \(UIDevice.current.name)")
+                        print("🔍 User Interface Idiom: \(UIDevice.current.userInterfaceIdiom.rawValue)")
+                    }
+            }
+        }
+    }
+    
+    // MARK: - iPad Layout
+    private var iPadLayout: some View {
+        ZStack {
+            // Background
+            themeManager.currentTheme.colors.background
+                .ignoresSafeArea()
+            
+            NavigationSplitView {
+                // Sidebar for iPad
+                iPadSidebar
+            } detail: {
+                // Main Content
+                Group {
+                    switch selectedTab {
+                    case .home:
+                        NICUHomeView()
+                    case .progress:
+                        NICUProgressView()
+                    case .journal:
+                        NICUJournalView()
+                    case .info:
+                        NICUInfoView()
+                    }
+                }
+                .onChange(of: selectedTab) { oldValue, newValue in
+                    print("Tab changed from \(oldValue.title) to \(newValue.title)")
+                }
+                .navigationBarHidden(true)
+            }
+            .sheet(isPresented: $showProfile) {
+                NavigationView {
+                    ProfileView()
+                }
+            }
+        }
+    }
+    
+    // MARK: - iPhone Layout
+    private var iPhoneLayout: some View {
+        ZStack {
+            // Background
+            themeManager.currentTheme.colors.background
+                .ignoresSafeArea()
+            
+            VStack(spacing: 0) {
                 // Main Content View
                 NavigationView {
                     Group {
                         switch selectedTab {
                         case .home:
-                            HomeView(showSidebar: $showSidebar)
+                            NICUHomeView()
+                        case .progress:
+                            NICUProgressView()
                         case .journal:
-                            JournalView()
-                        case .tracking:
-                            TrackingView()
-                        case .support:
-                            SupportView()
-                        case .settings:
-                            SettingsView()
-                        case .information:
-                            InformationHubView()
-                        case .wellness:
-                            DadWellnessView()
-                        case .appointments:
-                            AppointmentsView()
-                        case .reminders:
-                            RemindersView()
-                        case .milestones:
-                            MilestonesView()
-                        case .chat:
-                            ChatView(selectedTab: $selectedTab)
-                        case .analytics:
-                            EnhancedAnalyticsView(selectedTab: $selectedTab)
-                        case .data:
-                            DataExportView()
-                        case .medicalSearch:
-                            MedicalSearchView()
+                            NICUJournalView()
+                        case .info:
+                            NICUInfoView()
                         }
                     }
                     .onChange(of: selectedTab) { oldValue, newValue in
@@ -135,46 +154,375 @@ struct ContentView: View {
                     }
                     .navigationBarHidden(true)
                 }
-                .sheet(isPresented: $showProfile) {
-                    NavigationView {
-                        ProfileView()
+                
+                // Glass Effect Bottom Tab Bar
+                GlassTabBar(selectedTab: $selectedTab)
+            }
+            .sheet(isPresented: $showProfile) {
+                NavigationView {
+                    ProfileView()
+                }
+            }
+            
+            // Sidebar Menu (iPhone only)
+            if showSidebar {
+                Color.black.opacity(0.3)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showSidebar = false
+                        }
+                    }
+                
+                HStack {
+                    SidebarMenuView(selectedTab: $selectedTab, showSidebar: $showSidebar)
+                        .frame(width: 280)
+                        .offset(x: showSidebar ? 0 : -280)
+                        .animation(.easeInOut(duration: 0.3), value: showSidebar)
+                    
+                    Spacer()
+                }
+            }
+        }
+        .gesture(
+            DragGesture()
+                .onEnded { value in
+                    if value.translation.width > 50 && !showSidebar {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showSidebar = true
+                        }
+                    } else if value.translation.width < -50 && showSidebar {
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showSidebar = false
+                        }
+                    }
+                }
+        )
+    }
+    
+    // MARK: - iPad Sidebar
+    private var iPadSidebar: some View {
+        VStack(spacing: 0) {
+            // Header Section - Enhanced with responsive components
+            VStack(spacing: 0) {
+                // App Title
+                HStack {
+                    DesignSystem.iPadOptimization.ResponsiveText(
+                        "TinySteps",
+                        style: .primary
+                    )
+                    .font(.system(size: isIPad ? 48 : 24, weight: .bold))
+                    
+                    Spacer()
+                    
+                    // Status indicator
+                    Circle()
+                        .fill(themeManager.currentTheme.colors.success)
+                        .frame(width: isIPad ? 12 : 8, height: isIPad ? 12 : 8)
+                }
+                .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
+                .padding(.top, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
+                .padding(.bottom, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(16))
+                
+                // Profile Section
+                HStack(spacing: DesignSystem.iPadOptimization.AdaptiveSpacing.spacing(16)) {
+                    // Profile Avatar
+                    Button(action: { showProfile = true }) {
+                        ZStack {
+                            Circle()
+                                .fill(themeManager.currentTheme.colors.accent)
+                                .frame(width: isIPad ? 100 : 56, height: isIPad ? 100 : 56)
+                            
+                            Image(systemName: "person.fill")
+                                .font(.system(size: isIPad ? 48 : 24, weight: .medium))
+                                .foregroundColor(.white)
+                        }
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    
+                    VStack(alignment: .leading, spacing: DesignSystem.iPadOptimization.AdaptiveSpacing.spacing(4)) {
+                        DesignSystem.iPadOptimization.ResponsiveText(
+                            "Welcome back,",
+                            style: .tertiary
+                        )
+                        .font(.system(size: isIPad ? 16 : 14, weight: .medium))
+                        
+                        DesignSystem.iPadOptimization.ResponsiveText(
+                            userName.isEmpty ? "Dad" : userName,
+                            style: .primary
+                        )
+                        .font(.system(size: isIPad ? 24 : 20, weight: .semibold))
+                    }
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
+                .padding(.bottom, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(24))
+            }
+            .background(themeManager.currentTheme.colors.backgroundSecondary)
+            
+            // Navigation Menu - Full Height - Enhanced with responsive components
+            VStack(spacing: 0) {
+                // Main Section
+                VStack(alignment: .leading, spacing: 0) {
+                    DesignSystem.iPadOptimization.ResponsiveText(
+                        "Main",
+                        style: .tertiary
+                    )
+                    .font(.system(size: isIPad ? 15 : 13, weight: .semibold))
+                    .textCase(.uppercase)
+                    .tracking(0.5)
+                    .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
+                    .padding(.top, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(24))
+                    .padding(.bottom, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(12))
+                    
+                    VStack(spacing: 4) {
+                        SidebarMenuItem(
+                            title: "Home",
+                            icon: "house.fill",
+                            isSelected: selectedTab == .home,
+                            action: { selectedTab = .home }
+                        )
+                        
+                        SidebarMenuItem(
+                            title: "Progress",
+                            icon: "chart.line.uptrend.xyaxis",
+                            isSelected: selectedTab == .progress,
+                            action: { selectedTab = .progress }
+                        )
                     }
                 }
                 
-                // Sidebar Menu
-                if showSidebar {
-                    Color.black.opacity(0.3)
-                        .ignoresSafeArea()
-                        .onTapGesture {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showSidebar = false
-                            }
-                        }
+                // Care & Journal Section
+                VStack(alignment: .leading, spacing: 0) {
+                    DesignSystem.iPadOptimization.ResponsiveText(
+                        "Care & Journal",
+                        style: .tertiary
+                    )
+                    .font(.system(size: isIPad ? 15 : 13, weight: .semibold))
+                    .textCase(.uppercase)
+                    .tracking(0.5)
+                    .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
+                    .padding(.top, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(32))
+                    .padding(.bottom, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(12))
+                    
+                    VStack(spacing: 4) {
+                        SidebarMenuItem(
+                            title: "Journal",
+                            icon: "book.fill",
+                            isSelected: selectedTab == .journal,
+                            action: { selectedTab = .journal }
+                        )
+                        
+                        SidebarMenuItem(
+                            title: "NICU Info",
+                            icon: "stethoscope",
+                            isSelected: selectedTab == .info,
+                            action: { selectedTab = .info }
+                        )
+                    }
+                }
+                
+                
+                // Profile Section
+                VStack(alignment: .leading, spacing: 0) {
+                    DesignSystem.iPadOptimization.ResponsiveText(
+                        "Profile",
+                        style: .tertiary
+                    )
+                    .font(.system(size: isIPad ? 15 : 13, weight: .semibold))
+                    .textCase(.uppercase)
+                    .tracking(0.5)
+                    .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
+                    .padding(.top, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(32))
+                    .padding(.bottom, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(12))
+                    
+                    VStack(spacing: 4) {
+                        SidebarMenuItem(
+                            title: "Profile",
+                            icon: "person.circle",
+                            isSelected: false,
+                            action: { showProfile = true }
+                        )
+                    }
+                }
+                
+                // Bottom Spacer to push content to fill available space
+                Spacer()
+                
+                // Footer Section - Enhanced with responsive components
+                VStack(spacing: DesignSystem.iPadOptimization.AdaptiveSpacing.spacing(12)) {
+                    Divider()
+                        .background(themeManager.currentTheme.colors.border.opacity(0.3))
+                        .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
                     
                     HStack {
-                        SidebarMenuView(selectedTab: $selectedTab, showSidebar: $showSidebar)
-                            .frame(width: 280)
-                            .offset(x: showSidebar ? 0 : -280)
-                            .animation(.easeInOut(duration: 0.3), value: showSidebar)
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(themeManager.currentTheme.colors.error)
+                            .font(.system(size: isIPad ? 16 : 12))
+                        
+                        DesignSystem.iPadOptimization.ResponsiveText(
+                            "Made with love for NICU dads",
+                            style: .tertiary
+                        )
+                        .font(.system(size: isIPad ? 14 : 12, weight: .medium))
                         
                         Spacer()
                     }
+                    .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
+                    .padding(.bottom, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
                 }
             }
-            .gesture(
-                DragGesture()
-                    .onEnded { value in
-                        if value.translation.width > 50 && !showSidebar {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showSidebar = true
-                            }
-                        } else if value.translation.width < -50 && showSidebar {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showSidebar = false
-                            }
-                        }
-                    }
+        }
+        .background(themeManager.currentTheme.colors.background)
+        .frame(maxWidth: isIPad ? 400 : .infinity, alignment: .leading)
+        .ignoresSafeArea(.container, edges: .leading)
+    }
+}
+
+// MARK: - Sidebar Menu Item - Enhanced with responsive components
+struct SidebarMenuItem: View {
+    let title: String
+    let icon: String
+    let isSelected: Bool
+    let action: () -> Void
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: DesignSystem.iPadOptimization.AdaptiveSpacing.spacing(12)) {
+                Image(systemName: icon)
+                    .font(.system(size: isIPad ? 20 : 16, weight: .medium))
+                    .foregroundColor(isSelected ? themeManager.currentTheme.colors.primary : themeManager.currentTheme.colors.textSecondary)
+                    .frame(width: isIPad ? 24 : 20, height: isIPad ? 24 : 20)
+                
+                DesignSystem.iPadOptimization.ResponsiveText(
+                    title,
+                    style: isSelected ? .primary : .secondary
+                )
+                .font(.system(size: isIPad ? 18 : 16, weight: .medium))
+                .foregroundColor(isSelected ? themeManager.currentTheme.colors.primary : themeManager.currentTheme.colors.textPrimary)
+                
+                Spacer()
+            }
+            .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(20))
+            .padding(.vertical, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(12))
+            .background(
+                RoundedRectangle(cornerRadius: isIPad ? 12 : 8)
+                    .fill(isSelected ? themeManager.currentTheme.colors.primary.opacity(0.1) : Color.clear)
             )
+            .overlay(
+                RoundedRectangle(cornerRadius: isIPad ? 12 : 8)
+                    .stroke(isSelected ? themeManager.currentTheme.colors.primary.opacity(0.3) : Color.clear, lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+        .padding(.horizontal, DesignSystem.iPadOptimization.AdaptiveSpacing.padding(8))
+    }
+}
+
+// MARK: - iOS 16+ Style Tab Bar with Floating Selected Tab
+struct GlassTabBar: View {
+    @Binding var selectedTab: ContentView.NavigationTab
+    @EnvironmentObject var themeManager: ThemeManager
+    @State private var animateSelection = false
+    
+    var body: some View {
+        HStack(spacing: 0) {
+            ForEach(ContentView.NavigationTab.allCases) { tab in
+                Button(action: {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        selectedTab = tab
+                        animateSelection = true
+                    }
+                }) {
+                    VStack(spacing: 4) {
+                        ZStack {
+                            // Floating pill background for selected tab (iOS 16+ style)
+                            if selectedTab == tab {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(
+                                        LinearGradient(
+                                            gradient: Gradient(colors: [
+                                                tab.color.opacity(0.3),
+                                                tab.color.opacity(0.2)
+                                            ]),
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    )
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .fill(.ultraThinMaterial)
+                                            .opacity(0.8)
+                                    )
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: 20)
+                                            .stroke(tab.color.opacity(0.5), lineWidth: 1)
+                                    )
+                                    .shadow(
+                                        color: tab.color.opacity(0.3),
+                                        radius: 8,
+                                        x: 0,
+                                        y: 4
+                                    )
+                                    .scaleEffect(animateSelection && selectedTab == tab ? 1.05 : 1.0)
+                                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: animateSelection)
+                            }
+                            
+                            // Icon
+                            Image(systemName: tab.icon)
+                                .font(.system(size: 20, weight: selectedTab == tab ? .semibold : .medium))
+                                .foregroundColor(selectedTab == tab ? tab.color : themeManager.currentTheme.colors.textSecondary)
+                                .scaleEffect(selectedTab == tab ? 1.05 : 1.0)
+                                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selectedTab)
+                        }
+                        .frame(width: 50, height: 50)
+                        
+                        // Label
+                        Text(tab.title)
+                            .font(.system(size: 10, weight: selectedTab == tab ? .semibold : .medium))
+                            .foregroundColor(selectedTab == tab ? tab.color : themeManager.currentTheme.colors.textSecondary)
+                            .opacity(selectedTab == tab ? 1.0 : 0.7)
+                            .animation(.easeInOut(duration: 0.2), value: selectedTab)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(PlainButtonStyle())
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .padding(.bottom, 8)
+        .background(
+            // Solid background bar (not floating)
+            Rectangle()
+                .fill(themeManager.currentTheme.colors.backgroundSecondary)
+                .overlay(
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    themeManager.currentTheme.colors.border.opacity(0.2),
+                                    Color.clear
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .frame(height: 1)
+                )
+        )
+        .onAppear {
+            // Reset animation state
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                animateSelection = false
+            }
         }
     }
 }
@@ -185,11 +533,12 @@ struct SidebarMenuView: View {
     @Binding var showSidebar: Bool
     @AppStorage("userName") private var userName: String = ""
     @State private var showProfile = false
+    @EnvironmentObject var themeManager: ThemeManager
     
     var body: some View {
         ZStack {
             // Background
-            TinyStepsDesign.Colors.background
+            themeManager.currentTheme.colors.background
                 .ignoresSafeArea()
             
             ScrollView {
@@ -198,17 +547,17 @@ struct SidebarMenuView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "person.circle.fill")
                             .font(.title)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Welcome back,")
                                 .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.7))
+                                .foregroundColor(DesignSystem.Colors.textTertiary)
                             
                             Text(userName.isEmpty ? "Dad" : userName)
                                 .font(.title2)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                         }
                     }
                     .padding(.horizontal, 20)
@@ -230,7 +579,7 @@ struct SidebarMenuView: View {
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
                     
-                    ForEach([ContentView.NavigationTab.home, ContentView.NavigationTab.journal, ContentView.NavigationTab.tracking], id: \.self) { tab in
+                    ForEach([ContentView.NavigationTab.home, ContentView.NavigationTab.progress], id: \.self) { tab in
                         MenuItemView(tab: tab, selectedTab: $selectedTab, showSidebar: $showSidebar)
                             .onAppear {
                                 print("Menu item appeared: \(tab.title)")
@@ -248,7 +597,7 @@ struct SidebarMenuView: View {
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
                     
-                    ForEach([ContentView.NavigationTab.support, ContentView.NavigationTab.appointments, ContentView.NavigationTab.reminders, ContentView.NavigationTab.milestones, ContentView.NavigationTab.medicalSearch], id: \.self) { tab in
+                    ForEach([ContentView.NavigationTab.journal, ContentView.NavigationTab.info], id: \.self) { tab in
                         MenuItemView(tab: tab, selectedTab: $selectedTab, showSidebar: $showSidebar)
                     }
                 }
@@ -263,25 +612,11 @@ struct SidebarMenuView: View {
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
                     
-                    ForEach([ContentView.NavigationTab.information, ContentView.NavigationTab.wellness, ContentView.NavigationTab.chat], id: \.self) { tab in
+                    ForEach([ContentView.NavigationTab.info], id: \.self) { tab in
                         MenuItemView(tab: tab, selectedTab: $selectedTab, showSidebar: $showSidebar)
                     }
                 }
                 
-                // Tools & Settings
-                VStack(spacing: 0) {
-                    Text("TOOLS & SETTINGS")
-                        .font(.caption)
-                        .fontWeight(.semibold)
-                        .foregroundColor(.white.opacity(0.6))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 8)
-                    
-                    ForEach([ContentView.NavigationTab.analytics, ContentView.NavigationTab.data, ContentView.NavigationTab.settings], id: \.self) { tab in
-                        MenuItemView(tab: tab, selectedTab: $selectedTab, showSidebar: $showSidebar)
-                    }
-                }
                 }
                 
                 Spacer()
@@ -296,7 +631,7 @@ struct SidebarMenuView: View {
                     HStack(spacing: 16) {
                         Image(systemName: "person.circle.fill")
                             .font(.title2)
-                            .foregroundColor(.white.opacity(0.8))
+                            .foregroundColor(DesignSystem.Colors.textSecondary)
                         
                         Text("Profile")
                             .font(.body)
@@ -402,7 +737,7 @@ struct DashboardView: View {
                             Text("Today's Dad Tip")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                         }
                         .padding(.horizontal)
                         
@@ -448,7 +783,7 @@ struct DashboardView: View {
                             Text("Emergency Contacts")
                                 .font(.title2)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                         }
                         .padding(.horizontal)
                         
@@ -506,55 +841,7 @@ struct DashboardView: View {
     }
 }
 
-struct QuickStatCard: View {
-    let title: String
-    let value: String
-    let icon: String
-    let color: Color
-    @State private var isPressed = false
-    
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: icon)
-                .font(.system(size: 30, weight: .medium))
-                .foregroundColor(color)
-                .scaleEffect(isPressed ? 0.9 : 1.0)
-                .animation(.easeInOut(duration: 0.1), value: isPressed)
-            
-            Text(value)
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundColor(.white)
-            
-            Text(title)
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(.white.opacity(0.8))
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 20)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(color.opacity(0.2))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(color.opacity(0.3), lineWidth: 1)
-                )
-        )
-        .scaleEffect(isPressed ? 0.95 : 1.0)
-        .animation(.easeInOut(duration: 0.1), value: isPressed)
-        .onTapGesture {
-            withAnimation(.easeInOut(duration: 0.1)) {
-                isPressed = true
-            }
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                withAnimation(.easeInOut(duration: 0.1)) {
-                    isPressed = false
-                }
-            }
-        }
-    }
-}
+// QuickStatCard moved to HomeView.swift
 
 struct DashboardTipCard: View {
     let title: String
@@ -794,13 +1081,13 @@ struct HungerCueCard: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.headline)
-                .foregroundColor(TinyStepsDesign.Colors.accent)
+                .foregroundColor(DesignSystem.Colors.accent)
             
             ForEach(cues, id: \.self) { cue in
                 HStack {
                     Image(systemName: "circle.fill")
                         .font(.caption)
-                        .foregroundColor(TinyStepsDesign.Colors.accent)
+                        .foregroundColor(DesignSystem.Colors.accent)
                     
                     Text(cue)
                         .font(.caption)
@@ -939,7 +1226,7 @@ struct SleepPatternCard: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.headline)
-                .foregroundColor(TinyStepsDesign.Colors.accent)
+                .foregroundColor(DesignSystem.Colors.accent)
             
             Text(hours)
                 .font(.subheadline)
@@ -964,7 +1251,7 @@ struct TipRow: View {
     var body: some View {
         HStack {
             Image(systemName: icon)
-                .foregroundColor(TinyStepsDesign.Colors.accent)
+                .foregroundColor(DesignSystem.Colors.accent)
                 .frame(width: 20)
             
             Text(tip)
@@ -1128,7 +1415,7 @@ struct ActivityCard: View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 Image(systemName: icon)
-                    .foregroundColor(TinyStepsDesign.Colors.accent)
+                    .foregroundColor(DesignSystem.Colors.accent)
                     .font(.title2)
                 
                 Text(title)
@@ -1232,6 +1519,7 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView(selectedTab: .constant(.home))
             .environmentObject(BabyDataManager())
+            .environmentObject(ThemeManager.shared)
     }
 }
 #endif

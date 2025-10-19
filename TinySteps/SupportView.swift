@@ -20,6 +20,7 @@ struct SupportView: View {
     @State private var showParentingTips = false
     @State private var showHospitalMap = false
     @State private var showSupportServices = false
+    @EnvironmentObject var themeManager: ThemeManager
     
     enum SupportSection: String, CaseIterable {
         case healthVisitor = "Health Visitor"
@@ -39,12 +40,13 @@ struct SupportView: View {
         }
         
         var color: Color {
+            let theme = ThemeManager.shared.currentTheme.colors
             switch self {
-            case .healthVisitor: return .blue
-            case .tips: return .yellow
-            case .healthcareMap: return .red
-            case .healthInfo: return .pink
-            case .supportServices: return TinyStepsDesign.Colors.success
+            case .healthVisitor: return theme.primary
+            case .tips: return theme.warning
+            case .healthcareMap: return theme.error
+            case .healthInfo: return theme.secondary
+            case .supportServices: return theme.success
             }
         }
     }
@@ -52,7 +54,7 @@ struct SupportView: View {
     var body: some View {
         ZStack {
             // Background
-            TinyStepsDesign.Colors.background
+            themeManager.currentTheme.colors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
@@ -63,11 +65,11 @@ struct SupportView: View {
                             Text("Support & Care")
                                 .font(.largeTitle)
                                 .fontWeight(.bold)
-                                .foregroundColor(.white)
+                                .themedText(style: .primary)
                             
                             Text("Everything you need to support your baby's journey")
                                 .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
+                                .themedText(style: .secondary)
                         }
                         Spacer()
                     }
@@ -299,7 +301,7 @@ struct SupportServicesView: View {
     
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            DesignSystem.Colors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {

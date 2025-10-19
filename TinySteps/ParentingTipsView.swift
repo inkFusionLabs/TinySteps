@@ -39,7 +39,7 @@ struct ParentingTipsView: View {
     
     var body: some View {
         ZStack {
-            TinyStepsDesign.Colors.background
+            DesignSystem.Colors.background
                 .ignoresSafeArea()
             
             VStack(spacing: 20) {

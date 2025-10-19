@@ -45,19 +45,24 @@ struct ChatConfiguration {
     }
     
     // MARK: - Service Factory
-    func createChatService() -> any ChatServiceProtocol {
+    func createChatService() -> Any {
         return MockChatService()
     }
-    
-    // MARK: - Validation
-    func validateMessage(_ message: String) -> Bool {
-        return !message.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-               message.count <= maxMessageLength
+}
+
+// MARK: - Mock Chat Service
+class MockChatService {
+    // Simple mock implementation
+    func sendMessage(_ message: String) {
+        print("Mock: Sending message: \(message)")
     }
     
-    func validateRoomName(_ name: String) -> Bool {
-        return !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-               name.count <= 50
+    func joinRoom(_ roomId: String) {
+        print("Mock: Joining room: \(roomId)")
+    }
+    
+    func leaveRoom(_ roomId: String) {
+        print("Mock: Leaving room: \(roomId)")
     }
 }
 

@@ -28,6 +28,36 @@ struct BabyFormView: View {
     @State private var babyImageData: Data? = nil
 #endif
     @State private var showMilkEstimate: Bool = false
+    @StateObject private var formValidator = FormValidator()
+    
+    // Validation states
+    private var nameValidation: ValidationResult {
+        InputValidator.validateName(name)
+    }
+    
+    private var weightValidation: ValidationResult {
+        InputValidator.validateWeight(weight, unit: weightUnit)
+    }
+    
+    private var heightValidation: ValidationResult {
+        InputValidator.validateHeight(height)
+    }
+    
+    private var birthDateValidation: ValidationResult {
+        InputValidator.validateBirthDate(birthDate)
+    }
+    
+    private var dueDateValidation: ValidationResult {
+        InputValidator.validateDueDate(dueDate, birthDate: birthDate)
+    }
+    
+    private var isFormValid: Bool {
+        nameValidation.isValid && 
+        weightValidation.isValid && 
+        heightValidation.isValid && 
+        birthDateValidation.isValid && 
+        (!isPremature || dueDateValidation.isValid)
+    }
     @State private var milkEstimate: Double? = nil
     
     init(babyToEdit: Baby? = nil) {
@@ -35,9 +65,9 @@ struct BabyFormView: View {
         if let baby = babyToEdit {
             _name = State(initialValue: baby.name)
             _birthDate = State(initialValue: baby.birthDate)
-            _weight = State(initialValue: baby.weight != nil ? String(format: "%.2f", baby.weight!) : "")
+            _weight = State(initialValue: baby.weight.map { String(format: "%.2f", $0) } ?? "")
             _weightUnit = State(initialValue: "kg")
-            _height = State(initialValue: baby.height != nil ? String(format: "%.2f", baby.height!) : "")
+            _height = State(initialValue: baby.height.map { String(format: "%.2f", $0) } ?? "")
             _isPremature = State(initialValue: baby.dueDate != nil)
             _dueDate = State(initialValue: baby.dueDate ?? Date())
             _gender = State(initialValue: baby.gender)
@@ -49,7 +79,7 @@ struct BabyFormView: View {
         NavigationView {
             ZStack {
                 // Background gradient
-                TinyStepsDesign.Colors.background
+                DesignSystem.Colors.background
                     .ignoresSafeArea()
                 ScrollView {
                     VStack(spacing: 25) {
@@ -68,7 +98,7 @@ struct BabyFormView: View {
                                     .resizable()
                                     .scaledToFit()
                                     .frame(width: 120, height: 120)
-                                    .foregroundColor(.white.opacity(0.5))
+                                    .foregroundColor(DesignSystem.Colors.textTertiary)
                             }
                             PhotosPicker(selection: $selectedPhoto, matching: .images, photoLibrary: .shared()) {
                                 Text(babyImage == nil ? "Add Photo" : "Change Photo")
@@ -88,9 +118,10 @@ struct BabyFormView: View {
                             Text("Baby's Name")
                                 .font(.headline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             TextField("Enter baby's name", text: $name)
-                                .textFieldStyle(CustomTextFieldStyle())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .validation(nameValidation)
                         }
                         .opacity(animateContent ? 1 : 0)
                         .animation(.easeIn(duration: 0.8), value: animateContent)
@@ -98,7 +129,7 @@ struct BabyFormView: View {
                             Text("Birth Date")
                                 .font(.headline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             DatePicker("", selection: $birthDate, displayedComponents: [.date])
                                 .datePickerStyle(CompactDatePickerStyle())
                                 .labelsHidden()
@@ -110,7 +141,7 @@ struct BabyFormView: View {
                             Text("Gender")
                                 .font(.headline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             Picker("Gender", selection: $gender) {
                                 ForEach(Baby.Gender.allCases, id: \.self) { gender in
                                     Text(gender.rawValue).tag(gender)
@@ -126,9 +157,11 @@ struct BabyFormView: View {
                                 TextField("Weight", text: $weight)
                                     .keyboardType(.decimalPad)
                                     .frame(width: 100)
+                                    .validation(weightValidation)
                                 #else
                                 TextField("Weight", text: $weight)
                                     .frame(width: 100)
+                                    .validation(weightValidation)
                                 #endif
                                 Picker("Unit", selection: $weightUnit) {
                                     Text("kg").tag("kg")
@@ -148,22 +181,23 @@ struct BabyFormView: View {
                             Text("Height (cm)")
                                 .font(.headline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             TextField("0", text: $height)
-                                .textFieldStyle(CustomTextFieldStyle())
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .validation(heightValidation)
                         }
                         .opacity(animateContent ? 1 : 0)
                         .animation(.easeIn(duration: 0.8).delay(0.8), value: animateContent)
                         VStack(alignment: .leading, spacing: 12) {
                             Toggle("Premature Baby", isOn: $isPremature)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                                 .toggleStyle(SwitchToggleStyle(tint: .orange))
                             if isPremature {
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text("Due Date")
                                         .font(.subheadline)
                                         .fontWeight(.medium)
-                                        .foregroundColor(.white.opacity(0.8))
+                                        .foregroundColor(DesignSystem.Colors.textSecondary)
                                     DatePicker("", selection: $dueDate, displayedComponents: [.date])
                                         .datePickerStyle(CompactDatePickerStyle())
                                         .labelsHidden()
@@ -177,7 +211,7 @@ struct BabyFormView: View {
                             Text("Feeding Method")
                                 .font(.headline)
                                 .fontWeight(.semibold)
-                                .foregroundColor(.white)
+                                .foregroundColor(DesignSystem.Colors.textPrimary)
                             Picker("Feeding Method", selection: $feedingMethod) {
                                 Text("Breastfed").tag("Breastfed")
                                 Text("Bottle-fed").tag("Bottle-fed")
@@ -195,20 +229,20 @@ struct BabyFormView: View {
                                     .font(.headline)
                                     .fontWeight(.semibold)
                             }
-                            .foregroundColor(.white)
+                            .foregroundColor(DesignSystem.Colors.textPrimary)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, 16)
                             .background(Color.clear)
                         }
-                        .disabled(name.isEmpty)
-                        .opacity(name.isEmpty ? 0.6 : 1.0)
+                        .disabled(!isFormValid)
+                        .opacity(isFormValid ? 1.0 : 0.6)
                         .opacity(animateContent ? 1 : 0)
                         .animation(.easeIn(duration: 0.8).delay(1.0), value: animateContent)
                         if showMilkEstimate, let milkEstimate = milkEstimate {
                             VStack(spacing: 10) {
                                 Text("Estimated Daily Milk Requirement")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(DesignSystem.Colors.textPrimary)
                                 Text("~ \(Int(milkEstimate)) ml per day")
                                     .font(.title2)
                                     .fontWeight(.bold)
@@ -232,7 +266,7 @@ struct BabyFormView: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(DesignSystem.Colors.textPrimary)
                 }
             }
             .onAppear {
@@ -256,6 +290,19 @@ struct BabyFormView: View {
         }
     }
     private func saveBaby() {
+        // Validate all fields before saving
+        guard isFormValid else {
+            // Update form validator to show all errors
+            formValidator.validateField("name", value: name, validation: nameValidation)
+            formValidator.validateField("weight", value: weight, validation: weightValidation)
+            formValidator.validateField("height", value: height, validation: heightValidation)
+            formValidator.validateField("birthDate", value: "", validation: birthDateValidation)
+            if isPremature {
+                formValidator.validateField("dueDate", value: "", validation: dueDateValidation)
+            }
+            return
+        }
+        
         var weightValue: Double? = Double(weight)
         if weightUnit == "lbs", let lbs = weightValue {
             weightValue = lbs * 0.453592 // convert pounds to kg
