@@ -18,11 +18,32 @@ class CountryHealthServicesManager: NSObject, ObservableObject {
     // Country-specific health services database
     private var countryServices: [String: [NeonatalService]] = [
         "GB": [ // United Kingdom
-            NeonatalService(name: "Bliss Charity", type: "Support", contact: "0808 801 0322", website: "www.bliss.org.uk", country: "GB"),
+            // Core Support Organizations
+            NeonatalService(name: "Bliss Charity", type: "Premature Baby Support", contact: "0808 801 0322", website: "www.bliss.org.uk", country: "GB"),
+            NeonatalService(name: "DadPad", type: "Father Support", contact: "", website: "www.dadpad.co.uk", country: "GB"),
+            NeonatalService(name: "Mush", type: "Parent Communities", contact: "", website: "www.letsmush.com", country: "GB"),
+            NeonatalService(name: "NICU Parent Network UK", type: "Online Community", contact: "", website: "", country: "GB"),
+            
+            // NHS Services
+            NeonatalService(name: "NHS 111", type: "Health Advice", contact: "111", website: "www.nhs.uk", country: "GB"),
+            NeonatalService(name: "NHS Healthier Together", type: "Health Information", contact: "", website: "www.healthiertogether.nhs.uk", country: "GB"),
+            NeonatalService(name: "NHS IAPT Services", type: "Mental Health Therapy", contact: "", website: "www.nhs.uk/mental-health", country: "GB"),
+            
+            // Mental Health & Crisis Support
+            NeonatalService(name: "Samaritans", type: "Crisis Support", contact: "116 123", website: "www.samaritans.org", country: "GB"),
+            NeonatalService(name: "SHOUT Crisis Text", type: "Text Support", contact: "85258", website: "www.giveusashout.org", country: "GB"),
+            NeonatalService(name: "Mind", type: "Mental Health", contact: "0300 123 3393", website: "www.mind.org.uk", country: "GB"),
+            NeonatalService(name: "PANDAS Foundation", type: "Perinatal Mental Health", contact: "0808 1961 776", website: "www.pandasfoundation.org.uk", country: "GB"),
+            
+            // Research & Information
             NeonatalService(name: "Tommy's", type: "Research & Support", contact: "0800 0147 800", website: "www.tommys.org", country: "GB"),
-            NeonatalService(name: "Sands", type: "Bereavement", contact: "0808 164 3332", website: "www.sands.org.uk", country: "GB"),
-            NeonatalService(name: "NHS Neonatal Services", type: "Medical", contact: "111", website: "www.nhs.uk", country: "GB"),
-            NeonatalService(name: "PANDAS Foundation", type: "Mental Health", contact: "0808 1961 776", website: "www.pandasfoundation.org.uk", country: "GB")
+            NeonatalService(name: "Sands", type: "Bereavement Support", contact: "0808 164 3332", website: "www.sands.org.uk", country: "GB"),
+            
+            // Hospital Networks
+            NeonatalService(name: "Basingstoke & North Hampshire Hospital", type: "Level 2 NICU", contact: "01256 473202", website: "www.hampshirehospitals.nhs.uk", country: "GB"),
+            NeonatalService(name: "Royal Berkshire Hospital", type: "Level 3 NICU", contact: "0118 322 5111", website: "www.royalberkshire.nhs.uk", country: "GB"),
+            NeonatalService(name: "Southampton General Hospital", type: "Level 3 NICU", contact: "023 8077 7222", website: "www.uhs.nhs.uk", country: "GB"),
+            NeonatalService(name: "John Radcliffe Hospital", type: "Level 3 NICU", contact: "01865 741166", website: "www.ouh.nhs.uk", country: "GB")
         ],
         "US": [ // United States
             NeonatalService(name: "March of Dimes", type: "Support", contact: "1-888-663-4637", website: "www.marchofdimes.org", country: "US"),

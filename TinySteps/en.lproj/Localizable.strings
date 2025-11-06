@@ -1,0 +1,29 @@
+"ui.save" = "Save";
+"ui.cancel" = "Cancel";
+"ui.note.placeholder" = "Add a short note";
+"ui.journal.quick" = "Quick Journal";
+"ui.tip.title" = "Tip of the Day";
+"ui.see.next" = "See another";
+"ui.add.to.journal" = "Save to journal";
+
+"tip.breathe.box" = "Try box breathing: 4 in, 4 hold, 4 out, 4 hold.";
+"tip.micro.walk" = "A 2-minute hallway walk can reset your stress.";
+"tip.hydration" = "Sip water regularly; small bottles help.";
+"tip.ask.questions" = "Write down 2 questions to ask the care team.";
+"tip.skin.to.skin" = "If allowed, try a few minutes of skin-to-skin.";
+"tip.note.small.wins" = "Note one small win from today—no win is too small.";
+"tip.rest.catnap" = "Catnap when you can; set a 15-minute timer.";
+
+
+
+"checkin.title" = "Quick Check-In";
+"checkin.stress" = "Stress";
+"checkin.sleep" = "Sleep (hours)";
+"checkin.submit" = "Save Check-In";
+"checkin.tip.header" = "Coping Tip";
+"checkin.tip.rest.first" = "You’re doing a lot. A short rest first, then one tiny task.";
+"checkin.tip.breath.box" = "Try box breathing: in 4, hold 4, out 4, hold 4.";
+"checkin.tip.sleep.hygiene" = "Limit caffeine late, dim lights, and try a 15-min wind down.";
+"checkin.tip.micro.walk" = "A 2-minute walk or stretch can reset your stress.";
+"checkin.tip.keep.going" = "Keep going—small steps count. Note one win today.";
+"checkin.saved.at" = "Saved at %@";

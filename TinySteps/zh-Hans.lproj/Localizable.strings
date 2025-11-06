@@ -1,0 +1,28 @@
+"ui.save" = "保存";
+"ui.cancel" = "取消";
+"ui.note.placeholder" = "添加简短备注";
+"ui.journal.quick" = "快速日记";
+"ui.tip.title" = "今日小贴士";
+"ui.see.next" = "查看另一个";
+"ui.add.to.journal" = "保存到日记";
+
+"tip.breathe.box" = "试试盒式呼吸：吸4秒，停4秒，呼4秒，再停4秒。";
+"tip.micro.walk" = "2分钟走一走有助于缓解压力。";
+"tip.hydration" = "规律小口喝水；小瓶更方便。";
+"tip.ask.questions" = "记下要问护理团队的2个问题。";
+"tip.skin.to.skin" = "如可行，尝试几分钟肌肤接触。";
+"tip.note.small.wins" = "记下一件今天的小收获——再小也值得。";
+"tip.rest.catnap" = "能休就打个盹；设置15分钟定时。";
+
+
+"checkin.title" = "快速自检";
+"checkin.stress" = "压力";
+"checkin.sleep" = "睡眠（小时）";
+"checkin.submit" = "保存自检";
+"checkin.tip.header" = "应对小贴士";
+"checkin.tip.rest.first" = "你已经很用力了。先小憩片刻，再做一个小任务。";
+"checkin.tip.breath.box" = "试试盒式呼吸：吸4停4呼4再停4。";
+"checkin.tip.sleep.hygiene" = "晚间少咖啡因、调暗灯光，放松15分钟。";
+"checkin.tip.micro.walk" = "走/伸展2分钟有助于缓解压力。";
+"checkin.tip.keep.going" = "继续前行——小步也重要。记下一件今日小收获。";
+"checkin.saved.at" = "已保存于 %@";

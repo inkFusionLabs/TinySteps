@@ -1,0 +1,29 @@
+"ui.save" = "Guardar";
+"ui.cancel" = "Cancelar";
+"ui.note.placeholder" = "Añade una nota corta";
+"ui.journal.quick" = "Diario rápido";
+"ui.tip.title" = "Consejo del día";
+"ui.see.next" = "Ver otro";
+"ui.add.to.journal" = "Guardar en el diario";
+
+"tip.breathe.box" = "Prueba la respiración en caja: 4 dentro, 4 pausa, 4 fuera, 4 pausa.";
+"tip.micro.walk" = "Una caminata de 2 minutos puede reducir el estrés.";
+"tip.hydration" = "Bebe agua con regularidad; ayudan las botellas pequeñas.";
+"tip.ask.questions" = "Anota 2 preguntas para el equipo médico.";
+"tip.skin.to.skin" = "Si es posible, intenta unos minutos piel con piel.";
+"tip.note.small.wins" = "Escribe un pequeño logro de hoy—ninguno es demasiado pequeño.";
+"tip.rest.catnap" = "Duerme una siesta corta cuando puedas; pon un temporizador de 15 min.";
+
+
+
+"checkin.title" = "Chequeo rápido";
+"checkin.stress" = "Estrés";
+"checkin.sleep" = "Sueño (horas)";
+"checkin.submit" = "Guardar chequeo";
+"checkin.tip.header" = "Sugerencia de afrontamiento";
+"checkin.tip.rest.first" = "Estás haciendo mucho. Descansa un poco y luego una tarea pequeña.";
+"checkin.tip.breath.box" = "Prueba respiración en caja: 4 inhala, 4 retén, 4 exhala, 4 retén.";
+"checkin.tip.sleep.hygiene" = "Menos cafeína tarde, luces tenues y 15 min para relajarte.";
+"checkin.tip.micro.walk" = "Caminar o estirarte 2 minutos puede reiniciar el estrés.";
+"checkin.tip.keep.going" = "Sigue—los pasos pequeños cuentan. Anota un logro de hoy.";
+"checkin.saved.at" = "Guardado a las %@";

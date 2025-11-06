@@ -45,7 +45,7 @@ struct NICUProgressView: View {
                                     .foregroundColor(themeManager.currentTheme.colors.accent)
                             }
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .padding(.horizontal, isIPad ? 24 : 20)
                         .padding(.top, isIPad ? 32 : 20)
                         
                         // Date Picker
@@ -53,16 +53,16 @@ struct NICUProgressView: View {
                             .datePickerStyle(.compact)
                             .colorScheme(.dark)
                             .accentColor(themeManager.currentTheme.colors.primary)
-                            .padding(.horizontal, isIPad ? 32 : 20)
+                            .padding(.horizontal, isIPad ? 24 : 20)
                     }
                     
                     // Today's Summary
-                    VStack(alignment: .leading, spacing: isIPad ? 24 : 16) {
+                    VStack(alignment: .leading, spacing: isIPad ? 20 : 16) {
                         Text("Today's Summary")
                             .font(isIPad ? .title2 : .headline)
                             .fontWeight(.semibold)
                             .themedText(style: .primary)
-                            .padding(.horizontal, isIPad ? 32 : 20)
+                            .padding(.horizontal, isIPad ? 24 : 20)
                         
                             LazyVGrid(columns: isIPad ? [
                                 GridItem(.flexible()),
@@ -71,7 +71,7 @@ struct NICUProgressView: View {
                             ] : [
                                 GridItem(.flexible()),
                                 GridItem(.flexible())
-                            ], spacing: isIPad ? 32 : 16) {
+                            ], spacing: isIPad ? 24 : 16) {
                             ProgressMetricCard(
                                 title: "Weight",
                                 value: "1.2 kg",
@@ -123,16 +123,16 @@ struct NICUProgressView: View {
                                 )
                             }
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .padding(.horizontal, isIPad ? 24 : 20)
                     }
                     
                     // Progress History
-                    VStack(alignment: .leading, spacing: isIPad ? 24 : 16) {
+                    VStack(alignment: .leading, spacing: isIPad ? 20 : 16) {
                         Text("Progress History")
                             .font(isIPad ? .title2 : .headline)
                             .fontWeight(.semibold)
                             .themedText(style: .primary)
-                            .padding(.horizontal, isIPad ? 32 : 20)
+                            .padding(.horizontal, isIPad ? 24 : 20)
                         
                         VStack(spacing: isIPad ? 20 : 12) {
                             ProgressHistoryRow(
@@ -159,16 +159,16 @@ struct NICUProgressView: View {
                                 color: themeManager.currentTheme.colors.primary
                             )
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .padding(.horizontal, isIPad ? 24 : 20)
                     }
                     
                     // Daily Milestones
-                    VStack(alignment: .leading, spacing: isIPad ? 24 : 16) {
+                    VStack(alignment: .leading, spacing: isIPad ? 20 : 16) {
                         Text("Today's Milestones")
                             .font(isIPad ? .title2 : .headline)
                             .fontWeight(.semibold)
                             .themedText(style: .primary)
-                            .padding(.horizontal, isIPad ? 32 : 20)
+                            .padding(.horizontal, isIPad ? 24 : 20)
                         
                         VStack(spacing: isIPad ? 16 : 8) {
                             MilestoneRow(
@@ -192,7 +192,51 @@ struct NICUProgressView: View {
                                 color: themeManager.currentTheme.colors.info
                             )
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .padding(.horizontal, isIPad ? 24 : 20)
+                    }
+                    
+                    // UK Support Resources
+                    VStack(alignment: .leading, spacing: isIPad ? 20 : 16) {
+                        HStack {
+                            Text("Need Support?")
+                                .font(isIPad ? .title2 : .headline)
+                                .fontWeight(.semibold)
+                                .themedText(style: .primary)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "flag.fill")
+                                .font(.title3)
+                                .foregroundColor(.blue)
+                        }
+                        .padding(.horizontal, isIPad ? 24 : 20)
+                        
+                        VStack(spacing: isIPad ? 12 : 8) {
+                            UKSupportRow(
+                                name: "Bliss Charity",
+                                number: "0808 801 0322",
+                                description: "Premature baby support",
+                                icon: "heart.fill",
+                                color: .pink
+                            )
+                            
+                            UKSupportRow(
+                                name: "NHS 111",
+                                number: "111",
+                                description: "Non-emergency health advice",
+                                icon: "cross.case.fill",
+                                color: .blue
+                            )
+                            
+                            UKSupportRow(
+                                name: "Samaritans",
+                                number: "116 123",
+                                description: "24/7 emotional support",
+                                icon: "phone.fill",
+                                color: .green
+                            )
+                        }
+                        .padding(.horizontal, isIPad ? 24 : 20)
                     }
                     
                     Spacer(minLength: 100) // Space for tab bar
@@ -415,29 +459,29 @@ struct AddProgressView: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: isIPad ? 32 : 24) {
+                    VStack(spacing: isIPad ? 24 : 24) {
                         // Header
-                        VStack(spacing: isIPad ? 16 : 12) {
+                        VStack(spacing: isIPad ? 12 : 12) {
                             Image(systemName: "chart.line.uptrend.xyaxis")
-                                .font(.system(size: isIPad ? 48 : 40))
+                                .font(.system(size: isIPad ? 36 : 40))
                                 .foregroundColor(themeManager.currentTheme.colors.primary)
                             
                             Text("Track Baby's Progress")
-                                .font(isIPad ? .system(size: 28, weight: .bold) : .title2)
+                                .font(isIPad ? .system(size: 22, weight: .bold) : .title2)
                                 .fontWeight(.bold)
                                 .themedText(style: .primary)
                                 .multilineTextAlignment(.center)
                             
                             Text("Record important measurements and milestones")
-                                .font(isIPad ? .system(size: 18) : .body)
+                                .font(isIPad ? .system(size: 16) : .body)
                                 .themedText(style: .secondary)
                                 .multilineTextAlignment(.center)
                         }
-                        .padding(.top, isIPad ? 24 : 16)
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .padding(.top, isIPad ? 20 : 16)
+                        .padding(.horizontal, isIPad ? 24 : 20)
                         
                         // Form Fields
-                        VStack(spacing: isIPad ? 24 : 20) {
+                        VStack(spacing: isIPad ? 20 : 20) {
                             // Weight Section
                             ProgressFormField(
                                 title: "Weight (kg)",
@@ -446,7 +490,7 @@ struct AddProgressView: View {
                             ) {
                                 HStack {
                                     TextField("Enter weight", text: $weight)
-                                        .font(isIPad ? .system(size: 18) : .body)
+                                        .font(isIPad ? .system(size: 16) : .body)
                                         .keyboardType(.decimalPad)
                                         .textFieldStyle(PlainTextFieldStyle())
                                         .foregroundColor(.white)
@@ -457,7 +501,7 @@ struct AddProgressView: View {
                                                 if weight.isEmpty {
                                                     HStack {
                                                         Text("Enter weight")
-                                                            .font(isIPad ? .system(size: 18) : .body)
+                                                            .font(isIPad ? .system(size: 16) : .body)
                                                             .foregroundColor(DesignSystem.Colors.textPlaceholder)
                                                         Spacer()
                                                     }
@@ -483,7 +527,7 @@ struct AddProgressView: View {
                                 Button(action: { showingBreathingPicker = true }) {
                                     HStack {
                                         Text(breathingSupport)
-                                            .font(isIPad ? .system(size: 18) : .body)
+                                            .font(isIPad ? .system(size: 16) : .body)
                                             .themedText(style: .primary)
                                         
                                         Spacer()
@@ -505,7 +549,7 @@ struct AddProgressView: View {
                                 Button(action: { showingFeedingPicker = true }) {
                                     HStack {
                                         Text(feedingMethod)
-                                            .font(isIPad ? .system(size: 18) : .body)
+                                            .font(isIPad ? .system(size: 16) : .body)
                                             .themedText(style: .primary)
                                         
                                         Spacer()
@@ -526,7 +570,7 @@ struct AddProgressView: View {
                             ) {
                                 HStack {
                                     TextField("Enter temperature", text: $temperature)
-                                        .font(isIPad ? .system(size: 18) : .body)
+                                        .font(isIPad ? .system(size: 16) : .body)
                                         .keyboardType(.decimalPad)
                                         .textFieldStyle(PlainTextFieldStyle())
                                         .foregroundColor(.white)
@@ -537,7 +581,7 @@ struct AddProgressView: View {
                                                 if temperature.isEmpty {
                                                     HStack {
                                                         Text("Enter temperature")
-                                                            .font(isIPad ? .system(size: 18) : .body)
+                                                            .font(isIPad ? .system(size: 16) : .body)
                                                             .foregroundColor(DesignSystem.Colors.textPlaceholder)
                                                         Spacer()
                                                     }
@@ -561,7 +605,7 @@ struct AddProgressView: View {
                                 color: themeManager.currentTheme.colors.textSecondary
                             ) {
                                 TextField("Any additional notes...", text: $notes, axis: .vertical)
-                                    .font(isIPad ? .system(size: 18) : .body)
+                                    .font(isIPad ? .system(size: 16) : .body)
                                     .textFieldStyle(PlainTextFieldStyle())
                                     .foregroundColor(.white)
                                     .accentColor(themeManager.currentTheme.colors.primary)
@@ -573,7 +617,7 @@ struct AddProgressView: View {
                                                 VStack {
                                                     HStack {
                                                         Text("Any additional notes...")
-                                                            .font(isIPad ? .system(size: 18) : .body)
+                                                            .font(isIPad ? .system(size: 16) : .body)
                                                             .foregroundColor(DesignSystem.Colors.textPlaceholder)
                                                         Spacer()
                                                     }
@@ -585,7 +629,7 @@ struct AddProgressView: View {
                                     )
                             }
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .padding(.horizontal, isIPad ? 24 : 20)
                         
                         Spacer(minLength: isIPad ? 40 : 20)
                     }
@@ -652,25 +696,25 @@ struct ProgressFormField<Content: View>: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: isIPad ? 16 : 12) {
-            HStack(spacing: isIPad ? 12 : 8) {
+        VStack(alignment: .leading, spacing: isIPad ? 12 : 12) {
+            HStack(spacing: isIPad ? 10 : 8) {
                 Image(systemName: icon)
-                    .font(isIPad ? .system(size: 20) : .title3)
+                    .font(isIPad ? .system(size: 18) : .title3)
                     .foregroundColor(color)
-                    .frame(width: isIPad ? 24 : 20)
+                    .frame(width: isIPad ? 20 : 20)
                 
                 Text(title)
-                    .font(isIPad ? .system(size: 20, weight: .semibold) : .headline)
+                    .font(isIPad ? .system(size: 18, weight: .semibold) : .headline)
                     .themedText(style: .primary)
             }
             
             content
-                .padding(isIPad ? 20 : 16)
+                .padding(isIPad ? 16 : 16)
                 .background(
-                    RoundedRectangle(cornerRadius: isIPad ? 16 : 12)
+                    RoundedRectangle(cornerRadius: isIPad ? 14 : 12)
                         .fill(themeManager.currentTheme.colors.backgroundSecondary)
                         .overlay(
-                            RoundedRectangle(cornerRadius: isIPad ? 16 : 12)
+                            RoundedRectangle(cornerRadius: isIPad ? 14 : 12)
                                 .stroke(themeManager.currentTheme.colors.border, lineWidth: 1)
                         )
                 )
@@ -705,7 +749,7 @@ struct PickerSheet: View {
                             Button("Cancel") {
                                 dismiss()
                             }
-                            .font(isIPad ? .system(size: 18, weight: .medium) : .body)
+                            .font(isIPad ? .system(size: 16, weight: .medium) : .body)
                             .fontWeight(.medium)
                             .themedText(style: .primary)
                             
@@ -714,35 +758,35 @@ struct PickerSheet: View {
                             Button("Done") {
                                 dismiss()
                             }
-                            .font(isIPad ? .system(size: 18, weight: .semibold) : .body)
+                            .font(isIPad ? .system(size: 16, weight: .semibold) : .body)
                             .fontWeight(.semibold)
                             .foregroundColor(themeManager.currentTheme.colors.primary)
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
-                        .padding(.top, isIPad ? 16 : 12)
-                        .padding(.bottom, isIPad ? 12 : 8)
+                        .padding(.horizontal, isIPad ? 24 : 20)
+                        .padding(.top, isIPad ? 14 : 12)
+                        .padding(.bottom, isIPad ? 10 : 8)
                         
                         // Title Section
                         HStack {
                             Image(systemName: getIconForTitle(title))
-                                .font(.system(size: isIPad ? 32 : 28, weight: .medium))
+                                .font(.system(size: isIPad ? 24 : 28, weight: .medium))
                                 .foregroundColor(themeManager.currentTheme.colors.primary)
                             
                             VStack(alignment: .leading, spacing: 4) {
                                 Text(title)
-                                    .font(isIPad ? .system(size: 28, weight: .bold) : .title2)
+                                    .font(isIPad ? .system(size: 22, weight: .bold) : .title2)
                                     .fontWeight(.bold)
                                     .themedText(style: .primary)
                                 
                                 Text("Select an option")
-                                    .font(isIPad ? .system(size: 18) : .body)
+                                    .font(isIPad ? .system(size: 16) : .body)
                                     .themedText(style: .secondary)
                             }
                             
                             Spacer()
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
-                        .padding(.bottom, isIPad ? 24 : 20)
+                        .padding(.horizontal, isIPad ? 24 : 20)
+                        .padding(.bottom, isIPad ? 20 : 20)
                     }
                     .background(themeManager.currentTheme.colors.background.opacity(0.95))
                     
@@ -787,7 +831,7 @@ struct PickerSheet: View {
                                 .buttonStyle(PlainButtonStyle())
                             }
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .padding(.horizontal, isIPad ? 24 : 20)
                         .padding(.top, isIPad ? 20 : 16)
                         .padding(.bottom, isIPad ? 40 : 20)
                     }

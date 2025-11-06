@@ -1,0 +1,28 @@
+"ui.save" = "Salva";
+"ui.cancel" = "Annulla";
+"ui.note.placeholder" = "Aggiungi una breve nota";
+"ui.journal.quick" = "Diario rapido";
+"ui.tip.title" = "Consiglio del giorno";
+"ui.see.next" = "Vedi un altro";
+"ui.add.to.journal" = "Salva nel diario";
+
+"tip.breathe.box" = "Prova la respirazione a scatola: 4 dentro, 4 pausa, 4 fuori, 4 pausa.";
+"tip.micro.walk" = "Una camminata di 2 minuti può ridurre lo stress.";
+"tip.hydration" = "Bevi acqua regolarmente; aiutano le bottiglie piccole.";
+"tip.ask.questions" = "Scrivi 2 domande da fare al team sanitario.";
+"tip.skin.to.skin" = "Se possibile, prova qualche minuto di contatto pelle a pelle.";
+"tip.note.small.wins" = "Annota un piccolo successo di oggi — nessuno è troppo piccolo.";
+"tip.rest.catnap" = "Schiaccia un pisolino quando puoi; imposta un timer da 15 minuti.";
+
+
+"checkin.title" = "Controllo rapido";
+"checkin.stress" = "Stress";
+"checkin.sleep" = "Sonno (ore)";
+"checkin.submit" = "Salva controllo";
+"checkin.tip.header" = "Suggerimento di coping";
+"checkin.tip.rest.first" = "Stai facendo tanto. Prima un breve riposo, poi un piccolo compito.";
+"checkin.tip.breath.box" = "Respirazione a scatola: 4 inspira, 4 pausa, 4 espira, 4 pausa.";
+"checkin.tip.sleep.hygiene" = "Meno caffeina tardi, luci soffuse e 15 min per rilassarti.";
+"checkin.tip.micro.walk" = "Una camminata o stretching di 2 minuti può resettare lo stress.";
+"checkin.tip.keep.going" = "Avanti così—i piccoli passi contano. Annota un successo di oggi.";
+"checkin.saved.at" = "Salvato alle %@";

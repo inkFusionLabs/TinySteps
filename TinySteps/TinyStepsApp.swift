@@ -17,6 +17,7 @@ struct TinyStepsApp: App {
     @StateObject private var dataManager = BabyDataManager()
     @StateObject private var notificationManager = BabyDataManager()
     @StateObject private var themeManager = ThemeManager.shared
+    @StateObject private var countryContext = CountryContext()
     @AppStorage("isLoggedIn") private var isLoggedIn: Bool = true
     @AppStorage("app_passcode") private var appPasscode: String = ""
     @State private var showAuth: Bool = false
@@ -35,6 +36,9 @@ struct TinyStepsApp: App {
                 .environmentObject(dataManager)
                 .environmentObject(notificationManager)
                 .environmentObject(themeManager)
+                .environmentObject(countryContext)
+                .environmentObject(DataPersistenceManager.shared)
+                .environment(\.sizeCategory, UIDevice.current.userInterfaceIdiom == .pad ? .extraLarge : .large)
                 .onOpenURL { url in
                     guard url.scheme == "tinysteps",
                           url.host == "category",

@@ -15,6 +15,7 @@ class DataPersistenceManager: ObservableObject {
     @Published var progressEntries: [ProgressEntry] = []
     @Published var memoryItems: [MemoryItem] = []
     @Published var userPreferences: UserPreferences = UserPreferences()
+    @Published var nurseShifts: [NurseShiftRecord] = []
     
     private let userDefaults = UserDefaults.standard
     
@@ -145,12 +146,39 @@ class DataPersistenceManager: ObservableObject {
         }
     }
     
+    // MARK: - Nurse Shifts
+    func addNurseShift(_ record: NurseShiftRecord) {
+        nurseShifts.append(record)
+        saveNurseShifts()
+        objectWillChange.send()
+    }
+    
+    func deleteNurseShift(atOffsets offsets: IndexSet) {
+        nurseShifts.remove(atOffsets: offsets)
+        saveNurseShifts()
+        objectWillChange.send()
+    }
+    
+    private func saveNurseShifts() {
+        if let data = try? JSONEncoder().encode(nurseShifts) {
+            userDefaults.set(data, forKey: "nurseShifts")
+        }
+    }
+    
+    private func loadNurseShifts() {
+        if let data = userDefaults.data(forKey: "nurseShifts"),
+           let shifts = try? JSONDecoder().decode([NurseShiftRecord].self, from: data) {
+            nurseShifts = shifts
+        }
+    }
+    
     // MARK: - Load All Data
     private func loadData() {
         loadJournalEntries()
         loadProgressEntries()
         loadMemoryItems()
         loadUserPreferences()
+        loadNurseShifts()
     }
     
     // MARK: - Export Data
@@ -214,6 +242,21 @@ struct ExportData: Codable {
     let memoryItems: [MemoryItem]
     let exportDate: Date
     var appVersion: String = "1.0.0"
+}
+
+// MARK: - Nurse Shift Model
+struct NurseShiftRecord: Identifiable, Codable {
+    var id = UUID()
+    var nurseName: String
+    var date: Date
+    var notes: String?
+    
+    init(nurseName: String, date: Date = Date(), notes: String? = nil) {
+        self.id = UUID()
+        self.nurseName = nurseName
+        self.date = date
+        self.notes = notes
+    }
 }
 
 // MARK: - Sample Data

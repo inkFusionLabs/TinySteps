@@ -6,11 +6,19 @@
 //
 
 import SwiftUI
+import UIKit
 
 struct NICUInfoView: View {
     @EnvironmentObject var themeManager: ThemeManager
+    @StateObject private var performanceManager = DevicePerformanceManager.shared
     @State private var selectedCategory = NICUCategory.breathing
     @State private var searchText = ""
+    @State private var debouncedSearchText = ""
+    @State private var searchTask: DispatchWorkItem?
+    
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
     
     enum NICUCategory: String, CaseIterable {
         case breathing = "Breathing"
@@ -18,6 +26,7 @@ struct NICUInfoView: View {
         case monitoring = "Monitoring"
         case procedures = "Procedures"
         case general = "General"
+        case support = "Support"
         
         var icon: String {
             switch self {
@@ -26,6 +35,7 @@ struct NICUInfoView: View {
             case .monitoring: return "heart.fill"
             case .procedures: return "cross.fill"
             case .general: return "info.circle.fill"
+            case .support: return "heart.fill"
             }
         }
         
@@ -36,18 +46,19 @@ struct NICUInfoView: View {
             case .monitoring: return .red
             case .procedures: return .purple
             case .general: return .gray
+            case .support: return .green
             }
         }
     }
     
     var filteredTerms: [NICUTerm] {
         let terms = NICUTerm.allTerms(for: selectedCategory)
-        if searchText.isEmpty {
+        if debouncedSearchText.isEmpty {
             return terms
         } else {
             return terms.filter { term in
-                term.term.localizedCaseInsensitiveContains(searchText) ||
-                term.definition.localizedCaseInsensitiveContains(searchText)
+                term.term.localizedCaseInsensitiveContains(debouncedSearchText) ||
+                term.definition.localizedCaseInsensitiveContains(debouncedSearchText)
             }
         }
     }
@@ -63,18 +74,18 @@ struct NICUInfoView: View {
                     HStack {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("NICU Glossary")
-                                .font(.title2)
+                                .font(isIPad ? .largeTitle : .title2)
                                 .fontWeight(.bold)
                                 .themedText(style: .primary)
                             
                             Text("Medical terms explained for dads")
-                                .font(.subheadline)
+                                .font(isIPad ? .headline : .subheadline)
                                 .themedText(style: .secondary)
                         }
                         Spacer()
                     }
                     .padding(.horizontal)
-                    .padding(.top, 20)
+                    .padding(.top, isIPad ? 28 : 20)
                     
                     // Search Bar
                     HStack {
@@ -82,9 +93,19 @@ struct NICUInfoView: View {
                             .foregroundColor(.gray)
                         
                         TextField("Search terms...", text: $searchText)
+                            .font(isIPad ? .headline : .body)
                             .textFieldStyle(PlainTextFieldStyle())
+                            .onChange(of: searchText) { _, newValue in
+                                // Debounce search input
+                                searchTask?.cancel()
+                                let task = DispatchWorkItem {
+                                    debouncedSearchText = newValue
+                                }
+                                searchTask = task
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3, execute: task)
+                            }
                     }
-                    .padding()
+                    .padding(isIPad ? 18 : 14)
                     .background(
                         RoundedRectangle(cornerRadius: 12)
                             .fill(Color.white.opacity(0.1))
@@ -110,23 +131,37 @@ struct NICUInfoView: View {
                                 isSelected: selectedCategory == category,
                                 color: category.color
                             ) {
+                                // Prevent rapid category switching
+                                guard selectedCategory != category else { return }
+                                // Immediate state change, animation follows
                                 selectedCategory = category
+                                searchText = ""
+                                debouncedSearchText = ""
+                                // Smooth animation after state change - optimized for device
+                                withAnimation(performanceManager.optimizedAnimation(duration: 0.15)) {
+                                    // Animation handled by state change
+                                }
                             }
                         }
                     }
                     .padding(.horizontal)
                 }
-                .padding(.vertical, 16)
+                .padding(.vertical, isIPad ? 20 : 16)
                 
                 // Terms List
                 ScrollView {
-                    LazyVStack(spacing: 12) {
+                    LazyVStack(spacing: isIPad ? 16 : 12) {
                         ForEach(filteredTerms, id: \.term) { term in
                             NICUTermCard(term: term, color: selectedCategory.color)
+                                .performanceOptimized()
                         }
                     }
                     .padding(.horizontal)
-                    .padding(.bottom, 100) // Space for tab bar
+                    .padding(.bottom, isIPad ? 120 : 100) // Space for tab bar
+                }
+                .onDisappear {
+                    // Clean up search task when view disappears
+                    searchTask?.cancel()
                 }
             }
         }
@@ -140,56 +175,77 @@ struct CategoryButton: View {
     let color: Color
     let action: () -> Void
     
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+    
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            // Immediate action execution
+            HapticFeedback.light()
+            action()
+        }) {
             HStack(spacing: 8) {
                 Image(systemName: category.icon)
-                    .font(.caption)
+                    .font(isIPad ? .subheadline : .caption)
                 
                 Text(category.rawValue)
-                    .font(.subheadline)
+                    .font(isIPad ? .headline : .subheadline)
                     .fontWeight(.medium)
             }
             .foregroundColor(isSelected ? .white : color)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
+            .padding(.horizontal, isIPad ? 20 : 16)
+            .padding(.vertical, isIPad ? 10 : 8)
+            .frame(minHeight: isIPad ? 48 : 44)
             .background(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: isIPad ? 24 : 20)
                     .fill(isSelected ? color : color.opacity(0.2))
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 20)
+                RoundedRectangle(cornerRadius: isIPad ? 24 : 20)
                     .stroke(color, lineWidth: isSelected ? 0 : 1)
             )
         }
         .buttonStyle(PlainButtonStyle())
+        .accessibilityLabel(Text("Category: \(category.rawValue)"))
     }
 }
 
 // MARK: - NICU Term Card
-struct NICUTermCard: View {
+struct NICUTermCard: View, Equatable {
     let term: NICUTerm
     let color: Color
+    @StateObject private var performanceManager = DevicePerformanceManager.shared
     @State private var isExpanded = false
+    @State private var isPressed = false
+    
+    static func == (lhs: NICUTermCard, rhs: NICUTermCard) -> Bool {
+        lhs.term.term == rhs.term.term
+    }
+    
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             Button(action: {
-                withAnimation(.easeInOut(duration: 0.3)) {
-                    isExpanded.toggle()
-                }
+                // Immediate haptic feedback
+                HapticFeedback.light()
+                // Execute action immediately
+                isExpanded.toggle()
             }) {
                 HStack {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(term.term)
-                            .font(.headline)
+                            .font(isIPad ? .title3 : .headline)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
                             .multilineTextAlignment(.leading)
                         
                         if !isExpanded {
                             Text(term.shortDefinition)
-                                .font(.subheadline)
+                                .font(isIPad ? .body : .subheadline)
                                 .foregroundColor(.white.opacity(0.8))
                                 .lineLimit(2)
                                 .multilineTextAlignment(.leading)
@@ -199,12 +255,29 @@ struct NICUTermCard: View {
                     Spacer()
                     
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(.caption)
+                        .font(isIPad ? .subheadline : .caption)
                         .foregroundColor(color)
                 }
-                .padding()
+                .padding(isIPad ? 18 : 14)
+                .scaleEffect(isPressed ? 0.97 : 1.0)
+                .opacity(isPressed ? 0.9 : 1.0)
             }
             .buttonStyle(PlainButtonStyle())
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { _ in
+                        if !isPressed {
+                            withAnimation(performanceManager.optimizedAnimation(duration: 0.1)) {
+                                isPressed = true
+                            }
+                        }
+                    }
+                    .onEnded { _ in
+                        withAnimation(performanceManager.optimizedAnimation(duration: 0.1)) {
+                            isPressed = false
+                        }
+                    }
+            )
             
             if isExpanded {
                 VStack(alignment: .leading, spacing: 12) {
@@ -213,12 +286,12 @@ struct NICUTermCard: View {
                     
                     VStack(alignment: .leading, spacing: 8) {
                         Text("Definition")
-                            .font(.subheadline)
+                            .font(isIPad ? .headline : .subheadline)
                             .fontWeight(.semibold)
                             .foregroundColor(.white)
                         
                         Text(term.definition)
-                            .font(.body)
+                            .font(isIPad ? .body : .body)
                             .foregroundColor(.white.opacity(0.9))
                             .lineSpacing(4)
                     }
@@ -226,37 +299,37 @@ struct NICUTermCard: View {
                     if !term.dadTip.isEmpty {
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Dad Tip")
-                                .font(.subheadline)
+                                .font(isIPad ? .headline : .subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundColor(color)
                             
                             Text(term.dadTip)
-                                .font(.body)
+                                .font(isIPad ? .body : .body)
                                 .foregroundColor(.white.opacity(0.9))
                                 .lineSpacing(4)
                         }
-                        .padding()
+                        .padding(isIPad ? 16 : 12)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
                                 .fill(color.opacity(0.2))
                         )
                     }
                 }
-                .padding(.horizontal)
-                .padding(.bottom)
+                .padding(.horizontal, isIPad ? 18 : 14)
+                .padding(.bottom, isIPad ? 16 : 12)
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: UIDevice.current.userInterfaceIdiom == .pad ? 20 : 16)
                 .fill(Color.white.opacity(0.1))
                 .background(
-                    RoundedRectangle(cornerRadius: 16)
+                    RoundedRectangle(cornerRadius: UIDevice.current.userInterfaceIdiom == .pad ? 20 : 16)
                         .fill(.ultraThinMaterial)
                         .opacity(0.6)
                 )
         )
         .overlay(
-            RoundedRectangle(cornerRadius: 16)
+            RoundedRectangle(cornerRadius: UIDevice.current.userInterfaceIdiom == .pad ? 20 : 16)
                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
         )
     }
@@ -397,6 +470,44 @@ struct NICUTerm {
                     definition: "A special bed that keeps your baby warm and protected. It has clear sides so you can see your baby, and it helps maintain the perfect temperature and humidity.",
                     dadTip: "Think of it as a cozy, high-tech nest. Your baby is safe and comfortable inside, and you can still touch and talk to them through the openings.",
                     category: .general
+                )
+            ]
+        case .support:
+            return [
+                NICUTerm(
+                    term: "Bliss Charity",
+                    shortDefinition: "UK's leading premature baby charity",
+                    definition: "Bliss is the UK's leading charity for babies born premature or sick. They provide emotional support, information, and advocacy for families throughout the NICU journey.",
+                    dadTip: "Call their free helpline at 0808 801 0322 anytime. They understand what you're going through and can connect you with other NICU dads.",
+                    category: .support
+                ),
+                NICUTerm(
+                    term: "NHS 111",
+                    shortDefinition: "Non-emergency health advice",
+                    definition: "NHS 111 is a free service that provides health advice and information 24/7. Call 111 for non-emergency medical concerns about your baby or yourself.",
+                    dadTip: "Don't hesitate to call if you're worried about your baby or your own mental health. It's better to ask than to worry alone.",
+                    category: .support
+                ),
+                NICUTerm(
+                    term: "Samaritans",
+                    shortDefinition: "24/7 emotional support",
+                    definition: "Samaritans provides free, confidential emotional support 24/7 for anyone in distress. They're there to listen without judgment.",
+                    dadTip: "Call 116 123 anytime you need to talk. Being a NICU dad is emotionally challenging - it's okay to need support.",
+                    category: .support
+                ),
+                NICUTerm(
+                    term: "DadPad",
+                    shortDefinition: "Father-focused support resources",
+                    definition: "DadPad provides specialized resources and support specifically designed for new fathers, including NICU dads. They understand the unique challenges dads face.",
+                    dadTip: "Visit dadpad.co.uk for dad-specific resources and connect with other fathers who understand your journey.",
+                    category: .support
+                ),
+                NICUTerm(
+                    term: "Mind",
+                    shortDefinition: "Mental health charity",
+                    definition: "Mind is a mental health charity providing information, advice, and support for anyone experiencing mental health problems, including NICU parents.",
+                    dadTip: "Call 0300 123 3393 for mental health support. NICU dads often experience anxiety and depression - you're not alone.",
+                    category: .support
                 )
             ]
         }

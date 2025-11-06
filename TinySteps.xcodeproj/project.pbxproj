@@ -205,6 +205,14 @@
 			knownRegions = (
 				en,
 				Base,
+				es,
+				fr,
+				de,
+				it,
+				pt,
+				hi,
+				"zh-Hans",
+				ar,
 			);
 			mainGroup = E78CDA402E2555F10096DEC0;
 			minimizedProjectReferenceProxies = 1;
@@ -409,7 +417,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TinySteps/TinySteps.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2025.01.15;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = B327S99L4N;
 				ENABLE_APP_SANDBOX = YES;
@@ -439,7 +447,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.inkFusionLabs.TinySteps;
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.inkfusionlabs.tinysteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -460,7 +468,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TinySteps/TinySteps.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2025.01.15;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = B327S99L4N;
 				ENABLE_APP_SANDBOX = YES;
@@ -490,7 +498,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 2.0;
+				MARKETING_VERSION = 2.3.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.inkFusionLabs.TinySteps;
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.inkfusionlabs.tinysteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -45,36 +45,6 @@ enum MilestoneCategory: String, CaseIterable, Codable {
     }
 }
 
-enum ReminderCategory: String, CaseIterable, Codable {
-    case all = "All"
-    case feeding = "Feeding"
-    case nappy = "Nappy"
-    case sleep = "Sleep"
-    case medical = "Medical"
-    case personal = "Personal"
-    
-    var icon: String {
-        switch self {
-        case .all: return "list.bullet"
-        case .feeding: return "drop.fill"
-        case .nappy: return "drop"
-        case .sleep: return "bed.double.fill"
-        case .medical: return "cross.fill"
-        case .personal: return "person.fill"
-        }
-    }
-    
-    var color: Color {
-        switch self {
-        case .all: return .blue
-        case .feeding: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
-        case .nappy: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
-        case .sleep: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
-        case .medical: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
-        case .personal: return Color(red: 0.5, green: 0.6, blue: 1.0) // Very light blue
-        }
-    }
-}
 
 // Enhanced Baby Data Models
 struct Baby: Identifiable, Codable {
@@ -115,52 +85,6 @@ struct Baby: Identifiable, Codable {
     var adjustedAgeInDays: Int {
         guard let dueDate = dueDate else { return ageInDays }
         return Calendar.current.dateComponents([.day], from: dueDate, to: Date()).day ?? 0
-    }
-}
-
-// Vaccination Record
-struct VaccinationRecord: Identifiable, Codable {
-    var id: UUID = UUID()
-    let title: String
-    let date: Date
-    var isCompleted: Bool
-    let notes: String?
-}
-
-// Solid Food Record
-struct SolidFoodRecord: Identifiable, Codable {
-    var id: UUID = UUID()
-    let date: Date
-    let foodName: String
-    let reaction: FoodReaction
-    let notes: String?
-    
-    enum FoodReaction: String, CaseIterable, Codable {
-        case loved = "Loved it"
-        case liked = "Liked it"
-        case neutral = "Neutral"
-        case disliked = "Disliked it"
-        case allergic = "Allergic reaction"
-        
-        var icon: String {
-            switch self {
-            case .loved: return "heart.fill"
-            case .liked: return "heart"
-            case .neutral: return "face.neutral"
-            case .disliked: return "face.dashed"
-            case .allergic: return "exclamationmark.triangle.fill"
-            }
-        }
-        
-        var color: Color {
-            switch self {
-            case .loved: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
-            case .liked: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
-            case .neutral: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
-            case .disliked: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
-            case .allergic: return Color(red: 0.5, green: 0.6, blue: 1.0) // Very light blue
-            }
-        }
     }
 }
 
@@ -395,322 +319,12 @@ struct DadAchievement: Identifiable, Codable {
     }
 }
 
-// New Reminder System
-struct Reminder: Identifiable, Codable {
-    var id: UUID = UUID()
-    let title: String
-    let description: String?
-    let date: Date
-    var isCompleted: Bool
-    let category: ReminderCategory
-    let repeatType: RepeatType
-    let time: String
-    let notes: String?
-    
-    init(title: String, description: String?, date: Date, isCompleted: Bool, category: ReminderCategory, repeatType: RepeatType, time: String, notes: String?) {
-        self.title = title
-        self.description = description
-        self.date = date
-        self.isCompleted = isCompleted
-        self.category = category
-        self.repeatType = repeatType
-        self.time = time
-        self.notes = notes
-    }
-    
-    enum RepeatType: String, CaseIterable, Codable {
-        case none = "None"
-        case daily = "Daily"
-        case weekly = "Weekly"
-        case monthly = "Monthly"
-    }
-}
 
-// New Photo Gallery & Memory System
-struct PhotoMemory: Identifiable, Codable {
-    var id: UUID = UUID()
-    let date: Date
-    let imageData: Data
-    let caption: String?
-    let tags: [String]
-    let location: String?
-    let milestone: String?
-    
-    enum MemoryType: String, CaseIterable, Codable {
-        case firstPhoto = "First Photo"
-        case hospital = "Hospital"
-        case homecoming = "Homecoming"
-        case milestone = "Milestone"
-        case daily = "Daily"
-        case special = "Special"
-        
-        var icon: String {
-            switch self {
-            case .firstPhoto: return "camera.fill"
-            case .hospital: return "cross.fill"
-            case .homecoming: return "house.fill"
-            case .milestone: return "star.fill"
-            case .daily: return "calendar"
-            case .special: return "heart.fill"
-            }
-        }
-    }
-}
 
-// Dad's Wellness Tracker
-struct WellnessEntry: Identifiable, Codable {
-    var id: UUID = UUID()
-    let date: Date
-    let sleepHours: Double
-    let stressLevel: StressLevel
-    let energyLevel: EnergyLevel
-    let mood: Mood
-    let notes: String?
-    let activities: [WellnessActivity]
-    
-    enum StressLevel: String, CaseIterable, Codable {
-        case low = "Low"
-        case moderate = "Moderate"
-        case high = "High"
-        case veryHigh = "Very High"
-        
-        var color: Color {
-            switch self {
-            case .low: return .green
-            case .moderate: return .yellow
-            case .high: return .orange
-            case .veryHigh: return .red
-            }
-        }
-    }
-    
-    enum EnergyLevel: String, CaseIterable, Codable {
-        case veryLow = "Very Low"
-        case low = "Low"
-        case moderate = "Moderate"
-        case high = "High"
-        case veryHigh = "Very High"
-        
-        var color: Color {
-            switch self {
-            case .veryLow: return .red
-            case .low: return .orange
-            case .moderate: return .yellow
-            case .high: return .lightGreen
-            case .veryHigh: return .green
-            }
-        }
-    }
-    
-    enum Mood: String, CaseIterable, Codable {
-        case excited = "Excited"
-        case happy = "Happy"
-        case content = "Content"
-        case tired = "Tired"
-        case stressed = "Stressed"
-        case overwhelmed = "Overwhelmed"
-        
-        var emoji: String {
-            switch self {
-            case .excited: return "🤗"
-            case .happy: return "😊"
-            case .content: return "😌"
-            case .tired: return "😴"
-            case .stressed: return "😟"
-            case .overwhelmed: return "😰"
-            }
-        }
-    }
-    
-    enum WellnessActivity: String, CaseIterable, Codable {
-        case exercise = "Exercise"
-        case meditation = "Meditation"
-        case reading = "Reading"
-        case socializing = "Socializing"
-        case rest = "Rest"
-        case selfCare = "Self Care"
-        
-        var icon: String {
-            switch self {
-            case .exercise: return "figure.walk"
-            case .meditation: return "brain.head.profile"
-            case .reading: return "book.fill"
-            case .socializing: return "person.2.fill"
-            case .rest: return "bed.double.fill"
-            case .selfCare: return "heart.fill"
-            }
-        }
-    }
-}
 
-// Partner Support Hub
-struct PartnerSupport: Identifiable, Codable {
-    var id: UUID = UUID()
-    let date: Date
-    let type: SupportType
-    let description: String
-    let duration: Double? // in minutes
-    let notes: String?
-    let partnerMood: PartnerMood?
-    
-    enum SupportType: String, CaseIterable, Codable {
-        case emotional = "Emotional Support"
-        case practical = "Practical Help"
-        case decisionMaking = "Decision Making"
-        case rest = "Rest Support"
-        case feeding = "Feeding Support"
-        case medical = "Medical Support"
-        
-        var icon: String {
-            switch self {
-            case .emotional: return "heart.fill"
-            case .practical: return "hand.raised.fill"
-            case .decisionMaking: return "brain.head.profile"
-            case .rest: return "bed.double.fill"
-            case .feeding: return "drop.fill"
-            case .medical: return "cross.fill"
-            }
-        }
-        
-        var color: Color {
-            switch self {
-            case .emotional: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
-            case .practical: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
-            case .decisionMaking: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
-            case .rest: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
-            case .feeding: return Color(red: 0.5, green: 0.6, blue: 1.0) // Very light blue
-            case .medical: return Color(red: 0.1, green: 0.2, blue: 0.7) // Medium-dark blue
-            }
-        }
-    }
-    
-    enum PartnerMood: String, CaseIterable, Codable {
-        case grateful = "Grateful"
-        case supported = "Supported"
-        case tired = "Tired"
-        case stressed = "Stressed"
-        case happy = "Happy"
-        case overwhelmed = "Overwhelmed"
-        
-        var emoji: String {
-            switch self {
-            case .grateful: return "🙏"
-            case .supported: return "🤗"
-            case .tired: return "😴"
-            case .stressed: return "😟"
-            case .happy: return "😊"
-            case .overwhelmed: return "😰"
-            }
-        }
-    }
-}
 
-// Emergency Contacts & Quick Actions
-struct EmergencyContact: Identifiable, Codable {
-    var id: UUID = UUID()
-    var name: String
-    var relationship: String
-    var phoneNumber: String
-    var isEmergency: Bool
-    var canPickup: Bool
-    var notes: String?
-    
-    enum ContactType: String, CaseIterable, Codable {
-        case partner = "Partner"
-        case family = "Family"
-        case friend = "Friend"
-        case medical = "Medical"
-        case childcare = "Childcare"
-        
-        var icon: String {
-            switch self {
-            case .partner: return "heart.fill"
-            case .family: return "person.3.fill"
-            case .friend: return "person.2.fill"
-            case .medical: return "cross.fill"
-            case .childcare: return "baby.fill"
-            }
-        }
-    }
-}
 
-struct QuickAction: Identifiable, Codable {
-    var id: UUID = UUID()
-    let title: String
-    let description: String
-    let actionType: ActionType
-    let isEnabled: Bool
-    var lastUsed: Date?
-    
-    enum ActionType: String, CaseIterable, Codable {
-        case callPartner = "Call Partner"
-        case callHospital = "Call Hospital"
-        case callPaediatrician = "Call Paediatrician"
-        case emergencyServices = "Emergency Services"
-        case lactationConsultant = "Lactation Consultant"
-        case mentalHealth = "Mental Health Support"
-        
-        var icon: String {
-            switch self {
-            case .callPartner: return "phone.fill"
-            case .callHospital: return "cross.fill"
-            case .callPaediatrician: return "stethoscope"
-            case .emergencyServices: return "exclamationmark.triangle.fill"
-            case .lactationConsultant: return "drop.fill"
-            case .mentalHealth: return "brain.head.profile"
-            }
-        }
-        
-        var color: Color {
-            switch self {
-            case .callPartner: return Color(red: 0.1, green: 0.2, blue: 0.6) // Darker blue
-            case .callHospital: return Color(red: 0.2, green: 0.3, blue: 0.8) // Lighter blue
-            case .callPaediatrician: return Color(red: 0.3, green: 0.4, blue: 0.9) // Medium blue
-            case .emergencyServices: return Color(red: 0.4, green: 0.5, blue: 1.0) // Light blue
-            case .lactationConsultant: return Color(red: 0.5, green: 0.6, blue: 1.0) // Very light blue
-            case .mentalHealth: return Color(red: 0.1, green: 0.2, blue: 0.7) // Medium-dark blue
-            }
-        }
-    }
-}
 
-// Growth Predictions & Development Tracking
-struct GrowthPrediction: Identifiable, Codable {
-    var id: UUID = UUID()
-    let date: Date
-    let predictedWeight: Double
-    let predictedHeight: Double
-    let predictedHeadCircumference: Double
-    let confidence: Double // 0.0 to 1.0
-    let notes: String?
-}
-
-struct DevelopmentChecklist: Identifiable, Codable {
-    var id: UUID = UUID()
-    let title: String
-    let description: String
-    let category: DevelopmentCategory
-    let expectedAge: Int // in weeks
-    var isCompleted: Bool
-    var completedDate: Date?
-    let notes: String?
-    
-    enum DevelopmentCategory: String, CaseIterable, Codable {
-        case neonatal = "Neonatal"
-        case earlyInfancy = "Early Infancy"
-        case lateInfancy = "Late Infancy"
-        case toddler = "Toddler"
-        
-        var icon: String {
-            switch self {
-            case .neonatal: return "baby.fill"
-            case .earlyInfancy: return "figure.and.child.holdinghands"
-            case .lateInfancy: return "figure.walk"
-            case .toddler: return "figure.run"
-            }
-        }
-    }
-}
 
 // Enhanced Baby Data Models
 struct WeightEntry: Identifiable, Codable {
@@ -740,15 +354,6 @@ class BabyDataManager: ObservableObject {
     @Published var sleepRecords: [SleepRecord] = []
     @Published var milestones: [Milestone] = []
     @Published var achievements: [DadAchievement] = []
-    @Published var reminders: [Reminder] = []
-    @Published var vaccinations: [VaccinationRecord] = []
-    @Published var solidFoodRecords: [SolidFoodRecord] = []
-    @Published var wellnessEntries: [WellnessEntry] = []
-    @Published var partnerSupports: [PartnerSupport] = []
-    @Published var emergencyContacts: [EmergencyContact] = []
-    @Published var quickActions: [QuickAction] = []
-    @Published var growthPredictions: [GrowthPrediction] = []
-    @Published var developmentChecklists: [DevelopmentChecklist] = []
     @Published var appointments: [Appointment] = []
     @Published var healthVisitorVisits: [HealthVisitorVisit] = []
     
@@ -769,25 +374,130 @@ class BabyDataManager: ObservableObject {
     
     // Lazy loading support
     private var isInitialized = false
+    private var lazyLoadingManager = LazyLoadingManager()
     
     // Performance monitoring
+    @Published var performanceMetrics = PerformanceMetrics()
     
     // Memory management
     private let maxRecordsInMemory = 1000
     private var isMemoryOptimized = false
+    
+    // Background processing
+    private let backgroundQueue = DispatchQueue(label: "babyData.background", qos: .utility)
+    private var backgroundTaskID: UIBackgroundTaskIdentifier = .invalid
     
     init() {
         loadData()
         setupDefaultMilestones()
         setupDefaultAchievements()
         isInitialized = true
+        startPerformanceMonitoring()
+    }
+    
+    // MARK: - Performance Optimized Methods
+    
+    private func startPerformanceMonitoring() {
+        // Monitor memory usage
+        Timer.scheduledTimer(withTimeInterval: 30.0, repeats: true) { [weak self] _ in
+            self?.updatePerformanceMetrics()
+        }
+    }
+    
+    private func updatePerformanceMetrics() {
+        let memoryUsage = getMemoryUsage()
+        performanceMetrics.memoryUsage = memoryUsage
+        
+        // Optimize memory if usage is high
+        if memoryUsage > 100 * 1024 * 1024 { // 100MB
+            optimizeMemoryUsage()
+        }
+    }
+    
+    private func getMemoryUsage() -> UInt64 {
+        var info = mach_task_basic_info()
+        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size)/4
+        
+        let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
+            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
+                task_info(mach_task_self_,
+                         task_flavor_t(MACH_TASK_BASIC_INFO),
+                         $0,
+                         &count)
+            }
+        }
+        
+        if kerr == KERN_SUCCESS {
+            return UInt64(info.resident_size)
+        }
+        return 0
+    }
+    
+    private func optimizeMemoryUsage() {
+        // Clear old cached data
+        clearOldCache()
+        
+        // Limit records in memory
+        if feedingRecords.count > maxRecordsInMemory {
+            feedingRecords = Array(feedingRecords.suffix(maxRecordsInMemory))
+        }
+        
+        if nappyRecords.count > maxRecordsInMemory {
+            nappyRecords = Array(nappyRecords.suffix(maxRecordsInMemory))
+        }
+        
+        if sleepRecords.count > maxRecordsInMemory {
+            sleepRecords = Array(sleepRecords.suffix(maxRecordsInMemory))
+        }
+        
+        isMemoryOptimized = true
+    }
+    
+    private func clearOldCache() {
+        cachedTodayFeedingCount = nil
+        cachedTodayNappyCount = nil
+        cachedTodaySleepHours = nil
+        cachedLastFeeding = nil
+        lastCacheUpdate = Date()
+    }
+    
+    // MARK: - Lazy Loading Methods
+    
+    func loadFeedingRecordsLazy(limit: Int = 50) -> [FeedingRecord] {
+        if !lazyLoadingManager.shouldLoadItem("feeding") {
+            return []
+        }
+        
+        let records = Array(feedingRecords.suffix(limit))
+        lazyLoadingManager.markItemAsLoaded("feeding")
+        return records
+    }
+    
+    func loadNappyRecordsLazy(limit: Int = 50) -> [NappyRecord] {
+        if !lazyLoadingManager.shouldLoadItem("nappy") {
+            return []
+        }
+        
+        let records = Array(nappyRecords.suffix(limit))
+        lazyLoadingManager.markItemAsLoaded("nappy")
+        return records
+    }
+    
+    func loadSleepRecordsLazy(limit: Int = 50) -> [SleepRecord] {
+        if !lazyLoadingManager.shouldLoadItem("sleep") {
+            return []
+        }
+        
+        let records = Array(sleepRecords.suffix(limit))
+        lazyLoadingManager.markItemAsLoaded("sleep")
+        return records
     }
     
     // MARK: - Data Recovery
     
     func clearAllData() {
         // Clear all UserDefaults data
-        let keys = ["baby", "feedingRecords", "nappyRecords", "sleepRecords", "milestones", "achievements", "reminders", "vaccinations", "solidFoodRecords", "wellnessEntries", "partnerSupports", "emergencyContacts", "quickActions", "growthPredictions", "developmentChecklists", "appointments"]
+        let keys = ["baby", "feedingRecords", "nappyRecords", "sleepRecords", "milestones", "achievements", "appointments", "healthVisitorVisits"]
         
         for key in keys {
             userDefaults.removeObject(forKey: key)
@@ -823,15 +533,6 @@ class BabyDataManager: ObservableObject {
         sleepRecords = []
         milestones = []
         achievements = []
-        reminders = []
-        vaccinations = []
-        solidFoodRecords = []
-        wellnessEntries = []
-        partnerSupports = []
-        emergencyContacts = []
-        quickActions = []
-        growthPredictions = []
-        developmentChecklists = []
         appointments = []
         healthVisitorVisits = []
         
@@ -850,7 +551,7 @@ class BabyDataManager: ObservableObject {
                 let baby = try JSONDecoder().decode(Baby.self, from: babyData)
                 data["baby"] = baby
             } catch {
-                print("Error decoding baby data: \(error)")
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode baby data: \(error.localizedDescription)"))
             }
         }
         
@@ -860,7 +561,7 @@ class BabyDataManager: ObservableObject {
                 let feedings = try JSONDecoder().decode([FeedingRecord].self, from: feedingData)
                 data["feedingRecords"] = feedings
             } catch {
-                print("Error decoding feeding records: \(error)")
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode feeding records: \(error.localizedDescription)"))
             }
         }
         
@@ -870,7 +571,7 @@ class BabyDataManager: ObservableObject {
                 let nappies = try JSONDecoder().decode([NappyRecord].self, from: nappyData)
                 data["nappyRecords"] = nappies
             } catch {
-                print("Error decoding nappy records: \(error)")
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode nappy records: \(error.localizedDescription)"))
             }
         }
         
@@ -880,7 +581,7 @@ class BabyDataManager: ObservableObject {
                 let sleeps = try JSONDecoder().decode([SleepRecord].self, from: sleepData)
                 data["sleepRecords"] = sleeps
             } catch {
-                print("Error decoding sleep records: \(error)")
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode sleep records: \(error.localizedDescription)"))
             }
         }
         
@@ -890,7 +591,7 @@ class BabyDataManager: ObservableObject {
                 let milestones = try JSONDecoder().decode([Milestone].self, from: milestoneData)
                 data["milestones"] = milestones
             } catch {
-                print("Error decoding milestones: \(error)")
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode milestones: \(error.localizedDescription)"))
             }
         }
         
@@ -900,97 +601,7 @@ class BabyDataManager: ObservableObject {
                 let achievements = try JSONDecoder().decode([DadAchievement].self, from: achievementData)
                 data["achievements"] = achievements
             } catch {
-                print("Error decoding achievements: \(error)")
-            }
-        }
-        
-        // Reminders
-        if let reminderData = self.userDefaults.data(forKey: "reminders") {
-            do {
-                let reminders = try JSONDecoder().decode([Reminder].self, from: reminderData)
-                data["reminders"] = reminders
-            } catch {
-                print("Error decoding reminders: \(error)")
-            }
-        }
-        
-        // Vaccinations
-        if let vaccinationData = self.userDefaults.data(forKey: "vaccinations") {
-            do {
-                let vaccinations = try JSONDecoder().decode([VaccinationRecord].self, from: vaccinationData)
-                data["vaccinations"] = vaccinations
-            } catch {
-                print("Error decoding vaccinations: \(error)")
-            }
-        }
-        
-        // Solid food records
-        if let solidFoodData = self.userDefaults.data(forKey: "solidFoodRecords") {
-            do {
-                let solidFoodRecords = try JSONDecoder().decode([SolidFoodRecord].self, from: solidFoodData)
-                data["solidFoodRecords"] = solidFoodRecords
-            } catch {
-                print("Error decoding solid food records: \(error)")
-            }
-        }
-        
-        // Wellness entries
-        if let wellnessData = self.userDefaults.data(forKey: "wellnessEntries") {
-            do {
-                let wellnessEntries = try JSONDecoder().decode([WellnessEntry].self, from: wellnessData)
-                data["wellnessEntries"] = wellnessEntries
-            } catch {
-                print("Error decoding wellness entries: \(error)")
-            }
-        }
-        
-        // Partner supports
-        if let partnerData = self.userDefaults.data(forKey: "partnerSupports") {
-            do {
-                let partnerSupports = try JSONDecoder().decode([PartnerSupport].self, from: partnerData)
-                data["partnerSupports"] = partnerSupports
-            } catch {
-                print("Error decoding partner supports: \(error)")
-            }
-        }
-        
-        // Emergency contacts
-        if let contactData = self.userDefaults.data(forKey: "emergencyContacts") {
-            do {
-                let emergencyContacts = try JSONDecoder().decode([EmergencyContact].self, from: contactData)
-                data["emergencyContacts"] = emergencyContacts
-            } catch {
-                print("Error decoding emergency contacts: \(error)")
-            }
-        }
-        
-        // Quick actions
-        if let quickActionData = self.userDefaults.data(forKey: "quickActions") {
-            do {
-                let quickActions = try JSONDecoder().decode([QuickAction].self, from: quickActionData)
-                data["quickActions"] = quickActions
-            } catch {
-                print("Error decoding quick actions: \(error)")
-            }
-        }
-        
-        // Growth predictions
-        if let growthData = self.userDefaults.data(forKey: "growthPredictions") {
-            do {
-                let growthPredictions = try JSONDecoder().decode([GrowthPrediction].self, from: growthData)
-                data["growthPredictions"] = growthPredictions
-            } catch {
-                print("Error decoding growth predictions: \(error)")
-            }
-        }
-        
-        // Development checklists
-        if let checklistData = self.userDefaults.data(forKey: "developmentChecklists") {
-            do {
-                let developmentChecklists = try JSONDecoder().decode([DevelopmentChecklist].self, from: checklistData)
-                data["developmentChecklists"] = developmentChecklists
-            } catch {
-                print("Error decoding development checklists: \(error)")
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode achievements: \(error.localizedDescription)"))
             }
         }
         
@@ -1000,7 +611,7 @@ class BabyDataManager: ObservableObject {
                 let appointments = try JSONDecoder().decode([Appointment].self, from: appointmentData)
                 data["appointments"] = appointments
             } catch {
-                print("Error decoding appointments: \(error)")
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode appointments: \(error.localizedDescription)"))
             }
         }
         
@@ -1010,7 +621,7 @@ class BabyDataManager: ObservableObject {
                 let healthVisitorVisits = try JSONDecoder().decode([HealthVisitorVisit].self, from: visitData)
                 data["healthVisitorVisits"] = healthVisitorVisits
             } catch {
-                print("Error decoding health visitor visits: \(error)")
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode health visitor visits: \(error.localizedDescription)"))
             }
         }
         
@@ -1024,15 +635,6 @@ class BabyDataManager: ObservableObject {
         sleepRecords = data["sleepRecords"] as? [SleepRecord] ?? []
         milestones = data["milestones"] as? [Milestone] ?? []
         achievements = data["achievements"] as? [DadAchievement] ?? []
-        reminders = data["reminders"] as? [Reminder] ?? []
-        vaccinations = data["vaccinations"] as? [VaccinationRecord] ?? []
-        solidFoodRecords = data["solidFoodRecords"] as? [SolidFoodRecord] ?? []
-        wellnessEntries = data["wellnessEntries"] as? [WellnessEntry] ?? []
-        partnerSupports = data["partnerSupports"] as? [PartnerSupport] ?? []
-        emergencyContacts = data["emergencyContacts"] as? [EmergencyContact] ?? []
-        quickActions = data["quickActions"] as? [QuickAction] ?? []
-        growthPredictions = data["growthPredictions"] as? [GrowthPrediction] ?? []
-        developmentChecklists = data["developmentChecklists"] as? [DevelopmentChecklist] ?? []
         appointments = data["appointments"] as? [Appointment] ?? []
         healthVisitorVisits = data["healthVisitorVisits"] as? [HealthVisitorVisit] ?? []
     }
@@ -1118,87 +720,6 @@ class BabyDataManager: ObservableObject {
         queue.async {
             if let data = try? encoder.encode(self.achievements) {
                 self.userDefaults.set(data, forKey: "achievements")
-            }
-            group.leave()
-        }
-        
-        // Reminders
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.reminders) {
-                self.userDefaults.set(data, forKey: "reminders")
-            }
-            group.leave()
-        }
-        
-        // Vaccinations
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.vaccinations) {
-                self.userDefaults.set(data, forKey: "vaccinations")
-            }
-            group.leave()
-        }
-        
-        // Solid food records
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.solidFoodRecords) {
-                self.userDefaults.set(data, forKey: "solidFoodRecords")
-            }
-            group.leave()
-        }
-        
-        // Wellness entries
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.wellnessEntries) {
-                self.userDefaults.set(data, forKey: "wellnessEntries")
-            }
-            group.leave()
-        }
-        
-        // Partner supports
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.partnerSupports) {
-                self.userDefaults.set(data, forKey: "partnerSupports")
-            }
-            group.leave()
-        }
-        
-        // Emergency contacts
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.emergencyContacts) {
-                self.userDefaults.set(data, forKey: "emergencyContacts")
-            }
-            group.leave()
-        }
-        
-        // Quick actions
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.quickActions) {
-                self.userDefaults.set(data, forKey: "quickActions")
-            }
-            group.leave()
-        }
-        
-        // Growth predictions
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.growthPredictions) {
-                self.userDefaults.set(data, forKey: "growthPredictions")
-            }
-            group.leave()
-        }
-        
-        // Development checklists
-        group.enter()
-        queue.async {
-            if let data = try? encoder.encode(self.developmentChecklists) {
-                self.userDefaults.set(data, forKey: "developmentChecklists")
             }
             group.leave()
         }
@@ -1414,25 +935,6 @@ class BabyDataManager: ObservableObject {
         isMemoryOptimized = false
     }
     
-    func optimizeMemoryUsage() {
-        // Limit records in memory
-        if feedingRecords.count > maxRecordsInMemory {
-            feedingRecords = Array(feedingRecords.prefix(maxRecordsInMemory))
-        }
-        
-        if nappyRecords.count > maxRecordsInMemory {
-            nappyRecords = Array(nappyRecords.prefix(maxRecordsInMemory))
-        }
-        
-        if sleepRecords.count > maxRecordsInMemory {
-            sleepRecords = Array(sleepRecords.prefix(maxRecordsInMemory))
-        }
-        
-        // Memory optimization complete
-        
-        invalidateCache()
-        saveData()
-    }
     
     func preloadData() {
         // Data is already loaded when needed
@@ -1604,25 +1106,6 @@ class BabyDataManager: ObservableObject {
         }
     }
     
-    // Updated vaccination schedule for 2025
-    private func setupDefaultVaccinations() {
-        if vaccinations.isEmpty {
-            vaccinations = [
-                VaccinationRecord(title: "8 weeks - 6-in-1 vaccine", date: Calendar.current.date(byAdding: .weekOfYear, value: 8, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "8 weeks - Rotavirus vaccine", date: Calendar.current.date(byAdding: .weekOfYear, value: 8, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "8 weeks - MenB vaccine", date: Calendar.current.date(byAdding: .weekOfYear, value: 8, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "12 weeks - 6-in-1 vaccine (2nd dose)", date: Calendar.current.date(byAdding: .weekOfYear, value: 12, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "12 weeks - Rotavirus vaccine (2nd dose)", date: Calendar.current.date(byAdding: .weekOfYear, value: 12, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "12 weeks - PCV vaccine", date: Calendar.current.date(byAdding: .weekOfYear, value: 12, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "16 weeks - 6-in-1 vaccine (3rd dose)", date: Calendar.current.date(byAdding: .weekOfYear, value: 16, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "16 weeks - MenB vaccine (2nd dose)", date: Calendar.current.date(byAdding: .weekOfYear, value: 16, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "1 year - Hib/MenC vaccine", date: Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "1 year - MMR vaccine", date: Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "1 year - PCV vaccine (2nd dose)", date: Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date(), isCompleted: false, notes: nil),
-                VaccinationRecord(title: "1 year - MenB vaccine (3rd dose)", date: Calendar.current.date(byAdding: .year, value: 1, to: Date()) ?? Date(), isCompleted: false, notes: nil)
-            ]
-        }
-    }
     
     private func checkAchievements() {
         // Check First Feed
@@ -1658,111 +1141,10 @@ class BabyDataManager: ObservableObject {
         }
     }
     
-    // MARK: - Reminder Methods
-    func addReminder(_ reminder: Reminder) {
-        reminders.append(reminder)
-        saveData()
-    }
-    
     // MARK: - Milestone Methods
     func addMilestone(_ milestone: Milestone) {
         milestones.append(milestone)
         saveData()
-    }
-    
-    func completeReminder(_ reminder: Reminder) {
-        if let index = reminders.firstIndex(where: { $0.id == reminder.id }) {
-            reminders[index].isCompleted = true
-            saveData()
-        }
-    }
-    
-    func getUpcomingReminders() -> [Reminder] {
-        let now = Date()
-        return reminders.filter { !$0.isCompleted && $0.date > now }.sorted { $0.date < $1.date }
-    }
-    
-    // MARK: - Wellness Methods
-    func addWellnessEntry(_ entry: WellnessEntry) {
-        wellnessEntries.append(entry)
-        saveData()
-    }
-    
-    func getTodayWellness() -> WellnessEntry? {
-        let today = Calendar.current.startOfDay(for: Date())
-        return wellnessEntries.first { Calendar.current.isDate($0.date, inSameDayAs: today) }
-    }
-    
-    func getWeeklyWellnessTrend() -> [WellnessEntry] {
-        let weekAgo = Calendar.current.date(byAdding: .day, value: -7, to: Date()) ?? Date()
-        return wellnessEntries.filter { $0.date >= weekAgo }.sorted { $0.date < $1.date }
-    }
-    
-    // MARK: - Partner Support Methods
-    func addPartnerSupport(_ support: PartnerSupport) {
-        partnerSupports.append(support)
-        saveData()
-    }
-    
-    func getTodaySupport() -> [PartnerSupport] {
-        let today = Calendar.current.startOfDay(for: Date())
-        return partnerSupports.filter { Calendar.current.isDate($0.date, inSameDayAs: today) }
-    }
-    
-    // MARK: - Emergency Contact Methods
-    func addEmergencyContact(_ contact: EmergencyContact) {
-        emergencyContacts.append(contact)
-        saveData()
-    }
-    
-    func getEmergencyContacts() -> [EmergencyContact] {
-        return emergencyContacts.filter { $0.isEmergency }.sorted { $0.name < $1.name }
-    }
-    
-    func getPickupContacts() -> [EmergencyContact] {
-        return emergencyContacts.filter { $0.canPickup }.sorted { $0.name < $1.name }
-    }
-    
-    // MARK: - Quick Action Methods
-    func addQuickAction(_ action: QuickAction) {
-        quickActions.append(action)
-        saveData()
-    }
-    
-    func updateQuickActionUsage(_ action: QuickAction) {
-        if let index = quickActions.firstIndex(where: { $0.id == action.id }) {
-            quickActions[index].lastUsed = Date()
-            saveData()
-        }
-    }
-    
-    // MARK: - Growth Prediction Methods
-    func addGrowthPrediction(_ prediction: GrowthPrediction) {
-        growthPredictions.append(prediction)
-        saveData()
-    }
-    
-    func getLatestPrediction() -> GrowthPrediction? {
-        return growthPredictions.sorted { $0.date > $1.date }.first
-    }
-    
-    // MARK: - Development Checklist Methods
-    func addDevelopmentChecklist(_ checklist: DevelopmentChecklist) {
-        developmentChecklists.append(checklist)
-        saveData()
-    }
-    
-    func completeChecklist(_ checklist: DevelopmentChecklist) {
-        if let index = developmentChecklists.firstIndex(where: { $0.id == checklist.id }) {
-            developmentChecklists[index].isCompleted = true
-            developmentChecklists[index].completedDate = Date()
-            saveData()
-        }
-    }
-    
-    func getUpcomingChecklists() -> [DevelopmentChecklist] {
-        let babyAge = baby?.ageInWeeks ?? 0
-        return developmentChecklists.filter { !$0.isCompleted && $0.expectedAge <= babyAge + 4 }
     }
     
     // MARK: - Appointment Methods

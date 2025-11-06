@@ -180,7 +180,6 @@ enum ChangeType: String, Codable, CaseIterable {
     case appointmentUpdate = "appointment_update"
     case appointmentDelete = "appointment_delete"
     case trackingRecord = "tracking_record"
-    case emergencyContact = "emergency_contact"
     
     var description: String {
         switch self {
@@ -200,8 +199,6 @@ enum ChangeType: String, Codable, CaseIterable {
             return "Appointment Deletion"
         case .trackingRecord:
             return "Tracking Record"
-        case .emergencyContact:
-            return "Emergency Contact"
         }
     }
 }
@@ -324,13 +321,6 @@ extension OfflineDataManager {
         }
     }
     
-    // MARK: - Emergency Contact Sync
-    func syncEmergencyContact(_ contact: EmergencyContact) {
-        if let data = try? JSONEncoder().encode(contact) {
-            let change = PendingChange(type: .emergencyContact, data: data)
-            addPendingChange(change)
-        }
-    }
 }
 
 // MARK: - Offline Status View

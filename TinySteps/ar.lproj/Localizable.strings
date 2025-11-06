@@ -1,0 +1,28 @@
+"ui.save" = "حفظ";
+"ui.cancel" = "إلغاء";
+"ui.note.placeholder" = "أضف ملاحظة قصيرة";
+"ui.journal.quick" = "مذكّرة سريعة";
+"ui.tip.title" = "نصيحة اليوم";
+"ui.see.next" = "عرض أخرى";
+"ui.add.to.journal" = "حفظ في المذكرة";
+
+"tip.breathe.box" = "جرّب تنفّس الصندوق: ٤ شهيق، ٤ حبس، ٤ زفير، ٤ حبس.";
+"tip.micro.walk" = "مشي لمدة دقيقتين يمكن أن يخفّف التوتر.";
+"tip.hydration" = "اشرب الماء بانتظام؛ الزجاجات الصغيرة تساعد.";
+"tip.ask.questions" = "دوّن سؤالين لطرحِهما على فريق الرعاية.";
+"tip.skin.to.skin" = "إن أمكن، جرّب بضع دقائق من تلامس الجلد.";
+"tip.note.small.wins" = "اكتب إنجازًا صغيرًا اليوم — لا إنجاز صغير جدًا.";
+"tip.rest.catnap" = "غفوة قصيرة عند الإمكان؛ اضبط مؤقّت 15 دقيقة.";
+
+
+"checkin.title" = "فحص سريع";
+"checkin.stress" = "التوتر";
+"checkin.sleep" = "النوم (ساعات)";
+"checkin.submit" = "حفظ الفحص";
+"checkin.tip.header" = "نصيحة للتكيّف";
+"checkin.tip.rest.first" = "أنت تبذل الكثير. استرح قليلًا ثم أنجز مهمة صغيرة.";
+"checkin.tip.breath.box" = "جرّب تنفّس الصندوق: ٤ شهيق، ٤ حبس، ٤ زفير، ٤ حبس.";
+"checkin.tip.sleep.hygiene" = "قلّل الكافيين ليلًا، خفّف الإضاءة واهدأ 15 دقيقة.";
+"checkin.tip.micro.walk" = "المشي/التمدد لدقيقتين قد يخفّف التوتر.";
+"checkin.tip.keep.going" = "تابع—الخطوات الصغيرة تُحتسب. اكتب إنجاز اليوم.";
+"checkin.saved.at" = "تم الحفظ في %@";

@@ -1,0 +1,28 @@
+"ui.save" = "Enregistrer";
+"ui.cancel" = "Annuler";
+"ui.note.placeholder" = "Ajouter une courte note";
+"ui.journal.quick" = "Journal rapide";
+"ui.tip.title" = "Conseil du jour";
+"ui.see.next" = "Voir un autre";
+"ui.add.to.journal" = "Enregistrer dans le journal";
+
+"tip.breathe.box" = "Essayez la respiration en boîte : 4 dedans, 4 pause, 4 dehors, 4 pause.";
+"tip.micro.walk" = "Une marche de 2 minutes peut réduire le stress.";
+"tip.hydration" = "Buvez régulièrement de l'eau ; les petites bouteilles aident.";
+"tip.ask.questions" = "Notez 2 questions à poser à l'équipe soignante.";
+"tip.skin.to.skin" = "Si possible, essayez quelques minutes de peau à peau.";
+"tip.note.small.wins" = "Notez un petit progrès d’aujourd’hui — aucun n’est trop petit.";
+"tip.rest.catnap" = "Faites une micro-sieste quand vous pouvez ; mettez un minuteur de 15 min.";
+
+
+"checkin.title" = "Bilan rapide";
+"checkin.stress" = "Stress";
+"checkin.sleep" = "Sommeil (heures)";
+"checkin.submit" = "Enregistrer le bilan";
+"checkin.tip.header" = "Astuce d'adaptation";
+"checkin.tip.rest.first" = "Vous faites beaucoup. Un court repos, puis une petite tâche.";
+"checkin.tip.breath.box" = "Respiration en boîte : 4 inspire, 4 pause, 4 expire, 4 pause.";
+"checkin.tip.sleep.hygiene" = "Moins de caféine le soir, lumière douce, 15 min pour se poser.";
+"checkin.tip.micro.walk" = "2 minutes de marche/étirements peuvent réduire le stress.";
+"checkin.tip.keep.going" = "Continuez—les petits pas comptent. Notez un progrès du jour.";
+"checkin.saved.at" = "Enregistré à %@";

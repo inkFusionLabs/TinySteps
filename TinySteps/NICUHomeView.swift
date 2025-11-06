@@ -10,12 +10,20 @@ import SwiftUI
 struct NICUHomeView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @EnvironmentObject var themeManager: ThemeManager
+    @StateObject private var performanceOptimizer = PerformanceOptimizer.shared
     @State private var animateContent = false
     @State private var showEncouragement = false
     @State private var showEditContacts = false
     @AppStorage("nicuNurseNumber") private var nicuNurseNumber: String = "Ext. 1234"
     @AppStorage("nicuDoctorNumber") private var nicuDoctorNumber: String = "Ext. 5678"
     @AppStorage("nicuSocialWorkerNumber") private var nicuSocialWorkerNumber: String = "Ext. 9012"
+    
+    // Performance optimizations
+    @State private var isViewVisible = true
+    @State private var cachedQuickStats: QuickStatsData?
+    @State private var lastStatsUpdate = Date()
+    @State private var currentTipIndex: Int = 0
+    @State private var cachedTips: [String] = []
     
     private var isIPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
@@ -28,7 +36,7 @@ struct NICUHomeView: View {
                 .ignoresSafeArea()
             
             ScrollView {
-                VStack(spacing: isIPad ? 80 : 24) {
+                LazyVStack(spacing: isIPad ? 80 : 24) {
                     // NICU Dad Header
                     VStack(spacing: isIPad ? 24 : 16) {
                         HStack {
@@ -125,37 +133,65 @@ struct NICUHomeView: View {
                         .padding(.horizontal, isIPad ? 32 : 20)
                     }
                     
-                    // Baby's Progress Summary
-                    if let baby = dataManager.baby {
-                        VStack(alignment: .leading, spacing: 16) {
-                            Text("\(baby.name)'s Progress")
-                                .font(.headline)
-                                .fontWeight(.semibold)
-                                .themedText(style: .primary)
-                                .padding(.horizontal)
-                            
-                            VStack(spacing: 12) {
-                                NICUProgressRow(
-                                    title: "Weight Today",
-                                    value: "1.2 kg",
-                                    trend: "↗️ +10g",
-                                    color: themeManager.currentTheme.colors.success
-                                )
+                    // Quick Journal Bar
+                    QuickJournalBar()
+                        .padding(.horizontal, isIPad ? 32 : 20)
+                    
+                    // Nurse on Shift Section
+                    NurseShiftSection()
+                        .padding(.horizontal, isIPad ? 32 : 20)
+                    
+                    // Baby's Progress Summary removed; Progress lives on its dedicated tab
+                    
+                    // Tip of the Day
+                    VStack(alignment: .leading, spacing: 16) {
+                        Text(NSLocalizedString("ui.tip.title", comment: "Tip of the Day"))
+                            .font(.headline)
+                            .fontWeight(.semibold)
+                            .themedText(style: .primary)
+                            .padding(.horizontal)
+                        
+                        let tips = cachedTips
+                        if !tips.isEmpty {
+                            let tip = tips[currentTipIndex % tips.count]
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text(tip)
+                                    .font(isIPad ? .title3 : .body)
+                                    .themedText(style: .secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
                                 
-                                NICUProgressRow(
-                                    title: "Breathing Support",
-                                    value: "Room Air",
-                                    trend: "🎉 No oxygen needed",
-                                    color: themeManager.currentTheme.colors.success
-                                )
-                                
-                                NICUProgressRow(
-                                    title: "Feeding",
-                                    value: "Tube + Bottle",
-                                    trend: "🍼 Learning to feed",
-                                    color: themeManager.currentTheme.colors.warning
-                                )
+                                HStack(spacing: 12) {
+                                    Button(action: { currentTipIndex = (currentTipIndex + 1) % tips.count }) {
+                                        Text(NSLocalizedString("ui.see.next", comment: "See another"))
+                                            .font(isIPad ? .headline : .subheadline)
+                                            .foregroundColor(.white)
+                                            .padding(.vertical, isIPad ? 12 : 8)
+                                            .padding(.horizontal, isIPad ? 16 : 12)
+                                            .background(themeManager.currentTheme.colors.accent)
+                                            .cornerRadius(10)
+                                    }
+                                    
+                                    Button(action: { saveTipToJournal(tip) }) {
+                                        Text(NSLocalizedString("ui.add.to.journal", comment: "Save to journal"))
+                                            .font(isIPad ? .headline : .subheadline)
+                                            .foregroundColor(.white)
+                                            .padding(.vertical, isIPad ? 12 : 8)
+                                            .padding(.horizontal, isIPad ? 16 : 12)
+                                            .background(themeManager.currentTheme.colors.primary)
+                                            .cornerRadius(10)
+                                    }
+                                    .accessibilityLabel(Text("Save tip to journal"))
+                                }
                             }
+                            .padding(isIPad ? 20 : 16)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(themeManager.currentTheme.colors.backgroundSecondary)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12)
+                                            .stroke(themeManager.currentTheme.colors.border, lineWidth: 1)
+                                    )
+                            )
                             .padding(.horizontal)
                         }
                     }
@@ -225,6 +261,58 @@ struct NICUHomeView: View {
                         .padding(.horizontal)
                     }
                     
+                    // UK Support Resources
+                    VStack(alignment: .leading, spacing: 16) {
+                        HStack {
+                            Text("UK Support Resources")
+                                .font(.headline)
+                                .fontWeight(.semibold)
+                                .themedText(style: .primary)
+                            
+                            Spacer()
+                            
+                            Image(systemName: "flag.fill")
+                                .font(.title3)
+                                .foregroundColor(.blue)
+                        }
+                        .padding(.horizontal)
+                        
+                        VStack(spacing: 8) {
+                            UKSupportRow(
+                                name: "Bliss Charity",
+                                number: "0808 801 0322",
+                                description: "Premature baby support",
+                                icon: "heart.fill",
+                                color: .pink
+                            )
+                            
+                            UKSupportRow(
+                                name: "NHS 111",
+                                number: "111",
+                                description: "Non-emergency health advice",
+                                icon: "cross.case.fill",
+                                color: .blue
+                            )
+                            
+                            UKSupportRow(
+                                name: "Samaritans",
+                                number: "116 123",
+                                description: "24/7 emotional support",
+                                icon: "phone.fill",
+                                color: .green
+                            )
+                            
+                            UKSupportRow(
+                                name: "Mind",
+                                number: "0300 123 3393",
+                                description: "Mental health support",
+                                icon: "brain.head.profile",
+                                color: .orange
+                            )
+                        }
+                        .padding(.horizontal)
+                    }
+                    
                     Spacer(minLength: 100) // Space for tab bar
                 }
             }
@@ -232,6 +320,13 @@ struct NICUHomeView: View {
         .onAppear {
             withAnimation(.easeInOut(duration: 0.8)) {
                 animateContent = true
+            }
+            // Initialize tip index based on day for determinism
+            if let day = Calendar.current.ordinality(of: .day, in: .year, for: Date()) {
+                currentTipIndex = max(0, day - 1)
+            }
+            if cachedTips.isEmpty {
+                cachedTips = TipsManager.allTips()
             }
         }
         .sheet(isPresented: $showEncouragement) {
@@ -299,6 +394,19 @@ struct NICUActionCard: View {
     }
 }
 
+// MARK: - Save tip to journal helper
+extension NICUHomeView {
+    func saveTipToJournal(_ tip: String) {
+        let entry = JournalEntry(
+            title: NSLocalizedString("ui.tip.title", comment: "Tip of the Day"),
+            content: tip,
+            mood: .neutral,
+            tags: [.hope]
+        )
+        DataPersistenceManager.shared.addJournalEntry(entry)
+    }
+}
+
 // MARK: - NICU Progress Row
 struct NICUProgressRow: View {
     let title: String
@@ -353,28 +461,23 @@ struct EncouragementCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(message)
-                .font(.body)
+                .font(UIDevice.current.userInterfaceIdiom == .pad ? .title3 : .body)
                 .foregroundColor(.white)
                 .multilineTextAlignment(.leading)
             
             Text("— \(author)")
-                .font(.caption)
+                .font(UIDevice.current.userInterfaceIdiom == .pad ? .subheadline : .caption)
                 .foregroundColor(.white.opacity(0.7))
                 .italic()
         }
-        .padding()
+        .padding(UIDevice.current.userInterfaceIdiom == .pad ? 18 : 14)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.1))
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.ultraThinMaterial)
-                        .opacity(0.6)
-                )
-        )
+                .fill(ThemeManager.shared.currentTheme.colors.backgroundSecondary)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        .stroke(ThemeManager.shared.currentTheme.colors.border, lineWidth: 1)
+                )
         )
     }
 }
@@ -387,20 +490,20 @@ struct QuickContactRow: View {
     let color: Color
     
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: UIDevice.current.userInterfaceIdiom == .pad ? 16 : 12) {
             Image(systemName: icon)
-                .font(.title3)
+                .font(UIDevice.current.userInterfaceIdiom == .pad ? .title2 : .title3)
                 .foregroundColor(color)
-                .frame(width: 24)
+                .frame(width: UIDevice.current.userInterfaceIdiom == .pad ? 28 : 24)
             
             VStack(alignment: .leading, spacing: 2) {
                 Text(name)
-                    .font(.subheadline)
+                    .font(UIDevice.current.userInterfaceIdiom == .pad ? .headline : .subheadline)
                     .fontWeight(.medium)
                     .foregroundColor(.white)
                 
                 Text(number)
-                    .font(.caption)
+                    .font(UIDevice.current.userInterfaceIdiom == .pad ? .subheadline : .caption)
                     .foregroundColor(.white.opacity(0.7))
             }
             
@@ -408,23 +511,18 @@ struct QuickContactRow: View {
             
             Button(action: { /* Handle call */ }) {
                 Image(systemName: "phone.fill")
-                    .font(.title3)
+                    .font(UIDevice.current.userInterfaceIdiom == .pad ? .title2 : .title3)
                     .foregroundColor(color)
             }
         }
-        .padding()
+        .padding(UIDevice.current.userInterfaceIdiom == .pad ? 18 : 14)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(Color.white.opacity(0.1))
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(.ultraThinMaterial)
-                        .opacity(0.6)
-                )
-        )
+                .fill(ThemeManager.shared.currentTheme.colors.backgroundSecondary)
         .overlay(
             RoundedRectangle(cornerRadius: 12)
-                .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                        .stroke(ThemeManager.shared.currentTheme.colors.border, lineWidth: 1)
+                )
         )
     }
 }
@@ -638,6 +736,208 @@ struct ContactEditField: View {
                         .stroke(themeManager.currentTheme.colors.border, lineWidth: 1)
                 )
         }
+    }
+}
+
+// MARK: - UK Support Row
+struct UKSupportRow: View {
+    let name: String
+    let number: String
+    let description: String
+    let icon: String
+    let color: Color
+    @EnvironmentObject var themeManager: ThemeManager
+    
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+    
+    var body: some View {
+        Button(action: {
+            if let url = URL(string: "tel:\(number)") {
+                UIApplication.shared.open(url)
+            }
+        }) {
+            HStack(spacing: isIPad ? 16 : 12) {
+                Image(systemName: icon)
+                    .font(.system(size: isIPad ? 24 : 20, weight: .medium))
+                    .foregroundColor(color)
+                    .frame(width: isIPad ? 32 : 28, height: isIPad ? 32 : 28)
+                
+                VStack(alignment: .leading, spacing: isIPad ? 4 : 2) {
+                    Text(name)
+                        .font(isIPad ? .system(size: 20, weight: .semibold) : .headline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.leading)
+                    
+                    Text(description)
+                        .font(isIPad ? .system(size: 16) : .caption)
+                        .foregroundColor(.white.opacity(0.8))
+                        .multilineTextAlignment(.leading)
+                }
+                
+                Spacer()
+                
+                VStack(alignment: .trailing, spacing: isIPad ? 4 : 2) {
+                    Text(number)
+                        .font(isIPad ? .system(size: 18, weight: .semibold) : .subheadline)
+                        .fontWeight(.semibold)
+                        .foregroundColor(color)
+                    
+                    Text("Tap to call")
+                        .font(isIPad ? .system(size: 14) : .caption2)
+                        .foregroundColor(.white.opacity(0.6))
+                }
+            }
+            .padding(.horizontal, isIPad ? 20 : 16)
+            .padding(.vertical, isIPad ? 16 : 12)
+            .background(
+                RoundedRectangle(cornerRadius: isIPad ? 16 : 12)
+                    .fill(Color.white.opacity(0.1))
+                    .background(
+                        RoundedRectangle(cornerRadius: isIPad ? 16 : 12)
+                            .fill(.ultraThinMaterial)
+                            .opacity(0.6)
+                    )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: isIPad ? 16 : 12)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            )
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// MARK: - Performance Optimization Components
+
+struct QuickStatsData {
+    let todayFeedingCount: Int
+    let todayNappyCount: Int
+    let todaySleepHours: Double
+    let lastFeedingTime: Date?
+    let nextFeedingTime: Date?
+    let lastUpdate: Date
+}
+
+// Optimized Quick Stats View
+struct OptimizedQuickStatsView: View {
+    @EnvironmentObject var dataManager: BabyDataManager
+    @StateObject private var performanceOptimizer = PerformanceOptimizer.shared
+    @State private var cachedStats: QuickStatsData?
+    @State private var lastUpdate = Date()
+    
+    private let cacheValidityDuration: TimeInterval = 60 // 1 minute
+    
+    var body: some View {
+        let stats = getCachedStats()
+        
+        VStack(spacing: 16) {
+            HStack(spacing: 20) {
+                QuickStatCard(
+                    title: "Today's Feeds",
+                    value: "\(stats.todayFeedingCount)",
+                    icon: "drop.fill",
+                    color: .blue
+                )
+                
+                QuickStatCard(
+                    title: "Today's Nappies",
+                    value: "\(stats.todayNappyCount)",
+                    icon: "wind",
+                    color: .green
+                )
+            }
+            
+            HStack(spacing: 20) {
+                QuickStatCard(
+                    title: "Sleep Hours",
+                    value: String(format: "%.1fh", stats.todaySleepHours),
+                    icon: "moon.fill",
+                    color: .purple
+                )
+                
+                QuickStatCard(
+                    title: "Last Feed",
+                    value: formatLastFeedingTime(stats.lastFeedingTime),
+                    icon: "clock.fill",
+                    color: .orange
+                )
+            }
+        }
+        .optimized()
+    }
+    
+    private func getCachedStats() -> QuickStatsData {
+        let now = Date()
+        
+        if let cached = cachedStats,
+           now.timeIntervalSince(cached.lastUpdate) < cacheValidityDuration {
+            return cached
+        }
+        
+        let stats = QuickStatsData(
+            todayFeedingCount: dataManager.getTodayFeedingCount(),
+            todayNappyCount: dataManager.getTodayNappyCount(),
+            todaySleepHours: dataManager.getTodaySleepHours(),
+            lastFeedingTime: dataManager.feedingRecords.last?.date,
+            nextFeedingTime: calculateNextFeedingTime(),
+            lastUpdate: now
+        )
+        
+        cachedStats = stats
+        return stats
+    }
+    
+    private func calculateNextFeedingTime() -> Date? {
+        guard let lastFeeding = dataManager.feedingRecords.last else { return nil }
+        return Calendar.current.date(byAdding: .hour, value: 3, to: lastFeeding.date)
+    }
+    
+    private func formatLastFeedingTime(_ date: Date?) -> String {
+        guard let date = date else { return "None" }
+        return Self.timeFormatter.string(from: date)
+    }
+    
+    private static let timeFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.timeStyle = .short
+        return f
+    }()
+}
+
+// Optimized Quick Stat Card
+struct QuickStatCard: View {
+    let title: String
+    let value: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            Image(systemName: icon)
+                .font(.title2)
+                .foregroundColor(color)
+            
+            Text(value)
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundColor(.primary)
+            
+            Text(title)
+                .font(.caption)
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 12)
+                .fill(Color(.systemBackground))
+                .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+        )
+        .optimized()
     }
 }
 

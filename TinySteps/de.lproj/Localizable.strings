@@ -1,0 +1,28 @@
+"ui.save" = "Speichern";
+"ui.cancel" = "Abbrechen";
+"ui.note.placeholder" = "Kurze Notiz hinzufügen";
+"ui.journal.quick" = "Schnelles Journal";
+"ui.tip.title" = "Tipp des Tages";
+"ui.see.next" = "Weiteren anzeigen";
+"ui.add.to.journal" = "Im Journal speichern";
+
+"tip.breathe.box" = "Probieren Sie Box-Atmung: 4 ein, 4 halten, 4 aus, 4 halten.";
+"tip.micro.walk" = "Ein 2‑minütiger Spaziergang kann Stress senken.";
+"tip.hydration" = "Trinken Sie regelmäßig Wasser; kleine Flaschen helfen.";
+"tip.ask.questions" = "Notieren Sie 2 Fragen für das Behandlungsteam.";
+"tip.skin.to.skin" = "Wenn möglich, versuchen Sie ein paar Minuten Hautkontakt.";
+"tip.note.small.wins" = "Notieren Sie einen kleinen Erfolg von heute – keiner ist zu klein.";
+"tip.rest.catnap" = "Machen Sie, wenn möglich, ein Nickerchen; 15‑Minuten-Timer setzen.";
+
+
+"checkin.title" = "Schneller Check-in";
+"checkin.stress" = "Stress";
+"checkin.sleep" = "Schlaf (Stunden)";
+"checkin.submit" = "Check-in speichern";
+"checkin.tip.header" = "Bewältigungstipp";
+"checkin.tip.rest.first" = "Sie leisten viel. Erst kurz ausruhen, dann eine kleine Aufgabe.";
+"checkin.tip.breath.box" = "Box-Atmung: 4 ein, 4 halten, 4 aus, 4 halten.";
+"checkin.tip.sleep.hygiene" = "Spät weniger Koffein, Licht dimmen, 15 Min. runterfahren.";
+"checkin.tip.micro.walk" = "2 Minuten gehen oder dehnen kann Stress resetten.";
+"checkin.tip.keep.going" = "Weiter so—kleine Schritte zählen. Notieren Sie einen Erfolg.";
+"checkin.saved.at" = "Gespeichert um %@";

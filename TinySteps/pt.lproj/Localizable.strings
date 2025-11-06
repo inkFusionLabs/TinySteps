@@ -1,0 +1,28 @@
+"ui.save" = "Salvar";
+"ui.cancel" = "Cancelar";
+"ui.note.placeholder" = "Adicione uma nota curta";
+"ui.journal.quick" = "Diário rápido";
+"ui.tip.title" = "Dica do dia";
+"ui.see.next" = "Ver outra";
+"ui.add.to.journal" = "Salvar no diário";
+
+"tip.breathe.box" = "Tente respiração em caixa: 4 entra, 4 segura, 4 sai, 4 segura.";
+"tip.micro.walk" = "Uma caminhada de 2 minutos pode reduzir o estresse.";
+"tip.hydration" = "Beba água regularmente; garrafas pequenas ajudam.";
+"tip.ask.questions" = "Anote 2 perguntas para a equipe de cuidado.";
+"tip.skin.to.skin" = "Se possível, tente alguns minutos de pele a pele.";
+"tip.note.small.wins" = "Anote uma pequena conquista de hoje — nenhuma é pequena demais.";
+"tip.rest.catnap" = "Tire um cochilo quando puder; ajuste um alarme de 15 minutos.";
+
+
+"checkin.title" = "Check-in rápido";
+"checkin.stress" = "Estresse";
+"checkin.sleep" = "Sono (horas)";
+"checkin.submit" = "Salvar check-in";
+"checkin.tip.header" = "Dica de enfrentamento";
+"checkin.tip.rest.first" = "Você está fazendo muito. Descanse um pouco e faça uma tarefa pequena.";
+"checkin.tip.breath.box" = "Respiração em caixa: 4 inspira, 4 segura, 4 expira, 4 segura.";
+"checkin.tip.sleep.hygiene" = "Menos cafeína à noite, luz baixa e 15 min para desacelerar.";
+"checkin.tip.micro.walk" = "Caminhar/alongar por 2 minutos pode reduzir o estresse.";
+"checkin.tip.keep.going" = "Siga em frente—pequenos passos contam. Anote uma conquista de hoje.";
+"checkin.saved.at" = "Salvo às %@";
