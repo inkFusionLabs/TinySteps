@@ -9,32 +9,21 @@ import SwiftUI
 #if canImport(UIKit)
 import UIKit
 #endif
-// import Firebase
 
 @main
 struct TinyStepsApp: App {
     @State private var selectedTab: ContentView.NavigationTab = .home
     @StateObject private var dataManager = BabyDataManager()
-    @StateObject private var notificationManager = BabyDataManager()
     @StateObject private var themeManager = ThemeManager.shared
     @StateObject private var countryContext = CountryContext()
     @AppStorage("isLoggedIn") private var isLoggedIn: Bool = true
     @AppStorage("app_passcode") private var appPasscode: String = ""
     @State private var showAuth: Bool = false
 
-    init() {
-        // Configure Firebase
-        // FirebaseApp.configure()
-        
-        // Setup enhanced notifications - removed for simplified app
-        // EnhancedNotificationsManager.shared.setupNotificationCategories()
-    }
-
     var body: some Scene {
         WindowGroup {
             ContentView(selectedTab: $selectedTab)
                 .environmentObject(dataManager)
-                .environmentObject(notificationManager)
                 .environmentObject(themeManager)
                 .environmentObject(countryContext)
                 .environmentObject(DataPersistenceManager.shared)

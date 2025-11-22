@@ -169,17 +169,17 @@ class CountryHealthServicesManager: NSObject, ObservableObject {
         "IT": "112",
         "NL": "112",
         "SE": "112",
-        "NO": "112",
+        "NO": "113",
         "DK": "112",
         "FI": "112",
         "JP": "119",
         "KR": "119",
         "CN": "120",
-        "IN": "102",
+        "IN": "108",
         "BR": "192",
         "MX": "911",
-        "AR": "911",
-        "ZA": "10111"
+        "AR": "107",
+        "ZA": "10177"
     ]
     
     override init() {

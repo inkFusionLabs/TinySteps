@@ -20,9 +20,8 @@ struct ResponsiveButtonStyle: SwiftUI.ButtonStyle {
             .onChange(of: configuration.isPressed) { _, newValue in
                 isPressed = newValue
                 if newValue {
-                    // Immediate haptic feedback
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                    impactFeedback.impactOccurred()
+					// Immediate haptic feedback (respects app preference)
+					HapticsPreferences.impact(.light)
                 }
             }
     }
@@ -31,28 +30,23 @@ struct ResponsiveButtonStyle: SwiftUI.ButtonStyle {
 // MARK: - Haptic Feedback Helper
 struct HapticFeedback {
     static func light() {
-        let generator = UIImpactFeedbackGenerator(style: .light)
-        generator.impactOccurred()
+		HapticsPreferences.impact(.light)
     }
     
     static func medium() {
-        let generator = UIImpactFeedbackGenerator(style: .medium)
-        generator.impactOccurred()
+		HapticsPreferences.impact(.medium)
     }
     
     static func heavy() {
-        let generator = UIImpactFeedbackGenerator(style: .heavy)
-        generator.impactOccurred()
+		HapticsPreferences.impact(.heavy)
     }
     
     static func success() {
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.success)
+		HapticsPreferences.notify(.success)
     }
     
     static func error() {
-        let generator = UINotificationFeedbackGenerator()
-        generator.notificationOccurred(.error)
+		HapticsPreferences.notify(.error)
     }
 }
 

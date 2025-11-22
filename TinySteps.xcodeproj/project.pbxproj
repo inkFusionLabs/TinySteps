@@ -29,22 +29,9 @@
 		E78CDA612E2555F50096DEC0 /* TinyStepsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TinyStepsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E72A04472E258B4500810D39 /* Exceptions for "TinySteps" folder in "TinySteps" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = E78CDA482E2555F10096DEC0 /* TinySteps */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		E78CDA4B2E2555F10096DEC0 /* TinySteps */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				E72A04472E258B4500810D39 /* Exceptions for "TinySteps" folder in "TinySteps" target */,
-			);
 			path = TinySteps;
 			sourceTree = "<group>";
 		};
@@ -417,7 +404,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TinySteps/TinySteps.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2025.01.15;
+				CURRENT_PROJECT_VERSION = 2025.10.30;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = B327S99L4N;
 				ENABLE_APP_SANDBOX = YES;
@@ -425,7 +412,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = TinySteps/Info.plist;
+				INFOPLIST_FILE = TinySteps/AppInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TinySteps;
 				INFOPLIST_KEY_NSCameraUsageDescription = "TinySteps uses the camera to let you take photos of your baby's milestones and memories.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "TinySteps uses Face ID to securely access your baby's information and keep your data private.";
@@ -447,7 +434,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 2.3.0;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.inkFusionLabs.TinySteps;
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.inkfusionlabs.tinysteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -468,7 +455,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = TinySteps/TinySteps.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2025.01.15;
+				CURRENT_PROJECT_VERSION = 2025.10.30;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = B327S99L4N;
 				ENABLE_APP_SANDBOX = YES;
@@ -476,7 +463,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = TinySteps/Info.plist;
+				INFOPLIST_FILE = TinySteps/AppInfo.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TinySteps;
 				INFOPLIST_KEY_NSCameraUsageDescription = "TinySteps uses the camera to let you take photos of your baby's milestones and memories.";
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "TinySteps uses Face ID to securely access your baby's information and keep your data private.";
@@ -498,7 +485,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 15.5;
-				MARKETING_VERSION = 2.3.0;
+				MARKETING_VERSION = 2.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.inkFusionLabs.TinySteps;
 				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = com.inkfusionlabs.tinysteps;
 				PRODUCT_NAME = "$(TARGET_NAME)";

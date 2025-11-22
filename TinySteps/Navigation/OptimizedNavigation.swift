@@ -239,6 +239,7 @@ struct NavigationMetrics {
 extension Notification.Name {
     static let navigationOptimizationRequested = Notification.Name("navigationOptimizationRequested")
     static let navigationCacheClearRequested = Notification.Name("navigationCacheClearRequested")
+    static let navigateToTab = Notification.Name("navigateToTab")
 }
 
 // MARK: - Optimized Navigation Link

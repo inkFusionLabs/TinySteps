@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Combine
 #if canImport(UIKit)
 import UIKit
 #endif
@@ -18,7 +19,10 @@ struct ContentView: View {
     @State private var showNameEntry = false
     @Binding var selectedTab: NavigationTab
     @State private var showProfile = false
+	@State private var showSettings = false
     @EnvironmentObject var themeManager: ThemeManager
+    @State private var showTabMenu = false
+    @Namespace private var tabNamespace
     
     // Performance optimizations
     @StateObject private var performanceOptimizer = PerformanceOptimizer.shared
@@ -70,14 +74,17 @@ struct ContentView: View {
                 OnboardingViewNeumorphic(showNameEntry: $showNameEntry)
             }
         } else {
-            // Force iPhone-style layout on all devices (including iPad)
-            iPhoneLayout
-                .onAppear {
-                    print("🔍 iPhone-style Layout is being used on \(UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone")!")
-                    print("🔍 Device Model: \(UIDevice.current.model)")
-                    print("🔍 Device Name: \(UIDevice.current.name)")
-                    print("🔍 User Interface Idiom: \(UIDevice.current.userInterfaceIdiom.rawValue)")
-                }
+            ZStack {
+                AnimatedAppBackground()
+                // Force iPhone-style layout on all devices (including iPad)
+                iPhoneLayout
+            }
+            .onAppear {
+                print("🔍 iPhone-style Layout is being used on \(UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone")!")
+                print("🔍 Device Model: \(UIDevice.current.model)")
+                print("🔍 Device Name: \(UIDevice.current.name)")
+                print("🔍 User Interface Idiom: \(UIDevice.current.userInterfaceIdiom.rawValue)")
+            }
         }
     }
     
@@ -86,12 +93,10 @@ struct ContentView: View {
     // MARK: - iPhone Layout
     private var iPhoneLayout: some View {
         ZStack {
-            // Background
-            themeManager.currentTheme.colors.background
+            themeManager.currentTheme.colors.background.opacity(0.35)
                 .ignoresSafeArea()
             
             VStack(spacing: 0) {
-                // Main Content View
                 Group {
                     switch selectedTab {
                     case .home:
@@ -108,13 +113,17 @@ struct ContentView: View {
                             .optimized()
                     }
                 }
+                .transition(.asymmetric(
+                    insertion: .opacity.combined(with: .scale(scale: 0.98)),
+                    removal: .opacity.combined(with: .scale(scale: 1.02))
+                ))
+                .animation(.spring(response: 0.65, dampingFraction: 0.88), value: selectedTab)
                 .onChange(of: selectedTab) { oldValue, newValue in
                     lastTabChangeTime = Date()
                     print("Tab changed from \(oldValue.title) to \(newValue.title)")
                 }
                 
-                // Glass Effect Bottom Tab Bar
-                GlassTabBar(selectedTab: $selectedTab)
+                Spacer(minLength: 0)
             }
             .sheet(isPresented: $showProfile) {
                 NavigationView {
@@ -122,115 +131,162 @@ struct ContentView: View {
                 }
             }
         }
-        
+		.overlay(alignment: .topTrailing) {
+			Button {
+				showSettings = true
+			} label: {
+				Image(systemName: "gearshape.fill")
+					.font(.system(size: UIDevice.current.userInterfaceIdiom == .pad ? 24 : 18, weight: .semibold))
+					.foregroundColor(.white)
+					.padding(UIDevice.current.userInterfaceIdiom == .pad ? 14 : 10)
+					.background(
+						Capsule()
+							.fill(themeManager.currentTheme.colors.backgroundSecondary.opacity(0.7))
+							.overlay(
+								Capsule()
+									.stroke(themeManager.currentTheme.colors.border, lineWidth: 1)
+							)
+					)
+			}
+			.buttonStyle(PlainButtonStyle())
+			.padding(.top, UIDevice.current.userInterfaceIdiom == .pad ? 30 : 16)
+			.padding(.trailing, UIDevice.current.userInterfaceIdiom == .pad ? 24 : 16)
+		}
+		.sheet(isPresented: $showSettings) {
+			SettingsView()
+				.environmentObject(themeManager)
+		}
+        .overlay(alignment: .bottom) {
+            FloatingTabMenu(
+                isOpen: $showTabMenu,
+                selectedTab: $selectedTab,
+                theme: themeManager.currentTheme.colors,
+                namespace: tabNamespace
+            )
+            .padding(.bottom, UIDevice.current.userInterfaceIdiom == .pad ? 28 : 18)
+            .parallaxed(8)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .navigateToTab)) { output in
+            guard let rawValue = output.userInfo?["tab"] as? String,
+                  let destination = ContentView.NavigationTab(rawValue: rawValue) else { return }
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                selectedTab = destination
+                showTabMenu = false
+            }
+        }
     }
 }
 
-// iPad-specific sidebar components removed
+// MARK: - Floating Tab Menu
 
-// MARK: - iOS 16+ Style Tab Bar with Floating Selected Tab
-struct GlassTabBar: View {
+struct FloatingTabMenu: View {
+    @Binding var isOpen: Bool
     @Binding var selectedTab: ContentView.NavigationTab
-    @EnvironmentObject var themeManager: ThemeManager
-    @State private var animateSelection = false
+    let theme: ThemeColors
+    let namespace: Namespace.ID
+    
+    @State private var isPulsing = false
+    
+    private var isIPad: Bool {
+        UIDevice.current.userInterfaceIdiom == .pad
+    }
+    
+    private var buttonDiameter: CGFloat {
+        isIPad ? 70 : 58
+    }
+    
+    private var pulseDiameter: CGFloat {
+        buttonDiameter + (isIPad ? 8 : 6)
+    }
     
     var body: some View {
-        HStack(spacing: 0) {
-            ForEach(ContentView.NavigationTab.allCases) { tab in
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedTab = tab
-                        animateSelection = true
-                    }
-                }) {
-                    VStack(spacing: 4) {
-                        ZStack {
-                            // Floating pill background for selected tab (iOS 16+ style)
-                            if selectedTab == tab {
-                                RoundedRectangle(cornerRadius: 20)
-                                    .fill(
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                tab.color.opacity(0.3),
-                                                tab.color.opacity(0.2)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .background(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .fill(.ultraThinMaterial)
-                                            .opacity(0.8)
-                                    )
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 20)
-                                            .stroke(tab.color.opacity(0.5), lineWidth: 1)
-                                    )
-                                    .shadow(
-                                        color: tab.color.opacity(0.3),
-                                        radius: 8,
-                                        x: 0,
-                                        y: 4
-                                    )
-                                    .scaleEffect(animateSelection && selectedTab == tab ? 1.05 : 1.0)
-                                    .animation(.spring(response: 0.3, dampingFraction: 0.6), value: animateSelection)
+        VStack(spacing: 18) {
+            if isOpen {
+                HStack(spacing: isIPad ? 16 : 12) {
+                    ForEach(Array(ContentView.NavigationTab.allCases.enumerated()), id: \.element.id) { index, tab in
+                        Button {
+                            withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                selectedTab = tab
+                                isOpen = false
                             }
-                            
-                            // Icon
-                            Image(systemName: tab.icon)
-                                .font(.system(size: 20, weight: selectedTab == tab ? .semibold : .medium))
-                                .foregroundColor(selectedTab == tab ? tab.color : themeManager.currentTheme.colors.textSecondary)
-                                .scaleEffect(selectedTab == tab ? 1.05 : 1.0)
-                                .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selectedTab)
-                        }
-                        .frame(width: 50, height: 50)
-                        
-                        // Label
-                        Text(tab.title)
-                            .font(.system(size: 10, weight: selectedTab == tab ? .semibold : .medium))
-                            .foregroundColor(selectedTab == tab ? tab.color : themeManager.currentTheme.colors.textSecondary)
-                            .opacity(selectedTab == tab ? 1.0 : 0.7)
-                            .animation(.easeInOut(duration: 0.2), value: selectedTab)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 12)
-        .padding(.bottom, 8)
-        .background(
-            // Solid background bar (not floating)
-            Rectangle()
-                .fill(themeManager.currentTheme.colors.backgroundSecondary)
-                .overlay(
-                    Rectangle()
-                        .fill(
-                            LinearGradient(
-                                gradient: Gradient(colors: [
-                                    themeManager.currentTheme.colors.border.opacity(0.2),
-                                    Color.clear
-                                ]),
-                                startPoint: .top,
-                                endPoint: .bottom
+                        } label: {
+                            VStack(spacing: 6) {
+                                Image(systemName: tab.icon)
+                                    .font(.system(size: isIPad ? 22 : 18, weight: .semibold))
+                                    .scaleEffect(selectedTab == tab ? 1.05 : 0.95)
+                                Text(tab.title)
+                                    .font(.caption2)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.vertical, isIPad ? 14 : 10)
+                            .padding(.horizontal, isIPad ? 18 : 14)
+                            .background(
+                                ZStack {
+                                    if selectedTab == tab {
+                                        Capsule()
+                                            .fill(
+                                                LinearGradient(
+                                                    gradient: Gradient(colors: [
+                                                        theme.accent,
+                                                        theme.secondary,
+                                                        theme.info
+                                                    ]),
+                                                    startPoint: .topLeading,
+                                                    endPoint: .bottomTrailing
+                                                )
+                                            )
+                                            .matchedGeometryEffect(id: "tabHighlight", in: namespace)
+                                            .shadow(color: theme.shadow.opacity(0.5), radius: 12, x: 0, y: 6)
+                                    } else {
+                                        Capsule()
+                                            .fill(theme.backgroundSecondary.opacity(0.9))
+                                    }
+                                }
                             )
-                        )
-                        .frame(height: 1)
-                )
-        )
-        .onAppear {
-            // Reset animation state
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                animateSelection = false
+                            .shadow(color: theme.shadow.opacity(0.4), radius: 8, x: 0, y: 4)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        .cascadeAnimation(index: index, delay: 0.05)
+                    }
+                }
+                .padding(.top, 6)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
             }
+            
+            Button {
+                withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                    isOpen.toggle()
+                }
+            } label: {
+                ZStack {
+                    Circle()
+                        .stroke(Color.orange.opacity(0.35), lineWidth: 1.5)
+                        .frame(width: pulseDiameter, height: pulseDiameter)
+                        .scaleEffect(isPulsing ? 1.02 : 0.92)
+                        .opacity(isPulsing ? 0 : 0.7)
+                        .animation(
+                            .easeInOut(duration: 1.8).repeatForever(autoreverses: false),
+                            value: isPulsing
+                        )
+                    Image(systemName: isOpen ? "xmark" : "line.3.horizontal")
+                        .font(.system(size: isIPad ? 28 : 22, weight: .bold))
+                        .foregroundColor(.white)
+                        .frame(width: buttonDiameter, height: buttonDiameter)
+                        .background(
+                            Circle()
+                                .fill(Color.orange)
+                                .shadow(color: Color.orange.opacity(0.45), radius: 14, x: 0, y: 8)
+                        )
+                }
+            }
+            .buttonStyle(PlainButtonStyle())
+        }
+        .padding(.horizontal, isIPad ? 24 : 16)
+        .onAppear {
+            isPulsing = true
         }
     }
 }
-
-// Sidebar components removed
 
 // MARK: - Performance Optimized Components
 
@@ -244,47 +300,5 @@ struct LazyView<Content: View>: View {
     
     var body: some View {
         content()
-    }
-}
-
-// Optimized Tab Bar
-struct OptimizedTabBar: View {
-    @Binding var selectedTab: ContentView.NavigationTab
-    @EnvironmentObject var themeManager: ThemeManager
-    @StateObject private var performanceOptimizer = PerformanceOptimizer.shared
-    
-    var body: some View {
-        HStack(spacing: 0) {
-            ForEach(ContentView.NavigationTab.allCases) { tab in
-                Button(action: {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        selectedTab = tab
-                    }
-                }) {
-                    VStack(spacing: 4) {
-                        Image(systemName: tab.icon)
-                            .font(.system(size: 20, weight: selectedTab == tab ? .semibold : .medium))
-                            .foregroundColor(selectedTab == tab ? tab.color : themeManager.currentTheme.colors.textSecondary)
-                            .scaleEffect(selectedTab == tab ? 1.1 : 1.0)
-                            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: selectedTab)
-                        
-                        Text(tab.title)
-                            .font(.system(size: 10, weight: selectedTab == tab ? .semibold : .medium))
-                            .foregroundColor(selectedTab == tab ? tab.color : themeManager.currentTheme.colors.textSecondary)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                }
-                .buttonStyle(PlainButtonStyle())
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.vertical, 8)
-        .background(
-            RoundedRectangle(cornerRadius: 20)
-                .fill(.ultraThinMaterial)
-                .opacity(0.8)
-        )
-        .optimized()
     }
 }

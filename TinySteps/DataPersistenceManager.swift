@@ -16,6 +16,7 @@ class DataPersistenceManager: ObservableObject {
     @Published var memoryItems: [MemoryItem] = []
     @Published var userPreferences: UserPreferences = UserPreferences()
     @Published var nurseShifts: [NurseShiftRecord] = []
+    @Published var parentQuestions: [ParentQuestion] = []
     
     private let userDefaults = UserDefaults.standard
     
@@ -172,6 +173,45 @@ class DataPersistenceManager: ObservableObject {
         }
     }
     
+    // MARK: - Parent Questions
+    func addParentQuestion(_ question: ParentQuestion) {
+        parentQuestions.append(question)
+        saveParentQuestions()
+    }
+    
+    func updateParentQuestion(_ question: ParentQuestion) {
+        guard let index = parentQuestions.firstIndex(where: { $0.id == question.id }) else { return }
+        parentQuestions[index] = question
+        saveParentQuestions()
+    }
+    
+    func deleteParentQuestion(_ question: ParentQuestion) {
+        parentQuestions.removeAll { $0.id == question.id }
+        saveParentQuestions()
+    }
+    
+    func toggleQuestionAsked(_ question: ParentQuestion) {
+        guard let index = parentQuestions.firstIndex(where: { $0.id == question.id }) else { return }
+        parentQuestions[index].isAsked.toggle()
+        parentQuestions[index].askedDate = parentQuestions[index].isAsked ? Date() : nil
+        saveParentQuestions()
+    }
+    
+    private func saveParentQuestions() {
+        if let data = try? JSONEncoder().encode(parentQuestions) {
+            userDefaults.set(data, forKey: "parentQuestions")
+        }
+    }
+    
+    private func loadParentQuestions() {
+        if let data = userDefaults.data(forKey: "parentQuestions"),
+           let questions = try? JSONDecoder().decode([ParentQuestion].self, from: data) {
+            parentQuestions = questions
+        } else {
+            parentQuestions = sampleParentQuestions
+        }
+    }
+    
     // MARK: - Load All Data
     private func loadData() {
         loadJournalEntries()
@@ -179,6 +219,7 @@ class DataPersistenceManager: ObservableObject {
         loadMemoryItems()
         loadUserPreferences()
         loadNurseShifts()
+        loadParentQuestions()
     }
     
     // MARK: - Export Data
@@ -209,16 +250,27 @@ struct ProgressEntry: Identifiable, Codable {
     var breathingSupport: String
     var feedingMethod: String
     var temperature: Double?
+    var heartRate: Int?
     var notes: String
     var milestones: [String]
     
-    init(date: Date = Date(), weight: Double? = nil, breathingSupport: String = "Room Air", feedingMethod: String = "Tube", temperature: Double? = nil, notes: String = "", milestones: [String] = []) {
+    init(
+        date: Date = Date(),
+        weight: Double? = nil,
+        breathingSupport: String = "Room Air",
+        feedingMethod: String = "Tube",
+        temperature: Double? = nil,
+        heartRate: Int? = nil,
+        notes: String = "",
+        milestones: [String] = []
+    ) {
         self.id = UUID()
         self.date = date
         self.weight = weight
         self.breathingSupport = breathingSupport
         self.feedingMethod = feedingMethod
         self.temperature = temperature
+        self.heartRate = heartRate
         self.notes = notes
         self.milestones = milestones
     }
@@ -284,6 +336,7 @@ private let sampleProgressEntries = [
         breathingSupport: "Room Air",
         feedingMethod: "Tube + Bottle",
         temperature: 36.8,
+        heartRate: 142,
         notes: "Great progress today! Baby is responding well to bottle feeding.",
         milestones: ["First bottle feed", "Weight gain"]
     ),
@@ -293,6 +346,7 @@ private let sampleProgressEntries = [
         breathingSupport: "Oxygen 1L",
         feedingMethod: "Tube only",
         temperature: 36.6,
+        heartRate: 136,
         notes: "Stable day, working on feeding tolerance.",
         milestones: ["Stable breathing"]
     )
@@ -314,3 +368,59 @@ private let sampleMemoryItems = [
         color: .yellow
     )
 ]
+
+private let sampleParentQuestions: [ParentQuestion] = [
+    ParentQuestion(question: "How is our baby's weight gain trending this week?", category: .medical),
+    ParentQuestion(question: "What can we do to help with feeding practice at home?", category: .care),
+    ParentQuestion(question: "Who will be on shift with our baby tonight?", category: .team)
+]
+
+// MARK: - Parent Questions Model
+struct ParentQuestion: Identifiable, Codable {
+    enum Category: String, Codable, CaseIterable, Identifiable {
+        case medical = "Medical"
+        case care = "Care"
+        case bonding = "Bonding"
+        case logistics = "Logistics"
+        case team = "Care Team"
+        case other = "Other"
+        
+        var id: String { rawValue }
+        var icon: String {
+            switch self {
+            case .medical: return "stethoscope"
+            case .care: return "hands.sparkles"
+            case .bonding: return "heart.text.square"
+            case .logistics: return "calendar.badge.clock"
+            case .team: return "person.3.fill"
+            case .other: return "text.badge.plus"
+            }
+        }
+    }
+    
+    var id = UUID()
+    var question: String
+    var category: Category
+    var createdDate: Date = Date()
+    var isAsked: Bool = false
+    var askedDate: Date?
+    var notes: String?
+    
+    init(
+        question: String,
+        category: Category = .other,
+        createdDate: Date = Date(),
+        isAsked: Bool = false,
+        askedDate: Date? = nil,
+        notes: String? = nil
+    ) {
+        self.id = UUID()
+        self.question = question
+        self.category = category
+        self.createdDate = createdDate
+        self.isAsked = isAsked
+        self.askedDate = askedDate
+        self.notes = notes
+    }
+}
+

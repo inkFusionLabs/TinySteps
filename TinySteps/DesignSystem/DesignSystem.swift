@@ -12,6 +12,16 @@ class ThemeManager: ObservableObject {
     static let shared = ThemeManager()
     
     @Published var currentTheme: AppTheme = .organic
+	
+	private let themeStorageKey = "app_theme"
+	
+	init() {
+		// Load saved theme if available
+		if let saved = UserDefaults.standard.string(forKey: themeStorageKey),
+		   let savedTheme = AppTheme(rawValue: saved) {
+			currentTheme = savedTheme
+		}
+	}
     
     enum AppTheme: String, CaseIterable {
         case organic = "Organic"
@@ -32,6 +42,7 @@ class ThemeManager: ObservableObject {
     
     func setTheme(_ theme: AppTheme) {
         currentTheme = theme
+		UserDefaults.standard.set(theme.rawValue, forKey: themeStorageKey)
     }
 }
 

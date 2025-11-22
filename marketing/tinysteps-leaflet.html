@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>TinySteps Leaflet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        @page {
+            size: A4;
+            margin: 12mm;
+        }
+
+        :root {
+            color-scheme: only light;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: #060912;
+            color: #f5f7ff;
+        }
+
+        .page {
+            box-sizing: border-box;
+            width: 210mm;
+            min-height: 297mm;
+            padding: 14mm 18mm;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8mm;
+            background:
+                linear-gradient(135deg, rgba(31, 45, 89, 0.92) 0%, rgba(217, 111, 166, 0.85) 55%, rgba(10, 13, 25, 0.95) 100%),
+                radial-gradient(circle at 12% 18%, rgba(242, 140, 64, 0.35) 0%, transparent 44%);
+            border-radius: 12pt;
+            box-shadow: 0 18pt 36pt rgba(0, 0, 0, 0.35);
+        }
+
+        .hero {
+            text-align: center;
+        }
+
+        .hero h1 {
+            margin: 0 0 5mm;
+            font-size: 32pt;
+            letter-spacing: 0.8pt;
+            text-transform: uppercase;
+            color: #fefefe;
+        }
+
+        .hero p {
+            margin: 0;
+            font-size: 13pt;
+            line-height: 1.45;
+            color: rgba(245, 247, 255, 0.85);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(90mm, 1fr));
+            gap: 10mm;
+        }
+
+        .panel {
+            padding: 7mm;
+            border-radius: 12pt;
+            background: rgba(6, 9, 18, 0.35);
+            border: 1pt solid rgba(245, 247, 255, 0.08);
+            box-shadow: 0 8pt 24pt rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(4pt);
+        }
+
+        .panel h2 {
+            margin: 0 0 3mm;
+            font-size: 16pt;
+            text-transform: uppercase;
+            letter-spacing: 0.5pt;
+            color: #f7f3ff;
+        }
+
+        .panel p,
+        .list {
+            margin: 0;
+            font-size: 10.5pt;
+            line-height: 1.5;
+            color: rgba(245, 247, 255, 0.82);
+        }
+
+        .list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .list li {
+            position: relative;
+            padding-left: 14pt;
+            margin-bottom: 6pt;
+        }
+
+        .list li::before {
+            content: "\2022";
+            position: absolute;
+            left: 0;
+            color: rgba(242, 140, 64, 0.95);
+            font-size: 12pt;
+        }
+
+        .feature-stack {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 6mm;
+        }
+
+        .feature-stack article h3 {
+            margin: 0 0 2mm;
+            font-size: 14pt;
+            color: #fceaff;
+        }
+
+        .feature-stack article p {
+            margin: 0;
+            font-size: 10.5pt;
+            line-height: 1.45;
+            color: rgba(245, 247, 255, 0.82);
+        }
+
+        .quote {
+            border-left: 2pt solid rgba(217, 111, 166, 0.7);
+            padding-left: 10pt;
+            font-size: 12pt;
+            line-height: 1.6;
+            font-style: italic;
+            color: rgba(245, 247, 255, 0.85);
+        }
+
+        .cta {
+            text-align: center;
+            padding: 8mm;
+            border-radius: 12pt;
+            border: 1pt solid rgba(245, 247, 255, 0.08);
+            background: rgba(6, 9, 18, 0.45);
+            box-shadow: 0 10pt 26pt rgba(0, 0, 0, 0.25);
+        }
+
+        .cta h2 {
+            margin: 0 0 6pt;
+            font-size: 18pt;
+            text-transform: uppercase;
+            color: #fefefe;
+            letter-spacing: 0.6pt;
+        }
+
+        .cta p {
+            margin: 0 0 10pt;
+            font-size: 10.5pt;
+            line-height: 1.45;
+            color: rgba(245, 247, 255, 0.82);
+        }
+
+        .cta .links {
+            font-size: 12pt;
+            line-height: 1.6;
+            color: rgba(245, 247, 255, 0.9);
+        }
+
+        .highlight {
+            color: rgba(242, 140, 64, 0.92);
+            font-weight: 600;
+        }
+
+        .subdued {
+            color: rgba(245, 247, 255, 0.7);
+        }
+
+        .links {
+            font-size: 11pt;
+            line-height: 1.5;
+            color: rgba(245, 247, 255, 0.9);
+        }
+
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        .qr-placeholder {
+            margin: 12pt auto 0;
+            width: 32mm;
+            height: 32mm;
+            border: 1.5pt solid rgba(245, 247, 255, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9pt;
+            color: rgba(245, 247, 255, 0.65);
+        }
+
+        @media screen and (max-width: 820px) {
+            .page {
+                width: 100%;
+                padding: 18mm 5vw;
+                border-radius: 0;
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <main class="page" role="document">
+        <header class="hero">
+            <h1>TinySteps</h1>
+            <p>The NICU companion built for dads.<br><span class="subdued">Steady guidance, steady heart, every day in the unit.</span></p>
+        </header>
+
+        <section class="content-grid" aria-labelledby="content-start">
+            <h2 id="content-start" class="visually-hidden">TinySteps overview</h2>
+            <article class="panel">
+                <h2 id="why-parents-love-it">Built around the NICU day</h2>
+                <ul class="list">
+                    <li><span class="highlight">Home dashboard</span> keeps you grounded with daily vitals, quick encouragement, and shift handovers at a glance.</li>
+                    <li><span class="highlight">Today's Focus</span> cards surface bonding moments—skin-to-skin, reading, gentle talk—timed to what baby needs.</li>
+                    <li><span class="highlight">Quick contacts</span> put the nurse station, neonatologist, and social worker one tap away, even offline.</li>
+                    <li><span class="highlight">Global support shortcuts</span> connect you to trusted parent and mental-health resources across 20+ countries.</li>
+                </ul>
+            </article>
+
+            <article class="panel">
+                <h2>What makes TinySteps different</h2>
+                <ul class="list">
+                    <li>Designed with <span class="highlight">NICU fathers</span> who needed a dedicated space to process, plan, and stay connected.</li>
+                    <li>Privacy-first architecture with encrypted storage and no third-party ads—your family story stays yours.</li>
+                    <li>Accessibility-first interface supporting VoiceOver, large type, and calming dark mode for low-light wards.</li>
+                </ul>
+            </article>
+
+            <article class="panel">
+                <h2>Core tools you’ll rely on</h2>
+                <div class="feature-stack">
+                    <article>
+                        <h3>Progress & milestones</h3>
+                        <p>Track weight, feeds, oxygen, and milestones with trend views that spotlight the wins your care team is cheering for.</p>
+                    </article>
+                    <article>
+                        <h3>Journal that adapts</h3>
+                        <p>Capture quick notes, add photos, and clip daily tips or questions for rounds—timestamped so nothing gets lost.</p>
+                    </article>
+                    <article>
+                        <h3>Information hub</h3>
+                        <p>Dad-friendly medical glossary, NHS pathways, and mental health resources curated with neonatal specialists.</p>
+                    </article>
+                </div>
+            </article>
+
+            <article class="panel">
+                <h2>Download TinySteps NICU Dads</h2>
+                <p>Get the app on the App Store to bring guided NICU routines, progress tracking, and supportive resources to your pocket.</p>
+                <p class="links"><a href="https://tinystepsnicudads.co.uk" style="color: inherit; text-decoration: underline;">https://tinystepsnicudads.co.uk</a><br><span class="subdued">Available on iOS 18.0+ | iPhone &amp; iPad</span></p>
+            </article>
+        </section>
+    </main>
+</body>
+</html>
+
