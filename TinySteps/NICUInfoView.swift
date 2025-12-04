@@ -91,7 +91,7 @@ struct NICUInfoView: View {
                     HStack {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.gray)
-                        
+
                         TextField("Search terms...", text: $searchText)
                             .font(isIPad ? .headline : .body)
                             .textFieldStyle(PlainTextFieldStyle())
@@ -165,7 +165,7 @@ struct NICUInfoView: View {
                 }
             }
         }
-    }
+        .errorHandling()
 }
 
 // MARK: - Category Button
@@ -333,6 +333,7 @@ struct NICUTermCard: View, Equatable {
                 .stroke(Color.white.opacity(0.2), lineWidth: 1)
         )
     }
+}
 }
 
 // MARK: - NICU Term Model
@@ -512,9 +513,4 @@ struct NICUTerm {
             ]
         }
     }
-}
-
-#Preview {
-    NICUInfoView()
-        .environmentObject(ThemeManager.shared)
 }

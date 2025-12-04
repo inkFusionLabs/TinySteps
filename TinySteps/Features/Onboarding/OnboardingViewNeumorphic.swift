@@ -29,6 +29,7 @@ struct OnboardingViewNeumorphic: View {
                     .opacity(isAnimating ? 1 : 0)
                     .offset(y: isAnimating ? 0 : 50)
             }
+            .errorHandling()
             .onAppear {
                 withAnimation(.easeInOut(duration: 0.8)) {
                     isAnimating = true

@@ -30,7 +30,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         // Location errors are non-critical, silently handle
         #if DEBUG
-        print("Location error: \(error.localizedDescription)")
+        Logger.shared.error("Location error: \(error.localizedDescription)")
         #endif
     }
 } 

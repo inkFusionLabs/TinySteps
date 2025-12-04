@@ -121,11 +121,11 @@ class ErrorHandler: ObservableObject {
             errorLog.removeFirst(errorLog.count - 100)
         }
         
-        // Log to console in debug mode
+        // Additional logging in debug mode
         #if DEBUG
-        print("🚨 Error: \(error.errorDescription ?? "Unknown")")
-        print("📍 Context: \(context)")
-        print("💡 Suggestion: \(error.recoverySuggestion ?? "None")")
+        Logger.shared.error("Error: \(error.errorDescription ?? "Unknown")")
+        Logger.shared.error("Context: \(context)")
+        Logger.shared.error("Suggestion: \(error.recoverySuggestion ?? "None")")
         #endif
     }
     
@@ -141,7 +141,7 @@ class ErrorHandler: ObservableObject {
         guard let error = currentError else { return }
         
         // In a real implementation, you would send this to your error reporting service
-        print("📤 Reporting error: \(error.errorDescription ?? "Unknown")")
+        Logger.shared.info("Reporting error: \(error.errorDescription ?? "Unknown")")
     }
 }
 

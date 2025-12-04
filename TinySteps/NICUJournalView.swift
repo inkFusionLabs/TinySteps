@@ -164,6 +164,7 @@ struct NICUJournalView: View {
                 }
             }
         }
+        .errorHandling()
         .sheet(isPresented: $showNewEntry) {
             NewJournalEntryView()
         }
@@ -532,13 +533,13 @@ struct MemoriesListView: View {
         .background(themeManager.currentTheme.colors.background)
         .onAppear {
             #if DEBUG
-            print("💝 MemoriesListView appeared - Current memories count: \(dataManager.memoryItems.count)")
-            print("   Memory items: \(dataManager.memoryItems.map { $0.title })")
+            Logger.shared.debug("MemoriesListView appeared - Current memories count: \(dataManager.memoryItems.count)")
+            Logger.shared.debug("Memory items: \(dataManager.memoryItems.map { $0.title })")
             #endif
         }
         .refreshable {
             #if DEBUG
-            print("🔄 Refreshing memories...")
+            Logger.shared.debug("Refreshing memories...")
             #endif
         }
         .sheet(item: $editingMemory) { memory in
@@ -679,13 +680,13 @@ struct EntriesListView: View {
         .background(themeManager.currentTheme.colors.background)
         .onAppear {
             #if DEBUG
-            print("📖 EntriesListView appeared - Current entries count: \(dataManager.journalEntries.count)")
-            print("   Entry titles: \(dataManager.journalEntries.map { $0.title })")
+            Logger.shared.debug("EntriesListView appeared - Current entries count: \(dataManager.journalEntries.count)")
+            Logger.shared.debug("Entry titles: \(dataManager.journalEntries.map { $0.title })")
             #endif
         }
         .refreshable {
             #if DEBUG
-            print("🔄 Refreshing entries...")
+            Logger.shared.debug("Refreshing entries...")
             #endif
         }
         .sheet(item: $editingEntry) { entry in
@@ -1105,7 +1106,7 @@ struct NewJournalEntryView: View {
         // Validate that we have content before saving
         guard !content.isEmpty else {
             #if DEBUG
-            print("⚠️ Cannot save: content is empty")
+            Logger.shared.warning("Cannot save: content is empty")
             #endif
             return
         }
@@ -1118,8 +1119,8 @@ struct NewJournalEntryView: View {
         )
         
         #if DEBUG
-        print("💾 Saving journal entry: '\(newEntry.title)' with \(newEntry.content.count) characters")
-        print("   Mood: \(newEntry.mood.rawValue), Tags: \(newEntry.tags.count)")
+        Logger.shared.info("Saving journal entry: '\(newEntry.title)' with \(newEntry.content.count) characters")
+        Logger.shared.debug("Mood: \(newEntry.mood.rawValue), Tags: \(newEntry.tags.count)")
         #endif
         
         // Save the entry - this happens synchronously
@@ -1128,11 +1129,11 @@ struct NewJournalEntryView: View {
         // Verify the entry was added
         let entryCount = dataManager.journalEntries.count
         #if DEBUG
-        print("✅ Journal entry saved. Total entries: \(entryCount)")
+        Logger.shared.info("Journal entry saved. Total entries: \(entryCount)")
         if let savedEntry = dataManager.journalEntries.first(where: { $0.id == newEntry.id }) {
-            print("   Verified entry exists in array: '\(savedEntry.title)'")
+            Logger.shared.debug("Verified entry exists in array: '\(savedEntry.title)'")
         } else {
-            print("   ⚠️ WARNING: Entry not found in array after save!")
+            Logger.shared.warning("Entry not found in array after save!")
         }
         #endif
         
@@ -1295,13 +1296,13 @@ struct EditJournalEntryView: View {
         updatedEntry.tags = Array(selectedTags)
         
         #if DEBUG
-        print("💾 Updating journal entry: \(updatedEntry.title)")
+        Logger.shared.info("Updating journal entry: \(updatedEntry.title)")
         #endif
         
         dataManager.updateJournalEntry(updatedEntry)
         
         #if DEBUG
-        print("✅ Journal entry updated. Total entries: \(dataManager.journalEntries.count)")
+        Logger.shared.info("Journal entry updated. Total entries: \(dataManager.journalEntries.count)")
         #endif
         
         dismiss()
@@ -1719,13 +1720,13 @@ struct EditMemoryView: View {
         memoryToUpdate.id = memory.id
         
         #if DEBUG
-        print("💾 Updating memory: '\(memoryToUpdate.title)' with color: \(memoryToUpdate.colorName)")
+        Logger.shared.info("Updating memory: '\(memoryToUpdate.title)' with color: \(memoryToUpdate.colorName)")
         #endif
         
         dataManager.updateMemoryItem(memoryToUpdate)
         
         #if DEBUG
-        print("✅ Memory updated. Total memories: \(dataManager.memoryItems.count)")
+        Logger.shared.info("Memory updated. Total memories: \(dataManager.memoryItems.count)")
         #endif
         
         dismiss()

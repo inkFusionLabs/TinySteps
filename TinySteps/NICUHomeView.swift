@@ -12,388 +12,173 @@ struct NICUHomeView: View {
     @EnvironmentObject var dataManager: BabyDataManager
     @EnvironmentObject var themeManager: ThemeManager
     @EnvironmentObject var dataPersistence: DataPersistenceManager
-    @StateObject private var performanceOptimizer = PerformanceOptimizer.shared
-    @State private var animateContent = false
-    @State private var showEncouragement = false
-    @State private var showEditContacts = false
+
+    // Home screen customization preferences
+    private var homePrefs: HomeScreenPreferences {
+        dataPersistence.userPreferences.homeScreenPreferences
+    }
+
     @State private var showSkinToSkinTimer = false
     @State private var showTalkToBabyTips = false
+    @State private var showEncouragement = false
+    @State private var showEditContacts = false
     @State private var showQuestionManager = false
     @State private var showStorySuggestions = false
+
     @AppStorage("nicuNurseNumber") private var nicuNurseNumber: String = "Ext. 1234"
     @AppStorage("nicuDoctorNumber") private var nicuDoctorNumber: String = "Ext. 5678"
     @AppStorage("nicuSocialWorkerNumber") private var nicuSocialWorkerNumber: String = "Ext. 9012"
-    
-    // Performance optimizations
-    @State private var isViewVisible = true
-    @State private var cachedQuickStats: QuickStatsData?
-    @State private var lastStatsUpdate = Date()
+
     @State private var currentTipIndex: Int = 0
     @State private var cachedTips: [String] = []
-    
-    private var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
-    }
-    
+
     var body: some View {
-        ZStack {
-            // Background
-            themeManager.currentTheme.colors.background
-                .ignoresSafeArea()
-            
-            ScrollView {
-                LazyVStack(spacing: isIPad ? 80 : 24) {
-                    // NICU Dad Header
-                    VStack(spacing: isIPad ? 24 : 16) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: isIPad ? 12 : 8) {
-                                Text("You're doing great, Dad")
-                                    .font(isIPad ? .system(size: 48, weight: .bold) : .title2)
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(
-                                        LinearGradient(
-                                            gradient: Gradient(colors: [
-                                                themeManager.currentTheme.colors.textPrimary,
-                                                themeManager.currentTheme.colors.textPrimary.opacity(0.9)
-                                            ]),
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .shadow(color: .black.opacity(0.2), radius: 4, x: 0, y: 2)
-                                    .tracking(0.5)
-                                
-                                Text("Every day in the NICU is a step forward")
-                                    .font(isIPad ? .system(size: 24, weight: .medium) : .subheadline)
-                                    .themedText(style: .secondary)
-                                    .tracking(0.2)
-                                    .lineSpacing(4)
-                            }
-                            Spacer()
-                            
-                            // Encouragement button with enhanced styling
-                            Button(action: { 
-                                showEncouragement = true
-                                HapticsPreferences.impact(.medium)
-                            }) {
-                                ZStack {
-                                    Circle()
-                                        .fill(
-                                            RadialGradient(
-                                                gradient: Gradient(colors: [
-                                                    themeManager.currentTheme.colors.error.opacity(0.3),
-                                                    themeManager.currentTheme.colors.error.opacity(0.1)
-                                                ]),
-                                                center: .center,
-                                                startRadius: 10,
-                                                endRadius: isIPad ? 40 : 30
-                                            )
-                                        )
-                                        .blur(radius: 12)
-                                    
-                                    Image(systemName: "heart.fill")
-                                        .font(isIPad ? .system(size: 48, weight: .bold) : .title2)
-                                        .foregroundStyle(
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [
-                                                    themeManager.currentTheme.colors.error,
-                                                    themeManager.currentTheme.colors.error.opacity(0.8)
-                                                ]),
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
-                                        .shadow(color: themeManager.currentTheme.colors.error.opacity(0.6), radius: 12, x: 0, y: 6)
-                                }
-                            }
-                            .buttonStyle(EnhancedCardButtonStyle())
-                        }
-                        .padding(.horizontal, isIPad ? 32 : 20)
-                        .padding(.top, isIPad ? 32 : 20)
-                    }
-                    .scaleEffect(animateContent ? 1 : 0.92)
-                    .opacity(animateContent ? 1 : 0)
-                    .parallaxed(isIPad ? 10 : 6)
-                    .animation(.spring(response: 0.8, dampingFraction: 0.85), value: animateContent)
-                    
-                    // Today's Focus Cards
-                    VStack(alignment: .leading, spacing: isIPad ? 24 : 16) {
+        ScrollView {
+            VStack(spacing: 20) {
+                Text("NICU Home")
+                    .font(.title)
+                    .padding()
+
+                // Today's Focus Cards
+                if homePrefs.showSkinToSkinCard || homePrefs.showTalkToBabyCard || homePrefs.showDailyProgressCard {
+                    VStack(alignment: .leading, spacing: 16) {
                         HStack(spacing: 8) {
                             Image(systemName: "sparkles")
-                                .font(.system(size: isIPad ? 20 : 16, weight: .semibold))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            themeManager.currentTheme.colors.accent,
-                                            themeManager.currentTheme.colors.secondary
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
+                                .foregroundColor(themeManager.currentTheme.colors.accent)
                             Text("Today's Focus")
-                                .font(isIPad ? .title2 : .headline)
-                                .fontWeight(.bold)
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            themeManager.currentTheme.colors.textPrimary,
-                                            themeManager.currentTheme.colors.textPrimary.opacity(0.8)
-                                        ]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .tracking(0.3)
+                                .font(.headline)
+                                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
-                        
-                        LazyVGrid(columns: isIPad ? [
-                            GridItem(.flexible()),
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
-                        ] : [
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
-                        ], spacing: isIPad ? 32 : 16) {
-                            NICUActionCard(
-                                title: "Skin-to-Skin",
-                                description: "Hold your baby close",
-                                icon: "heart.fill",
-                                color: themeManager.currentTheme.colors.error,
-                                action: { showSkinToSkinTimer = true },
-                                animationDelay: 0
-                            )
-                            
-                            NICUActionCard(
-                                title: "Talk to Baby",
-                                description: "Gentle conversation starters",
-                                icon: "message.fill",
-                                color: themeManager.currentTheme.colors.accent,
-                                action: { showTalkToBabyTips = true },
-                                animationDelay: 0.05
-                            )
-                            
-                            NICUActionCard(
-                                title: "Ask Questions",
-                                description: "Capture questions for the care team",
-                                icon: "questionmark.circle.fill",
-                                color: themeManager.currentTheme.colors.info,
-                                action: { showQuestionManager = true },
-                                animationDelay: 0.1
-                            )
-                            
-                            NICUActionCard(
-                                title: "Read Stories",
-                                description: "Storytime ideas for bonding",
-                                icon: "book.fill",
-                                color: themeManager.currentTheme.colors.secondary,
-                                action: { showStorySuggestions = true },
-                                animationDelay: 0.15
-                            )
-                            
-                            NICUActionCard(
-                                title: "Daily Progress",
-                                description: "Jump straight to daily tracking",
-                                icon: "chart.line.uptrend.xyaxis",
-                                color: themeManager.currentTheme.colors.success,
-                                action: navigateToProgressTab,
-                                animationDelay: 0.2
-                            )
-                            
-                            if isIPad {
+                        .padding(.horizontal)
+
+                        LazyVGrid(columns: [
+                            GridItem(.flexible(), spacing: 16),
+                            GridItem(.flexible(), spacing: 16)
+                        ], spacing: 16) {
+                            if homePrefs.showSkinToSkinCard {
                                 NICUActionCard(
-                                    title: "Encouragement",
-                                    description: "Boost your spirits anytime",
-                                    icon: "sparkles",
-                                    color: themeManager.currentTheme.colors.warning,
-                                    action: { showEncouragement = true },
-                                    animationDelay: 0.25
+                                    title: "Skin-to-Skin",
+                                    description: "Hold your baby close",
+                                    icon: "heart.fill",
+                                    color: themeManager.currentTheme.colors.error,
+                                    action: { showSkinToSkinTimer = true }
+                                )
+                            }
+
+                            if homePrefs.showTalkToBabyCard {
+                                NICUActionCard(
+                                    title: "Talk to Baby",
+                                    description: "Gentle conversation starters",
+                                    icon: "message.fill",
+                                    color: themeManager.currentTheme.colors.accent,
+                                    action: { showTalkToBabyTips = true }
+                                )
+                            }
+
+                            if homePrefs.showDailyProgressCard {
+                                NICUActionCard(
+                                    title: "Daily Stats",
+                                    description: "Jump straight to daily tracking",
+                                    icon: "chart.line.uptrend.xyaxis",
+                                    color: themeManager.currentTheme.colors.success,
+                                    action: { navigateToStatsTab() }
                                 )
                             }
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .padding(.horizontal)
                     }
-                    
-                    // Quick Journal Bar
-                    QuickJournalBar()
-                        .padding(.horizontal, isIPad ? 32 : 20)
-                        .parallaxed(isIPad ? 6 : 4)
-                    
-                    // Nurse on Shift Section
-                    NurseShiftSection()
-                        .padding(.horizontal, isIPad ? 32 : 20)
-                        .parallaxed(isIPad ? 5 : 3)
-                    
-                    // Baby's Progress Summary removed; Progress lives on its dedicated tab
-                    
-                    // Tip of the Day
-                    VStack(alignment: .leading, spacing: 16) {
+                }
+
+                // Quick Journal
+                if homePrefs.showQuickJournal {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Quick Journal")
+                            .font(.headline)
+                            .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+                            .padding(.horizontal)
+
+                        QuickJournalBar()
+                            .padding(.horizontal)
+                    }
+                }
+
+                // Nurse Shift
+                if homePrefs.showNurseShift {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Nurse on Duty")
+                            .font(.headline)
+                            .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+                            .padding(.horizontal)
+
+                        NurseShiftSection()
+                            .padding(.horizontal)
+                    }
+                }
+
+                // Tip of the Day
+                if homePrefs.showTipOfDay {
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack(spacing: 8) {
                             Image(systemName: "lightbulb.fill")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            themeManager.currentTheme.colors.warning,
-                                            themeManager.currentTheme.colors.accent
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                            Text(NSLocalizedString("ui.tip.title", comment: "Tip of the Day"))
+                                .foregroundColor(themeManager.currentTheme.colors.warning)
+                            Text("Tip of the Day")
                                 .font(.headline)
-                                .fontWeight(.bold)
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            themeManager.currentTheme.colors.textPrimary,
-                                            themeManager.currentTheme.colors.textPrimary.opacity(0.8)
-                                        ]),
-                                        startPoint: .leading,
-                                        endPoint: .trailing
-                                    )
-                                )
-                                .tracking(0.3)
+                                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
                         }
                         .padding(.horizontal)
-                        
-                        let tips = cachedTips
-                        if !tips.isEmpty {
-                            let tip = tips[currentTipIndex % tips.count]
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text(tip)
-                                    .font(isIPad ? .title3 : .body)
-                                    .themedText(style: .secondary)
-                                    .fixedSize(horizontal: false, vertical: true)
-                                
-                                HStack(spacing: 12) {
-                                    Button(action: { 
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                            currentTipIndex = (currentTipIndex + 1) % tips.count
-                                        }
-                                        HapticsPreferences.impact(.light)
-                                    }) {
-                                        HStack(spacing: 6) {
-                                            Image(systemName: "arrow.right.circle.fill")
-                                                .font(.system(size: isIPad ? 16 : 14, weight: .semibold))
-                                            Text(NSLocalizedString("ui.see.next", comment: "See another"))
-                                                .font(isIPad ? .headline : .subheadline)
-                                                .fontWeight(.semibold)
-                                        }
-                                        .foregroundColor(.white)
-                                        .padding(.vertical, isIPad ? 12 : 8)
-                                        .padding(.horizontal, isIPad ? 16 : 12)
-                                        .background(
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [
-                                                    themeManager.currentTheme.colors.accent,
-                                                    themeManager.currentTheme.colors.accent.opacity(0.8)
-                                                ]),
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
-                                        .cornerRadius(12)
-                                        .shadow(color: themeManager.currentTheme.colors.accent.opacity(0.4), radius: 8, x: 0, y: 4)
-                                    }
-                                    .buttonStyle(EnhancedCardButtonStyle())
-                                    
-                                    Button(action: { 
-                                        saveTipToJournal(tip)
-                                        HapticsPreferences.notify(.success)
-                                    }) {
-                                        HStack(spacing: 6) {
-                                            Image(systemName: "bookmark.fill")
-                                                .font(.system(size: isIPad ? 16 : 14, weight: .semibold))
-                                            Text(NSLocalizedString("ui.add.to.journal", comment: "Save to journal"))
-                                                .font(isIPad ? .headline : .subheadline)
-                                                .fontWeight(.semibold)
-                                        }
-                                        .foregroundColor(.white)
-                                        .padding(.vertical, isIPad ? 12 : 8)
-                                        .padding(.horizontal, isIPad ? 16 : 12)
-                                        .background(
-                                            LinearGradient(
-                                                gradient: Gradient(colors: [
-                                                    themeManager.currentTheme.colors.primary,
-                                                    themeManager.currentTheme.colors.primary.opacity(0.8)
-                                                ]),
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
-                                        .cornerRadius(12)
-                                        .shadow(color: themeManager.currentTheme.colors.primary.opacity(0.4), radius: 8, x: 0, y: 4)
-                                    }
-                                    .buttonStyle(EnhancedCardButtonStyle())
-                                    .accessibilityLabel(Text("Save tip to journal"))
-                                }
-                            }
-                            .padding(isIPad ? 20 : 16)
-                            .animatedCard(depth: .medium, cornerRadius: 18)
+
+                        TipOfTheDayCard(currentTipIndex: $currentTipIndex, cachedTips: $cachedTips)
                             .padding(.horizontal)
-                        }
                     }
-                    .parallaxed(isIPad ? 5 : 3)
-                    
-                    // Daily Encouragement
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Daily Encouragement")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .themedText(style: .primary)
-                            .padding(.horizontal)
-                        
-                        VStack(spacing: 12) {
-                            EncouragementCard(
-                                message: "You're stronger than you know. Every visit, every touch, every moment matters.",
-                                author: "NICU Dad Community"
-                            )
-                            
-                            EncouragementCard(
-                                message: "It's okay to feel overwhelmed. Take it one day at a time.",
-                                author: "NICU Support Team"
-                            )
+                }
+
+                // Daily Encouragement
+                if homePrefs.showDailyEncouragement {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "heart.fill")
+                                .foregroundColor(themeManager.currentTheme.colors.error)
+                            Text("Daily Encouragement")
+                                .font(.headline)
+                                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
                         }
                         .padding(.horizontal)
+
+                        EncouragementCard(
+                            message: "You're stronger than you know. Every visit, every touch, every moment matters.",
+                            author: "NICU Dad Community"
+                        )
+                        .padding(.horizontal)
                     }
-                    .parallaxed(isIPad ? 5 : 3)
-                    
-                    // Emergency Contacts
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
+                }
+
+                // Emergency Contacts
+                if homePrefs.showEmergencyContacts {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "phone.fill")
+                                .foregroundColor(themeManager.currentTheme.colors.primary)
                             Text("Quick Contacts")
                                 .font(.headline)
-                                .fontWeight(.semibold)
-                                .themedText(style: .primary)
-                            
-                            Spacer()
-                            
-                            Button(action: { showEditContacts = true }) {
-                                Image(systemName: "pencil.circle.fill")
-                                    .font(.title3)
-                                    .foregroundColor(themeManager.currentTheme.colors.accent)
-                            }
+                                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
                         }
                         .padding(.horizontal)
-                        
+
                         VStack(spacing: 8) {
                             QuickContactRow(
-                                name: "NICU Nurse Station",
+                                name: "NICU Nurse",
                                 number: nicuNurseNumber,
-                                icon: "phone.fill",
-                                color: themeManager.currentTheme.colors.error
+                                icon: "stethoscope",
+                                color: themeManager.currentTheme.colors.primary
                             )
-                            
+
                             QuickContactRow(
                                 name: "NICU Doctor",
                                 number: nicuDoctorNumber,
                                 icon: "stethoscope",
-                                color: themeManager.currentTheme.colors.info
+                                color: themeManager.currentTheme.colors.error
                             )
-                            
+
                             QuickContactRow(
                                 name: "Social Worker",
                                 number: nicuSocialWorkerNumber,
@@ -403,33 +188,21 @@ struct NICUHomeView: View {
                         }
                         .padding(.horizontal)
                     }
-                    .parallaxed(isIPad ? 5 : 3)
-                    
-                    // UK Support Resources
-                    VStack(alignment: .leading, spacing: 16) {
-                        HStack {
+                }
+
+                // UK Support Resources
+                if homePrefs.showUKSupport {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 8) {
+                            Image(systemName: "cross.case.fill")
+                                .foregroundColor(themeManager.currentTheme.colors.info)
                             Text("UK Support Resources")
                                 .font(.headline)
-                                .fontWeight(.semibold)
-                                .themedText(style: .primary)
-                            
-                            Spacer()
-                            
-                            Image(systemName: "flag.fill")
-                                .font(.title3)
-                                .foregroundColor(.blue)
+                                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
                         }
                         .padding(.horizontal)
-                        
+
                         VStack(spacing: 8) {
-                            UKSupportRow(
-                                name: "Bliss Charity",
-                                number: "0808 801 0322",
-                                description: "Premature baby support",
-                                icon: "heart.fill",
-                                color: .pink
-                            )
-                            
                             UKSupportRow(
                                 name: "NHS 111",
                                 number: "111",
@@ -437,7 +210,7 @@ struct NICUHomeView: View {
                                 icon: "cross.case.fill",
                                 color: .blue
                             )
-                            
+
                             UKSupportRow(
                                 name: "Samaritans",
                                 number: "116 123",
@@ -445,27 +218,16 @@ struct NICUHomeView: View {
                                 icon: "phone.fill",
                                 color: .green
                             )
-                            
-                            UKSupportRow(
-                                name: "Mind",
-                                number: "0300 123 3393",
-                                description: "Mental health support",
-                                icon: "brain.head.profile",
-                                color: .orange
-                            )
                         }
                         .padding(.horizontal)
                     }
-                    .parallaxed(isIPad ? 5 : 3)
-                    
-                    Spacer(minLength: 100) // Space for tab bar
                 }
+
+                Spacer()
             }
+            .padding(.vertical)
         }
         .onAppear {
-            withAnimation(.easeInOut(duration: 0.8)) {
-                animateContent = true
-            }
             // Initialize tip index based on day for determinism
             if let day = Calendar.current.ordinality(of: .day, in: .year, for: Date()) {
                 currentTipIndex = max(0, day - 1)
@@ -507,7 +269,7 @@ struct NICUHomeView: View {
     }
 }
 
-// MARK: - NICU Action Card
+// MARK: - Modern NICU Action Card
 struct NICUActionCard: View {
     let title: String
     let description: String
@@ -515,164 +277,327 @@ struct NICUActionCard: View {
     let color: Color
     let action: () -> Void
     var animationDelay: Double = 0
-    
+    var isCompleted: Bool = false
+
     @EnvironmentObject var themeManager: ThemeManager
-    
-    private var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
-    }
-    
-    @State private var isVisible = false
     @State private var isPressed = false
-    @State private var glowIntensity: Double = 0.6
-    
+    @State private var showCelebration = false
+
     var body: some View {
         Button(action: action) {
             ZStack {
-                // Enhanced gradient background
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        color.opacity(0.25),
-                        color.opacity(0.15),
-                        themeManager.currentTheme.colors.backgroundSecondary.opacity(0.95)
-                    ]),
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-                
-                // Glow effect
-                RoundedRectangle(cornerRadius: isIPad ? 28 : 20)
+                // Card background with modern styling
+                RoundedRectangle(cornerRadius: 16)
                     .fill(
-                        RadialGradient(
+                        LinearGradient(
                             gradient: Gradient(colors: [
-                                color.opacity(glowIntensity * 0.4),
-                                color.opacity(0)
+                                themeManager.currentTheme.colors.backgroundSecondary,
+                                themeManager.currentTheme.colors.backgroundSecondary.opacity(0.8)
                             ]),
-                            center: .center,
-                            startRadius: 20,
-                            endRadius: isIPad ? 100 : 60
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
                         )
                     )
-                    .blur(radius: isIPad ? 20 : 12)
-                    .opacity(isPressed ? 0.8 : 0.5)
-                
-                VStack(spacing: isIPad ? 20 : 12) {
-                    // Icon with enhanced styling
-                    ZStack {
-                        Circle()
-                            .fill(color.opacity(0.2))
-                            .frame(width: isIPad ? 64 : 48, height: isIPad ? 64 : 48)
-                            .blur(radius: 8)
-                        
-                        Image(systemName: icon)
-                            .font(isIPad ? .system(size: 48, weight: .bold) : .title2)
-                            .foregroundStyle(
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(
                                 LinearGradient(
                                     gradient: Gradient(colors: [
-                                        color,
-                                        color.opacity(0.8)
+                                        color.opacity(isPressed ? 0.8 : 0.4),
+                                        color.opacity(isPressed ? 0.4 : 0.2)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1
+                            )
+                    )
+                    .shadow(
+                        color: color.opacity(isPressed ? 0.3 : 0.15),
+                        radius: isPressed ? 12 : 8,
+                        x: 0,
+                        y: isPressed ? 6 : 4
+                    )
+
+                // Content
+                VStack(spacing: 16) {
+                    // Icon with modern styling
+                    ZStack {
+                        Circle()
+                            .fill(
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        color.opacity(0.2),
+                                        color.opacity(0.1)
                                     ]),
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
                                 )
                             )
-                            .shadow(color: color.opacity(0.5), radius: 8, x: 0, y: 4)
+                            .frame(width: 64, height: 64)
+
+                        Image(systemName: icon)
+                            .font(.system(size: 28, weight: .semibold))
+                            .foregroundColor(color)
+                            .scaleEffect(isPressed ? 0.95 : 1.0)
+
+                        // Completion indicator
+                        if isCompleted {
+                            Circle()
+                                .fill(Color.green.opacity(0.9))
+                                .frame(width: 20, height: 20)
+                                .overlay(
+                                    Image(systemName: "checkmark")
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(.white)
+                                )
+                                .offset(x: 24, y: -24)
+                        }
                     }
-                    
-                    VStack(spacing: isIPad ? 8 : 4) {
+
+                    VStack(spacing: 8) {
                         Text(title)
-                            .font(isIPad ? .system(size: 24, weight: .bold) : .headline)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
-                            .tracking(0.3)
-                        
+                            .font(.system(size: 18, weight: .semibold, design: .rounded))
+                            .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+
                         Text(description)
-                            .font(isIPad ? .system(size: 16, weight: .medium) : .caption)
-                            .foregroundColor(.white.opacity(0.85))
+                            .font(.system(size: 14, weight: .regular, design: .rounded))
+                            .foregroundColor(themeManager.currentTheme.colors.textSecondary)
                             .multilineTextAlignment(.center)
-                            .lineSpacing(2)
+                            .lineLimit(2)
+                            .minimumScaleFactor(0.9)
                     }
                 }
+                .padding(20)
+
+                // Celebration effect
+                if showCelebration {
+                    CelebrationView()
+                        .transition(.scale.combined(with: .opacity))
+                }
             }
-            .frame(maxWidth: .infinity)
-            .frame(height: isIPad ? 200 : 120)
-            .padding(isIPad ? 24 : 16)
-            .contentShape(RoundedRectangle(cornerRadius: isIPad ? 28 : 20))
         }
-        .buttonStyle(EnhancedCardButtonStyle())
-        .animatedCard(depth: .high, cornerRadius: isIPad ? 28 : 20)
-        .overlay(
-            RoundedRectangle(cornerRadius: isIPad ? 28 : 20)
-                .stroke(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            color.opacity(0.6),
-                            color.opacity(0.3),
-                            color.opacity(0.1)
-                        ]),
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1.5
-                )
-                .blendMode(.screen)
-                .padding(1)
+        .buttonStyle(.plain)
+        .scaleEffect(isPressed ? 0.98 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isPressed)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !isPressed {
+                        isPressed = true
+                        HapticManager.shared.lightImpact()
+                    }
+                }
+                .onEnded { _ in
+                    isPressed = false
+                    if isCompleted {
+                        showCelebration = true
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                            showCelebration = false
+                        }
+                    }
+                }
         )
-        .overlay(
-            // Animated shimmer on hover
-            RoundedRectangle(cornerRadius: isIPad ? 28 : 20)
-                .fill(
-                    LinearGradient(
-                        gradient: Gradient(colors: [
-                            .clear,
-                            color.opacity(0.1),
-                            .clear
-                        ]),
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                )
-                .opacity(isPressed ? 0.3 : 0)
-                .animation(.easeInOut(duration: 0.3), value: isPressed)
-        )
-        .scaleEffect(isVisible ? 1 : 0.9)
-        .opacity(isVisible ? 1 : 0)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title). \(description)")
+        .accessibilityAddTraits(.isButton)
+        .accessibilityHint(isCompleted ? "Completed activity" : "Tap to start activity")
+    }
+}
+
+// MARK: - Celebration Effect
+struct CelebrationView: View {
+    @State private var particles: [Particle] = []
+
+    var body: some View {
+        ZStack {
+            ForEach(particles) { particle in
+                Circle()
+                    .fill(particle.color)
+                    .frame(width: particle.size, height: particle.size)
+                    .position(particle.position)
+                    .opacity(particle.opacity)
+            }
+        }
         .onAppear {
-            guard !isVisible else { return }
-            withAnimation(
-                .spring(response: 0.7, dampingFraction: 0.85)
-                    .delay(animationDelay)
-            ) {
-                isVisible = true
-            }
-            
-            // Animate glow
-            withAnimation(
-                .easeInOut(duration: 2.0)
-                    .repeatForever(autoreverses: true)
-            ) {
-                glowIntensity = 1.0
+            createParticles()
+        }
+    }
+
+    private func createParticles() {
+        particles = (0..<20).map { _ in
+            Particle(
+                position: CGPoint(x: 100, y: 100),
+                color: [Color.blue, Color.purple, Color.pink, Color.green].randomElement()!,
+                size: CGFloat.random(in: 4...8),
+                opacity: 1.0
+            )
+        }
+
+        // Animate particles
+        for (index, _) in particles.enumerated() {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Double(index) * 0.05) {
+                withAnimation(.easeOut(duration: 1.0)) {
+                    particles[index].position = CGPoint(
+                        x: CGFloat.random(in: 50...150),
+                        y: CGFloat.random(in: 50...150)
+                    )
+                    particles[index].opacity = 0.0
+                }
             }
         }
+    }
+}
+
+struct Particle: Identifiable {
+    let id = UUID()
+    var position: CGPoint
+    var color: Color
+    var size: CGFloat
+    var opacity: Double
+}
+
+// MARK: - Haptic Manager
+class HapticManager {
+    static let shared = HapticManager()
+
+    private init() {}
+
+    func lightImpact() {
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        #endif
+    }
+
+    func mediumImpact() {
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        #endif
+    }
+
+    func heavyImpact() {
+        #if os(iOS)
+        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        #endif
+    }
+
+    func success() {
+        #if os(iOS)
+        UINotificationFeedbackGenerator().notificationOccurred(.success)
+        #endif
+    }
+
+    func error() {
+        #if os(iOS)
+        UINotificationFeedbackGenerator().notificationOccurred(.error)
+        #endif
     }
 }
 
 // MARK: - Enhanced Card Button Style
 struct EnhancedCardButtonStyle: SwiftUI.ButtonStyle {
     @State private var isPressed = false
-    
-    func makeBody(configuration: Configuration) -> some View {
+
+    func makeBody(configuration: SwiftUI.ButtonStyle.Configuration) -> some View {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.96 : 1.0)
             .brightness(configuration.isPressed ? -0.05 : 0)
             .animation(.spring(response: 0.3, dampingFraction: 0.7), value: configuration.isPressed)
             .onChange(of: configuration.isPressed) { _, newValue in
                 isPressed = newValue
-                if newValue {
-                    HapticsPreferences.impact(.light)
-                }
             }
+    }
+}
+
+
+// MARK: - Tip of the Day Card
+struct TipOfTheDayCard: View {
+    @Binding var currentTipIndex: Int
+    @Binding var cachedTips: [String]
+
+    @EnvironmentObject var themeManager: ThemeManager
+
+    @Environment(\.deviceLayout) private var deviceLayout
+
+    private var currentTip: String {
+        guard !cachedTips.isEmpty else { return "Remember to take care of yourself too." }
+        return cachedTips[currentTipIndex % cachedTips.count]
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Spacer()
+
+                Button(action: {
+                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        currentTipIndex = (currentTipIndex + 1) % max(1, cachedTips.count)
+                    }
+                    HapticsPreferences.impact(.light)
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(themeManager.currentTheme.colors.backgroundTertiary.opacity(0.8))
+                            .frame(width: 32, height: 32)
+                            .overlay(
+                                Circle()
+                                    .stroke(themeManager.currentTheme.colors.border, lineWidth: 1)
+                            )
+
+                        Image(systemName: "arrow.clockwise")
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(themeManager.currentTheme.colors.textSecondary)
+                    }
+                }
+                .accessibilityLabel(Text("Next tip"))
+            }
+
+            Text(currentTip)
+                .font(.body)
+                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineSpacing(4)
+
+            HStack {
+                Spacer()
+
+                Button(action: {
+                    // Save tip to journal - this would need access to the parent view's method
+                    // For now, just haptic feedback
+                    HapticsPreferences.impact(.medium)
+                }) {
+                    Label("Save to Journal", systemImage: "square.and.arrow.down")
+                        .font(.caption)
+                        .foregroundColor(themeManager.currentTheme.colors.accent)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule()
+                                .fill(themeManager.currentTheme.colors.accent.opacity(0.1))
+                                .overlay(
+                                    Capsule()
+                                        .stroke(themeManager.currentTheme.colors.accent.opacity(0.3), lineWidth: 1)
+                                )
+                        )
+                }
+                .buttonStyle(EnhancedCardButtonStyle())
+                .accessibilityLabel(Text("Save tip to journal"))
+            }
+        }
+        .responsivePadding(.vertical, 16)
+        .responsivePadding(.horizontal, 16)
+        .background(
+            RoundedRectangle(cornerRadius: deviceLayout.spacingMultiplier * (18))
+                .fill(themeManager.currentTheme.colors.backgroundSecondary)
+                .overlay(
+                    RoundedRectangle(cornerRadius: deviceLayout.spacingMultiplier * (18))
+                        .stroke(themeManager.currentTheme.colors.border, lineWidth: 1)
+                )
+        )
+        .shadow(color: themeManager.currentTheme.colors.shadow.opacity(0.4), radius: 12, x: 0, y: 6)
+        .animation(.spring(response: 0.5, dampingFraction: 0.8), value: currentTipIndex)
     }
 }
 
@@ -688,7 +613,7 @@ extension NICUHomeView {
         DataPersistenceManager.shared.addJournalEntry(entry)
     }
     
-    func navigateToProgressTab() {
+    func navigateToStatsTab() {
         NotificationCenter.default.post(
             name: .navigateToTab,
             object: nil,
@@ -878,8 +803,10 @@ struct EditContactsView: View {
     @Binding var nicuDoctorNumber: String
     @Binding var nicuSocialWorkerNumber: String
     
+    @Environment(\.deviceLayout) private var deviceLayout
+
     private var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        deviceLayout.isIPad
     }
     
     var body: some View {
@@ -906,7 +833,7 @@ struct EditContactsView: View {
                                 .themedText(style: .secondary)
                                 .multilineTextAlignment(.center)
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .responsivePadding(.horizontal, 20)
                         .padding(.top, isIPad ? 24 : 20)
                         
                         // Contact Fields
@@ -935,7 +862,7 @@ struct EditContactsView: View {
                                 placeholder: "Ext. 9012 or +44 123 456 7892"
                             )
                         }
-                        .padding(.horizontal, isIPad ? 32 : 20)
+                        .responsivePadding(.horizontal, 20)
                         
                         Spacer(minLength: isIPad ? 40 : 20)
                     }
@@ -962,7 +889,7 @@ struct EditContactsView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(themeManager.currentTheme.colors.primary)
                     }
-                    .padding(.horizontal, isIPad ? 32 : 20)
+                        .responsivePadding(.horizontal, 20)
                     .padding(.top, isIPad ? 16 : 12)
                     .padding(.bottom, isIPad ? 12 : 8)
                     .background(themeManager.currentTheme.colors.background.opacity(0.95))
@@ -983,8 +910,10 @@ struct ContactEditField: View {
     let placeholder: String
     @EnvironmentObject var themeManager: ThemeManager
     
+    @Environment(\.deviceLayout) private var deviceLayout
+
     private var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        deviceLayout.isIPad
     }
     
     var body: some View {
@@ -1019,8 +948,10 @@ struct UKSupportRow: View {
     let color: Color
     @EnvironmentObject var themeManager: ThemeManager
     
+    @Environment(\.deviceLayout) private var deviceLayout
+
     private var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        deviceLayout.isIPad
     }
     
     var body: some View {
@@ -2014,7 +1945,258 @@ struct QuickStatCard: View {
                 .fill(Color(.systemBackground))
                 .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
         )
+        .errorHandling()
         .optimized()
+    }
+}
+
+// MARK: - Custom Shapes for 3D Background
+struct Triangle: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.midX, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY))
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Home Screen Customization View
+struct HomeScreenCustomizationView: View {
+    @EnvironmentObject var themeManager: ThemeManager
+    @EnvironmentObject var dataPersistence: DataPersistenceManager
+    @Environment(\.dismiss) var dismiss
+
+    @State private var tempPreferences: HomeScreenPreferences
+
+    init() {
+        // Initialize with current preferences
+        _tempPreferences = State(initialValue: DataPersistenceManager.shared.userPreferences.homeScreenPreferences)
+    }
+
+    @Environment(\.deviceLayout) private var deviceLayout
+
+    private var isIPad: Bool {
+        deviceLayout.isIPad
+    }
+
+    var body: some View {
+        NavigationView {
+            ZStack {
+                themeManager.currentTheme.colors.background
+                    .ignoresSafeArea()
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: deviceLayout.spacingMultiplier * 24) {
+                        // Header
+                        VStack(alignment: .leading, spacing: isIPad ? 16 : 12) {
+                            Text("Customize Home Screen")
+                                .responsiveFont(size: 28, weight: .bold)
+                                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+
+                            Text("Choose which sections and cards appear on your home screen")
+                                .responsiveFont(size: 16, weight: .regular)
+                                .foregroundColor(themeManager.currentTheme.colors.textSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                        .responsivePadding(.horizontal, 20)
+                        .responsivePadding(.top, 20)
+
+                        // Today's Focus Cards
+                        VStack(alignment: .leading, spacing: deviceLayout.spacingMultiplier * 16) {
+                            Text("Today's Focus Cards")
+                                .font(.headline)
+                                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+
+                            VStack(spacing: isIPad ? 16 : 12) {
+                                CustomizationToggleRow(
+                                    title: "Skin-to-Skin",
+                                    subtitle: "Hold your baby close",
+                                    isOn: $tempPreferences.showSkinToSkinCard,
+                                    icon: "heart.fill",
+                                    color: themeManager.currentTheme.colors.error
+                                )
+
+                                CustomizationToggleRow(
+                                    title: "Talk to Baby",
+                                    subtitle: "Gentle conversation starters",
+                                    isOn: $tempPreferences.showTalkToBabyCard,
+                                    icon: "message.fill",
+                                    color: themeManager.currentTheme.colors.accent
+                                )
+
+                                CustomizationToggleRow(
+                                    title: "Daily Progress",
+                                    subtitle: "Jump straight to daily tracking",
+                                    isOn: $tempPreferences.showDailyProgressCard,
+                                    icon: "chart.line.uptrend.xyaxis",
+                                    color: themeManager.currentTheme.colors.success
+                                )
+                            }
+                        }
+                        .responsivePadding(.horizontal, 20)
+
+                        // Sections
+                        VStack(alignment: .leading, spacing: deviceLayout.spacingMultiplier * 16) {
+                            Text("Sections")
+                                .font(.headline)
+                                .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+
+                            VStack(spacing: isIPad ? 16 : 12) {
+                                CustomizationToggleRow(
+                                    title: "Quick Journal",
+                                    subtitle: "Fast note-taking",
+                                    isOn: $tempPreferences.showQuickJournal,
+                                    icon: "note.text",
+                                    color: themeManager.currentTheme.colors.secondary
+                                )
+
+                                CustomizationToggleRow(
+                                    title: "Nurse Shift Info",
+                                    subtitle: "Current nurse on duty",
+                                    isOn: $tempPreferences.showNurseShift,
+                                    icon: "person.badge.clock.fill",
+                                    color: themeManager.currentTheme.colors.info
+                                )
+
+                                CustomizationToggleRow(
+                                    title: "Tip of the Day",
+                                    subtitle: "Daily advice and tips",
+                                    isOn: $tempPreferences.showTipOfDay,
+                                    icon: "lightbulb.fill",
+                                    color: themeManager.currentTheme.colors.warning
+                                )
+
+                                CustomizationToggleRow(
+                                    title: "Daily Encouragement",
+                                    subtitle: "Motivational messages",
+                                    isOn: $tempPreferences.showDailyEncouragement,
+                                    icon: "heart.text.square.fill",
+                                    color: themeManager.currentTheme.colors.error
+                                )
+
+                                CustomizationToggleRow(
+                                    title: "Emergency Contacts",
+                                    subtitle: "Important phone numbers",
+                                    isOn: $tempPreferences.showEmergencyContacts,
+                                    icon: "phone.fill",
+                                    color: themeManager.currentTheme.colors.success
+                                )
+
+                                CustomizationToggleRow(
+                                    title: "UK Support Resources",
+                                    subtitle: "Help and support services",
+                                    isOn: $tempPreferences.showUKSupport,
+                                    icon: "hand.raised.fill",
+                                    color: Color.blue
+                                )
+                            }
+                        }
+                        .responsivePadding(.horizontal, 20)
+
+                        Spacer(minLength: isIPad ? 40 : 20)
+                    }
+                }
+            }
+            .navigationBarHidden(true)
+            .overlay(
+                // Custom Header with Save/Cancel
+                VStack {
+                    HStack {
+                        Button("Cancel") {
+                            dismiss()
+                        }
+                        .font(isIPad ? .system(size: 18, weight: .medium) : .body)
+                        .fontWeight(.medium)
+                        .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+
+                        Spacer()
+
+                        Button("Save") {
+                            savePreferences()
+                            dismiss()
+                        }
+                        .font(isIPad ? .system(size: 18, weight: .semibold) : .body)
+                        .fontWeight(.semibold)
+                        .foregroundColor(themeManager.currentTheme.colors.primary)
+                    }
+                        .responsivePadding(.horizontal, 20)
+                    .padding(.top, isIPad ? 16 : 12)
+                    .padding(.bottom, isIPad ? 12 : 8)
+                    .background(themeManager.currentTheme.colors.background.opacity(0.95))
+
+                    Spacer()
+                }
+            )
+        }
+    }
+
+    private func savePreferences() {
+        var updatedPreferences = dataPersistence.userPreferences
+        updatedPreferences.homeScreenPreferences = tempPreferences
+        dataPersistence.updateUserPreferences(updatedPreferences)
+    }
+}
+
+// MARK: - Customization Components
+
+struct CustomizationToggleRow: View {
+    let title: String
+    let subtitle: String
+    @Binding var isOn: Bool
+    let icon: String
+    let color: Color
+
+    @EnvironmentObject var themeManager: ThemeManager
+
+    @Environment(\.deviceLayout) private var deviceLayout
+
+    private var isIPad: Bool {
+        deviceLayout.isIPad
+    }
+
+    var body: some View {
+        HStack(spacing: isIPad ? 16 : 12) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: isIPad ? 44 : 36, height: isIPad ? 44 : 36)
+
+                Image(systemName: icon)
+                    .font(.system(size: isIPad ? 20 : 16, weight: .semibold))
+                    .foregroundColor(color)
+            }
+
+            // Text content
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(isIPad ? .headline : .subheadline)
+                    .fontWeight(.semibold)
+                    .foregroundColor(themeManager.currentTheme.colors.textPrimary)
+
+                Text(subtitle)
+                    .font(isIPad ? .callout : .caption)
+                    .foregroundColor(themeManager.currentTheme.colors.textSecondary)
+            }
+
+            Spacer()
+
+            // Toggle
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .tint(themeManager.currentTheme.colors.primary)
+        }
+        .padding(isIPad ? 16 : 12)
+        .background(
+            RoundedRectangle(cornerRadius: isIPad ? 16 : 12)
+                .fill(themeManager.currentTheme.colors.backgroundSecondary.opacity(0.6))
+                .overlay(
+                    RoundedRectangle(cornerRadius: isIPad ? 16 : 12)
+                        .stroke(themeManager.currentTheme.colors.border, lineWidth: 1)
+                )
+        )
     }
 }
 
@@ -2023,4 +2205,5 @@ struct QuickStatCard: View {
         .environmentObject(BabyDataManager())
         .environmentObject(ThemeManager.shared)
 }
+
 

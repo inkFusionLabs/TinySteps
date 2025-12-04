@@ -19,16 +19,29 @@ struct NICUProgressView: View {
     @State private var editingEntry: ProgressEntry?
     @State private var entryPendingDeletion: ProgressEntry?
     
+    // Cached computed properties for performance
+    @State private var cachedSortedEntries: [ProgressEntry] = []
+    @State private var cachedEntriesForDate: [ProgressEntry] = []
+    @State private var cachedRecentEntries: [ProgressEntry] = []
+    @State private var cachedWeightSamples: [Double] = []
+    @State private var lastDataUpdate: Date = Date()
+    
     private var isIPad: Bool {
         UIDevice.current.userInterfaceIdiom == .pad
     }
     
     private var sortedEntries: [ProgressEntry] {
-        dataPersistence.progressEntries.sorted { $0.date > $1.date }
+        if cachedSortedEntries.isEmpty || shouldRecalculateCache() {
+            updateCache()
+        }
+        return cachedSortedEntries
     }
     
     private var entriesForSelectedDate: [ProgressEntry] {
-        sortedEntries.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+        if cachedEntriesForDate.isEmpty || shouldRecalculateCache() || !Calendar.current.isDate(selectedDate, inSameDayAs: lastDataUpdate) {
+            updateCache()
+        }
+        return cachedEntriesForDate
     }
     
     private var latestEntry: ProgressEntry? {
@@ -36,11 +49,27 @@ struct NICUProgressView: View {
     }
     
     private var recentEntries: [ProgressEntry] {
-        Array(sortedEntries.prefix(5))
+        sortedEntries.isEmpty ? [] : Array(sortedEntries.prefix(5))
     }
     
     private var recentWeightSamples: [Double] {
-        recentEntries.compactMap { $0.weight }
+        if cachedWeightSamples.isEmpty || shouldRecalculateCache() {
+            updateCache()
+        }
+        return cachedWeightSamples
+    }
+    
+    private func shouldRecalculateCache() -> Bool {
+        dataPersistence.progressEntries.count != cachedSortedEntries.count
+    }
+    
+    private func updateCache() {
+        let sorted = dataPersistence.progressEntries.sorted { $0.date > $1.date }
+        cachedSortedEntries = sorted
+        cachedEntriesForDate = sorted.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
+        cachedRecentEntries = Array(sorted.prefix(5))
+        cachedWeightSamples = cachedRecentEntries.compactMap { $0.weight }
+        lastDataUpdate = Date()
     }
     
     var body: some View {
@@ -65,11 +94,18 @@ struct NICUProgressView: View {
         .onAppear {
             guard !hasAppeared else { return }
             hasAppeared = true
+            updateCache()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
                 withAnimation(.spring(response: 1.2, dampingFraction: 0.85)) {
                     sparklineAnimate = true
                 }
             }
+        }
+        .onChange(of: dataPersistence.progressEntries.count) { _, _ in
+            updateCache()
+        }
+        .onChange(of: selectedDate) { _, _ in
+            cachedEntriesForDate = sortedEntries.filter { Calendar.current.isDate($0.date, inSameDayAs: selectedDate) }
         }
         .sheet(isPresented: $showAddProgress) {
             ProgressEntryFormView(
@@ -129,7 +165,6 @@ struct NICUProgressView: View {
             .accessibilityLabel("Add progress entry")
         }
         .padding(.top, isIPad ? 10 : 0)
-        .parallaxed(isIPad ? 6 : 4)
         .opacity(hasAppeared ? 1 : 0)
         .offset(y: hasAppeared ? 0 : 20)
         .animation(.spring(response: 0.9, dampingFraction: 0.85), value: hasAppeared)
@@ -224,12 +259,11 @@ struct NICUProgressView: View {
                 displayedComponents: .date
             )
             .labelsHidden()
-            .datePickerStyle(.graphical)
+            .datePickerStyle(.compact)
             .environment(\.colorScheme, .dark)
             .tint(themeManager.currentTheme.colors.accent)
             .padding()
             .animatedCard(depth: .medium, cornerRadius: 24)
-            .parallaxed(isIPad ? 5 : 3)
         }
         .opacity(hasAppeared ? 1 : 0)
         .offset(y: hasAppeared ? 0 : 24)
@@ -312,7 +346,6 @@ struct NICUProgressView: View {
                                 }
                                 .padding()
                                 .animatedCard(depth: .low, cornerRadius: 18)
-                                .parallaxed(4)
                             }
                         }
                     }
@@ -339,7 +372,6 @@ struct NICUProgressView: View {
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
         .animatedCard(depth: .low, cornerRadius: 22)
-        .parallaxed(3)
     }
     
     private struct WeightTrendCard: View {
@@ -625,7 +657,6 @@ struct ProgressEntryCard: View {
         .padding(18)
         .frame(maxWidth: .infinity, alignment: .leading)
         .animatedCard(depth: .medium, cornerRadius: 22)
-        .parallaxed(4)
     }
 }
 
@@ -771,6 +802,7 @@ struct ProgressEntryFormView: View {
             }
         }
         .tint(theme.accent)
+        .errorHandling()
         .onAppear(perform: configureDefaults)
     }
     

@@ -41,6 +41,7 @@ struct NameEntryView: View {
                 Spacer()
             }
         }
+        .errorHandling()
         .sheet(isPresented: $showAvatarBuilder, onDismiss: saveAvatar) {
             // Avatar builder removed - simplified app
         }

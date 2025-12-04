@@ -335,6 +335,15 @@ struct WeightEntry: Identifiable, Codable {
     var notes: String?
 }
 
+// Vaccination Record
+struct VaccinationRecord: Identifiable, Codable {
+    var id: UUID = UUID()
+    let title: String
+    let date: Date
+    let isCompleted: Bool
+    let notes: String?
+}
+
 // Health Visitor Visit Record
 struct HealthVisitorVisit: Identifiable, Codable {
     var id: UUID = UUID()
@@ -356,6 +365,7 @@ class BabyDataManager: ObservableObject {
     @Published var achievements: [DadAchievement] = []
     @Published var appointments: [Appointment] = []
     @Published var healthVisitorVisits: [HealthVisitorVisit] = []
+    @Published var vaccinations: [VaccinationRecord] = []
     
     // Performance optimizations
     private let userDefaults = UserDefaults.standard
@@ -497,7 +507,7 @@ class BabyDataManager: ObservableObject {
     
     func clearAllData() {
         // Clear all UserDefaults data
-        let keys = ["baby", "feedingRecords", "nappyRecords", "sleepRecords", "milestones", "achievements", "appointments", "healthVisitorVisits"]
+        let keys = ["baby", "feedingRecords", "nappyRecords", "sleepRecords", "milestones", "achievements", "appointments", "healthVisitorVisits", "vaccinations"]
         
         for key in keys {
             userDefaults.removeObject(forKey: key)
@@ -535,6 +545,7 @@ class BabyDataManager: ObservableObject {
         achievements = []
         appointments = []
         healthVisitorVisits = []
+        vaccinations = []
         
         // Setup default data
         setupDefaultMilestones()
@@ -624,6 +635,16 @@ class BabyDataManager: ObservableObject {
                 ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode health visitor visits: \(error.localizedDescription)"))
             }
         }
+
+        // Vaccinations
+        if let vaccinationData = self.userDefaults.data(forKey: "vaccinations") {
+            do {
+                let vaccinations = try JSONDecoder().decode([VaccinationRecord].self, from: vaccinationData)
+                data["vaccinations"] = vaccinations
+            } catch {
+                ErrorHandler.shared.handle(TinyStepsError.dataValidationError("Failed to decode vaccinations: \(error.localizedDescription)"))
+            }
+        }
         
         return data
     }
@@ -637,6 +658,7 @@ class BabyDataManager: ObservableObject {
         achievements = data["achievements"] as? [DadAchievement] ?? []
         appointments = data["appointments"] as? [Appointment] ?? []
         healthVisitorVisits = data["healthVisitorVisits"] as? [HealthVisitorVisit] ?? []
+        vaccinations = data["vaccinations"] as? [VaccinationRecord] ?? []
     }
     
     // MARK: - Optimized Save Data
@@ -738,6 +760,15 @@ class BabyDataManager: ObservableObject {
         queue.async {
             if let data = try? encoder.encode(self.healthVisitorVisits) {
                 self.userDefaults.set(data, forKey: "healthVisitorVisits")
+            }
+            group.leave()
+        }
+
+        // Vaccinations
+        group.enter()
+        queue.async {
+            if let data = try? encoder.encode(self.vaccinations) {
+                self.userDefaults.set(data, forKey: "vaccinations")
             }
             group.leave()
         }

@@ -286,6 +286,35 @@ struct UserPreferences: Codable {
     var reminderTime: Date = Calendar.current.date(bySettingHour: 20, minute: 0, second: 0, of: Date()) ?? Date()
     var notificationsEnabled: Bool = true
     var exportFormat: String = "json"
+    var homeScreenPreferences: HomeScreenPreferences = HomeScreenPreferences()
+}
+
+struct HomeScreenPreferences: Codable {
+    // Today's Focus Cards
+    var showSkinToSkinCard: Bool = true
+    var showTalkToBabyCard: Bool = true
+    var showDailyProgressCard: Bool = true
+
+    // Sections
+    var showQuickJournal: Bool = true
+    var showNurseShift: Bool = true
+    var showTipOfDay: Bool = true
+    var showDailyEncouragement: Bool = true
+    var showEmergencyContacts: Bool = true
+    var showUKSupport: Bool = true
+
+    // Default configuration - all enabled
+    init() {
+        self.showSkinToSkinCard = true
+        self.showTalkToBabyCard = true
+        self.showDailyProgressCard = true
+        self.showQuickJournal = true
+        self.showNurseShift = true
+        self.showTipOfDay = true
+        self.showDailyEncouragement = true
+        self.showEmergencyContacts = true
+        self.showUKSupport = true
+    }
 }
 
 struct ExportData: Codable {

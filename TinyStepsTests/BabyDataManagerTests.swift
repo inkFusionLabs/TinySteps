@@ -30,6 +30,7 @@ final class BabyDataManagerTests: XCTestCase {
             birthDate: Date(),
             weight: 3.5,
             height: 50.0,
+            gender: .boy,
             feedingMethod: "Bottle-fed"
         )
         
@@ -47,6 +48,7 @@ final class BabyDataManagerTests: XCTestCase {
             birthDate: Date(),
             weight: 3.5,
             height: 50.0,
+            gender: .boy,
             feedingMethod: "Bottle-fed"
         )
         
@@ -214,15 +216,15 @@ final class BabyDataManagerTests: XCTestCase {
             birthDate: Date(),
             weight: 3.5,
             height: 50.0,
+            gender: .boy,
             feedingMethod: "Bottle-fed"
         )
         
         dataManager.baby = baby
         dataManager.saveData()
         
-        // Create a new data manager to test loading
+        // Create a new data manager to test loading (loadData is called automatically in init)
         let newDataManager = BabyDataManager()
-        newDataManager.loadData()
         
         XCTAssertNotNil(newDataManager.baby)
         XCTAssertEqual(newDataManager.baby?.name, "Test Baby")

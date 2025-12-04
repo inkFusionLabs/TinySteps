@@ -22,22 +22,21 @@ final class DesignSystemTests: XCTestCase {
         XCTAssertNotNil(TinyStepsDesign.Colors.warning)
         XCTAssertNotNil(TinyStepsDesign.Colors.error)
         XCTAssertNotNil(TinyStepsDesign.Colors.background)
-        XCTAssertNotNil(TinyStepsDesign.Colors.cardBackground)
         XCTAssertNotNil(TinyStepsDesign.Colors.textPrimary)
         XCTAssertNotNil(TinyStepsDesign.Colors.textSecondary)
     }
     
-    func testNeumorphicColors() throws {
-        // Test that neumorphic colors are properly defined
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.primary)
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.secondary)
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.success)
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.warning)
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.error)
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.textPrimary)
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.textSecondary)
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.base)
-        XCTAssertNotNil(TinyStepsDesign.NeumorphicColors.backgroundSecondary)
+    func testThemeColors() throws {
+        // Test that theme colors are properly defined
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.primary)
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.secondary)
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.accent)
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.success)
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.warning)
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.error)
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.background)
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.textPrimary)
+        XCTAssertNotNil(ThemeManager.shared.currentTheme.colors.textSecondary)
     }
     
     // MARK: - Spacing Tests
@@ -79,115 +78,48 @@ final class DesignSystemTests: XCTestCase {
         XCTAssertNotNil(TinyStepsDesign.Animations.focus)
     }
     
-    // MARK: - Component Tests
-    
-    func testTinyStepsButtonCreation() throws {
-        let button = TinyStepsButton(
-            backgroundColor: .blue,
-            foregroundColor: .white,
-            cornerRadius: 12,
-            isEnabled: true,
-            action: {}
-        ) {
-            Text("Test Button")
-        }
-        
-        XCTAssertNotNil(button)
+    // MARK: - Design System Component Tests
+
+    func testDesignSystemButtonCreation() throws {
+        // Test that design system buttons can be created
+        let view = DesignSystem.Buttons.primary(title: "Test Button") { }
+        XCTAssertNotNil(view)
     }
-    
-    func testTinyStepsCardCreation() throws {
-        let card = TinyStepsCard {
+
+    func testDesignSystemCardCreation() throws {
+        // Test that design system cards can be created
+        let view = DesignSystem.Cards.standard {
             Text("Test Card Content")
         }
-        
-        XCTAssertNotNil(card)
-    }
-    
-    func testTinyStepsIconButtonCreation() throws {
-        let iconButton = TinyStepsIconButton(
-            icon: "heart.fill",
-            color: .red,
-            size: 24,
-            action: {}
-        )
-        
-        XCTAssertNotNil(iconButton)
-    }
-    
-    func testTinyStepsSectionHeaderCreation() throws {
-        let sectionHeader = TinyStepsSectionHeader(
-            title: "Test Section",
-            icon: "star.fill"
-        )
-        
-        XCTAssertNotNil(sectionHeader)
-    }
-    
-    func testTinyStepsInfoCardCreation() throws {
-        let infoCard = TinyStepsInfoCard(
-            title: "Test Info",
-            content: "Test content",
-            icon: "info.circle",
-            color: .blue
-        )
-        
-        XCTAssertNotNil(infoCard)
-    }
-    
-    // MARK: - ResponsiveGrid Tests
-    
-    func testResponsiveGridCreation() throws {
-        let grid = ResponsiveGrid(
-            columns: 2,
-            spacing: 16
-        ) {
-            Text("Item 1")
-            Text("Item 2")
-        }
-        
-        XCTAssertNotNil(grid)
-    }
-    
-    // MARK: - QuickActionButton Tests
-    
-    func testQuickActionButtonCreation() throws {
-        let quickAction = QuickActionButton(
-            title: "Test Action",
-            icon: "star.fill",
-            color: .blue,
-            action: {}
-        )
-        
-        XCTAssertNotNil(quickAction)
-    }
-    
-    // MARK: - Animation Modifier Tests
-    
-    func testSlideInAnimation() throws {
-        let view = Text("Test")
-            .slideIn(from: .fromTop)
-        
         XCTAssertNotNil(view)
     }
-    
-    func testStaggeredSlideInAnimation() throws {
-        let view = Text("Test")
-            .staggeredSlideIn(from: .fromBottom, delay: 0.1)
-        
+
+    func testDesignSystemInputFieldCreation() throws {
+        // Test that design system input fields can be created
+        let text = Binding<String>(get: { "" }, set: { _ in })
+        let view = DesignSystem.InputFields.enhancedStandard(title: "Test Input", text: text)
         XCTAssertNotNil(view)
     }
-    
-    func testPulsateAnimation() throws {
-        let view = Text("Test")
-            .pulsate()
-        
-        XCTAssertNotNil(view)
+
+    // MARK: - Theme Manager Tests
+
+    func testThemeManagerInitialization() throws {
+        let themeManager = ThemeManager.shared
+        XCTAssertNotNil(themeManager)
+        XCTAssertNotNil(themeManager.currentTheme)
     }
-    
-    func testNeumorphicPressAnimation() throws {
-        let view = Text("Test")
-            .neumorphicPress()
-        
-        XCTAssertNotNil(view)
+
+    func testThemeSwitching() throws {
+        let themeManager = ThemeManager.shared
+        let originalTheme = themeManager.currentTheme
+
+        themeManager.setTheme(.modern)
+        XCTAssertEqual(themeManager.currentTheme, .modern)
+
+        themeManager.setTheme(.classic)
+        XCTAssertEqual(themeManager.currentTheme, .classic)
+
+        // Restore original theme
+        themeManager.setTheme(originalTheme)
     }
 }

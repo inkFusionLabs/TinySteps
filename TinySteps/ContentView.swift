@@ -19,7 +19,7 @@ struct ContentView: View {
     @State private var showNameEntry = false
     @Binding var selectedTab: NavigationTab
     @State private var showProfile = false
-	@State private var showSettings = false
+    @State private var showSettings = false
     @EnvironmentObject var themeManager: ThemeManager
     @State private var showTabMenu = false
     @Namespace private var tabNamespace
@@ -38,7 +38,7 @@ struct ContentView: View {
         var title: String {
             switch self {
             case .home: return "Home"
-            case .progress: return "Progress"
+            case .progress: return "Track"
             case .journal: return "Journal"
             case .info: return "NICU Info"
             }
@@ -79,12 +79,7 @@ struct ContentView: View {
                 // Force iPhone-style layout on all devices (including iPad)
                 iPhoneLayout
             }
-            .onAppear {
-                print("🔍 iPhone-style Layout is being used on \(UIDevice.current.userInterfaceIdiom == .pad ? "iPad" : "iPhone")!")
-                print("🔍 Device Model: \(UIDevice.current.model)")
-                print("🔍 Device Name: \(UIDevice.current.name)")
-                print("🔍 User Interface Idiom: \(UIDevice.current.userInterfaceIdiom.rawValue)")
-            }
+            .errorHandling()
         }
     }
     
@@ -118,9 +113,8 @@ struct ContentView: View {
                     removal: .opacity.combined(with: .scale(scale: 1.02))
                 ))
                 .animation(.spring(response: 0.65, dampingFraction: 0.88), value: selectedTab)
-                .onChange(of: selectedTab) { oldValue, newValue in
+                .onChange(of: selectedTab) { _, _ in
                     lastTabChangeTime = Date()
-                    print("Tab changed from \(oldValue.title) to \(newValue.title)")
                 }
                 
                 Spacer(minLength: 0)
@@ -130,40 +124,22 @@ struct ContentView: View {
                     Text("Profile - Coming Soon")
                 }
             }
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
+                    .environmentObject(themeManager)
+            }
         }
-		.overlay(alignment: .topTrailing) {
-			Button {
-				showSettings = true
-			} label: {
-				Image(systemName: "gearshape.fill")
-					.font(.system(size: UIDevice.current.userInterfaceIdiom == .pad ? 24 : 18, weight: .semibold))
-					.foregroundColor(.white)
-					.padding(UIDevice.current.userInterfaceIdiom == .pad ? 14 : 10)
-					.background(
-						Capsule()
-							.fill(themeManager.currentTheme.colors.backgroundSecondary.opacity(0.7))
-							.overlay(
-								Capsule()
-									.stroke(themeManager.currentTheme.colors.border, lineWidth: 1)
-							)
-					)
-			}
-			.buttonStyle(PlainButtonStyle())
-			.padding(.top, UIDevice.current.userInterfaceIdiom == .pad ? 30 : 16)
-			.padding(.trailing, UIDevice.current.userInterfaceIdiom == .pad ? 24 : 16)
-		}
-		.sheet(isPresented: $showSettings) {
-			SettingsView()
-				.environmentObject(themeManager)
-		}
         .overlay(alignment: .bottom) {
             FloatingTabMenu(
                 isOpen: $showTabMenu,
                 selectedTab: $selectedTab,
                 theme: themeManager.currentTheme.colors,
-                namespace: tabNamespace
+                namespace: tabNamespace,
+                onSettingsTap: {
+                    showSettings = true
+                }
             )
-            .padding(.bottom, UIDevice.current.userInterfaceIdiom == .pad ? 28 : 18)
+            .responsivePadding(.bottom, 18)
             .parallaxed(8)
         }
         .onReceive(NotificationCenter.default.publisher(for: .navigateToTab)) { output in
@@ -184,25 +160,28 @@ struct FloatingTabMenu: View {
     @Binding var selectedTab: ContentView.NavigationTab
     let theme: ThemeColors
     let namespace: Namespace.ID
-    
+    var onSettingsTap: (() -> Void)? = nil
+
+    @Environment(\.deviceLayout) private var deviceLayout
+
     @State private var isPulsing = false
-    
+
     private var isIPad: Bool {
-        UIDevice.current.userInterfaceIdiom == .pad
+        deviceLayout.isIPad
     }
-    
+
     private var buttonDiameter: CGFloat {
-        isIPad ? 70 : 58
+        deviceLayout.fontScaleMultiplier * 58
     }
-    
+
     private var pulseDiameter: CGFloat {
-        buttonDiameter + (isIPad ? 8 : 6)
+        buttonDiameter + deviceLayout.spacingMultiplier * 6
     }
-    
+
     var body: some View {
-        VStack(spacing: 18) {
+        VStack(spacing: deviceLayout.spacingMultiplier * 18) {
             if isOpen {
-                HStack(spacing: isIPad ? 16 : 12) {
+                HStack(spacing: deviceLayout.spacingMultiplier * 12) {
                     ForEach(Array(ContentView.NavigationTab.allCases.enumerated()), id: \.element.id) { index, tab in
                         Button {
                             withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
@@ -212,14 +191,16 @@ struct FloatingTabMenu: View {
                         } label: {
                             VStack(spacing: 6) {
                                 Image(systemName: tab.icon)
-                                    .font(.system(size: isIPad ? 22 : 18, weight: .semibold))
+                                    .responsiveFont(size: 18, weight: .semibold)
                                     .scaleEffect(selectedTab == tab ? 1.05 : 0.95)
                                 Text(tab.title)
-                                    .font(.caption2)
+                                    .font(.system(size: 9, weight: .regular))
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
                             }
                             .foregroundColor(.white)
-                            .padding(.vertical, isIPad ? 14 : 10)
-                            .padding(.horizontal, isIPad ? 18 : 14)
+                            .responsivePadding(.vertical, 10)
+                            .responsivePadding(.horizontal, 14)
                             .background(
                                 ZStack {
                                     if selectedTab == tab {
@@ -248,11 +229,38 @@ struct FloatingTabMenu: View {
                         .buttonStyle(PlainButtonStyle())
                         .cascadeAnimation(index: index, delay: 0.05)
                     }
+
+                    // Settings Button
+                    Button {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                            onSettingsTap?()
+                            isOpen = false
+                        }
+                    } label: {
+                        VStack(spacing: 6) {
+                            Image(systemName: "gear")
+                                .responsiveFont(size: 18, weight: .semibold)
+                            Text("Settings")
+                                .font(.system(size: 9, weight: .regular))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                        .foregroundColor(.white)
+                        .responsivePadding(.vertical, 10)
+                        .responsivePadding(.horizontal, 14)
+                        .background(
+                            Capsule()
+                                .fill(theme.backgroundSecondary.opacity(0.9))
+                        )
+                        .shadow(color: theme.shadow.opacity(0.4), radius: 8, x: 0, y: 4)
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .cascadeAnimation(index: ContentView.NavigationTab.allCases.count, delay: 0.05)
                 }
                 .padding(.top, 6)
                 .transition(.move(edge: .bottom).combined(with: .opacity))
             }
-            
+
             Button {
                 withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
                     isOpen.toggle()

@@ -11,271 +11,37 @@ import CoreMotion
 import UIKit
 #endif
 
-// MARK: - Animated Background
+// MARK: - Optimized Animated Background
 struct AnimatedAppBackground: View {
     @EnvironmentObject private var themeManager: ThemeManager
     @State private var animateGradient = false
-    @State private var gradientRotation: Double = 0
-    
+
     var body: some View {
-        TimelineView(.animation) { timeline in
-            let time = timeline.date.timeIntervalSinceReferenceDate
-            ZStack {
-                theme.background
-                    .overlay(theme.backgroundGradient.opacity(0.55))
-                    .ignoresSafeArea()
-                
-                // Multiple animated gradient layers
-                ForEach(0..<3, id: \.self) { index in
-                    theme.backgroundGradient
-                        .scaleEffect(animateGradient ? (1.3 + Double(index) * 0.2) : (0.9 - Double(index) * 0.1))
-                        .rotationEffect(.degrees(gradientRotation + Double(index) * 120))
-                        .blur(radius: 80 + CGFloat(index) * 20)
-                        .opacity(0.7 - Double(index) * 0.15)
-                        .offset(
-                            x: sin(time * 0.05 + Double(index)) * 30,
-                            y: cos(time * 0.05 + Double(index)) * 30
-                        )
-                }
-                
-                // Floating orbs
-                FloatingOrbs(time: time, theme: theme)
-                
-                // Wave layers
-                WaveLayer(time: time, theme: theme, index: 0)
-                WaveLayer(time: time, theme: theme, index: 1)
-                
-                AnimatedAuroraLayer(time: time)
-                ParticleField(colors: [theme.accent, theme.info, theme.secondary])
-                
-                // Additional particle layer for depth
-                ParticleField(colors: [theme.primary, theme.warning, theme.success], count: 32, speed: 0.15)
-                    .opacity(0.6)
-            }
-            .ignoresSafeArea()
+        ZStack {
+            theme.background
+                .overlay(theme.backgroundGradient.opacity(0.4))
+                .ignoresSafeArea()
+
+            // Single subtle animated gradient layer
+            theme.backgroundGradient
+                .scaleEffect(animateGradient ? 1.1 : 0.9)
+                .blur(radius: 60)
+                .opacity(0.3)
         }
         .onAppear {
-            animateGradient = true
-            withAnimation(.linear(duration: 120).repeatForever(autoreverses: false)) {
-                gradientRotation = 360
+            withAnimation(.easeInOut(duration: 4).repeatForever(autoreverses: true)) {
+                animateGradient = true
             }
         }
         .allowsHitTesting(false)
     }
-    
+
     private var theme: ThemeColors {
         themeManager.currentTheme.colors
     }
 }
 
-// MARK: - Floating Orbs
-private struct FloatingOrbs: View {
-    let time: TimeInterval
-    let theme: ThemeColors
-    
-    var body: some View {
-        Canvas { context, size in
-            let orbCount = 8
-            for i in 0..<orbCount {
-                let phase = time * 0.3 + Double(i) * .pi * 2 / Double(orbCount)
-                let baseX = size.width * (0.2 + Double(i % 3) * 0.3)
-                let baseY = size.height * (0.3 + Double(i % 2) * 0.4)
-                
-                let x = baseX + sin(phase) * size.width * 0.15
-                let y = baseY + cos(phase * 0.7) * size.height * 0.2
-                
-                let radius = 40 + sin(phase * 2) * 20
-                let colors = [
-                    [theme.accent, theme.secondary],
-                    [theme.info, theme.primary],
-                    [theme.success, theme.warning]
-                ][i % 3]
-                
-                let rect = CGRect(
-                    x: x - radius,
-                    y: y - radius,
-                    width: radius * 2,
-                    height: radius * 2
-                )
-                
-                let gradient = GraphicsContext.Shading.radialGradient(
-                    Gradient(colors: [
-                        colors[0].opacity(0.4),
-                        colors[1].opacity(0.2),
-                        Color.clear
-                    ]),
-                    center: CGPoint(x: rect.midX, y: rect.midY),
-                    startRadius: 0,
-                    endRadius: radius
-                )
-                
-                context.drawLayer { layer in
-                    layer.addFilter(.blur(radius: 30))
-                    layer.fill(Path(ellipseIn: rect), with: gradient)
-                }
-            }
-        }
-        .blendMode(.plusLighter)
-        .opacity(0.6)
-    }
-}
-
-// MARK: - Wave Layer
-private struct WaveLayer: View {
-    let time: TimeInterval
-    let theme: ThemeColors
-    let index: Int
-    
-    var body: some View {
-        GeometryReader { geometry in
-            Path { path in
-                let width = geometry.size.width
-                let height = geometry.size.height
-                let waveLength = width / 2
-                let amplitude = height * 0.1
-                let frequency = 2.0
-                
-                let phase = time * 0.5 + Double(index) * .pi
-                let yOffset = height * (0.3 + Double(index) * 0.4)
-                
-                path.move(to: CGPoint(x: 0, y: yOffset))
-                
-                for x in stride(from: 0, through: width, by: 2) {
-                    let relativeX = x / waveLength
-                    let y = yOffset + amplitude * sin(relativeX * frequency * .pi + phase)
-                    path.addLine(to: CGPoint(x: x, y: y))
-                }
-                
-                path.addLine(to: CGPoint(x: width, y: height))
-                path.addLine(to: CGPoint(x: 0, y: height))
-                path.closeSubpath()
-            }
-            .fill(
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        theme.accent.opacity(0.15 - Double(index) * 0.05),
-                        theme.secondary.opacity(0.1 - Double(index) * 0.03),
-                        Color.clear
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-        }
-        .blur(radius: 20)
-        .blendMode(.screen)
-    }
-}
-
-// MARK: - Aurora Layer
-private struct AnimatedAuroraLayer: View {
-    @EnvironmentObject private var themeManager: ThemeManager
-    let time: TimeInterval
-    
-    var body: some View {
-        Canvas { context, size in
-            let gradients = [
-                Gradient(colors: [theme.primary.opacity(0.45), theme.secondary.opacity(0.25)]),
-                Gradient(colors: [theme.accent.opacity(0.35), theme.info.opacity(0.25)]),
-                Gradient(colors: [theme.success.opacity(0.3), theme.warning.opacity(0.2)])
-            ]
-            
-            for (index, gradient) in gradients.enumerated() {
-                let phase = time * 0.08 + Double(index) * .pi / 3
-                let width = size.width * CGFloat(0.6 + 0.25 * sin(phase))
-                let height = size.height * CGFloat(0.5 + 0.3 * cos(phase))
-                let x = (size.width - width) / 2 + CGFloat(sin(phase) * Double(size.width) * 0.2)
-                let y = (size.height - height) / 2 + CGFloat(cos(phase) * Double(size.height) * 0.2)
-                let rect = CGRect(x: x, y: y, width: width, height: height)
-                
-                let shading = GraphicsContext.Shading.linearGradient(
-                    gradient,
-                    startPoint: CGPoint(x: rect.minX, y: rect.minY),
-                    endPoint: CGPoint(x: rect.maxX, y: rect.maxY)
-                )
-                
-                context.drawLayer { layer in
-                    layer.addFilter(.blur(radius: 110))
-                    layer.fill(
-                        Path(roundedRect: rect, cornerRadius: min(rect.width, rect.height) / 2),
-                        with: shading,
-                        style: FillStyle(eoFill: true, antialiased: true)
-                    )
-                }
-            }
-        }
-        .blendMode(.screen)
-        .opacity(0.65)
-    }
-    
-    private var theme: ThemeColors {
-        themeManager.currentTheme.colors
-    }
-}
-
-// MARK: - Particle Field
-private struct ParticleField: View {
-    let colors: [Color]
-    var count: Int = 64
-    var speed: Double = 0.25
-    
-    var body: some View {
-        TimelineView(.animation) { timeline in
-            let time = timeline.date.timeIntervalSinceReferenceDate * speed
-            Canvas { context, size in
-                for index in 0..<count {
-                    let progress = (Double(index) / Double(count)) + time
-                    
-                    // More varied particle movement patterns
-                    let pattern = index % 3
-                    let x: CGFloat
-                    let y: CGFloat
-                    
-                    switch pattern {
-                    case 0:
-                        // Circular motion
-                        x = (sin(progress * 1.7) * 0.5 + 0.5) * size.width
-                        y = (cos(progress * 1.1) * 0.5 + 0.5) * size.height
-                    case 1:
-                        // Figure-8 motion
-                        x = (sin(progress * 2.0) * 0.5 + 0.5) * size.width
-                        y = (sin(progress * 1.0) * cos(progress * 1.0) * 0.5 + 0.5) * size.height
-                    default:
-                        // Spiral motion
-                        let spiral = progress * 0.5
-                        x = (sin(spiral) * spiral * 0.1 + 0.5) * size.width
-                        y = (cos(spiral) * spiral * 0.1 + 0.5) * size.height
-                    }
-                    
-                    let diameter = max(1.5, 3.5 + sin(progress * 4) * 2.5)
-                    let rect = CGRect(
-                        x: x - diameter / 2,
-                        y: y - diameter / 2,
-                        width: diameter,
-                        height: diameter
-                    )
-                    
-                    let particle = Path(ellipseIn: rect)
-                    let opacity = 0.12 + Double(index % 4) * 0.04 + sin(progress * 2) * 0.03
-                    let color = colors[index % colors.count].opacity(opacity)
-                    
-                    // Add glow effect to some particles
-                    if index % 5 == 0 {
-                        context.drawLayer { layer in
-                            layer.addFilter(.blur(radius: 3))
-                            layer.fill(particle, with: .color(color.opacity(0.5)))
-                        }
-                    }
-                    
-                    context.fill(particle, with: .color(color))
-                }
-            }
-        }
-        .blur(radius: 0.8)
-        .blendMode(.plusLighter)
-        .allowsHitTesting(false)
-    }
-}
+// Performance optimized - heavy components removed
 
 // MARK: - Motion Driven Parallax
 final class MotionManager: ObservableObject {

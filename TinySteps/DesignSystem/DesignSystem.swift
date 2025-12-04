@@ -27,7 +27,7 @@ class ThemeManager: ObservableObject {
         case organic = "Organic"
         case modern = "Modern"
         case classic = "Classic"
-        
+
         var colors: ThemeColors {
             switch self {
             case .organic:
@@ -85,34 +85,34 @@ struct ThemeColors {
         primary: Color(red: 0.12, green: 0.18, blue: 0.35), // Deep Ocean Blue
         primaryDark: Color(red: 0.08, green: 0.12, blue: 0.25),
         primaryLight: Color(red: 0.12, green: 0.18, blue: 0.35).opacity(0.3),
-        
+
         secondary: Color(red: 0.85, green: 0.45, blue: 0.65), // Soft Lavender
         secondaryDark: Color(red: 0.75, green: 0.35, blue: 0.55),
         secondaryLight: Color(red: 0.85, green: 0.45, blue: 0.65).opacity(0.3),
-        
+
         accent: Color(red: 0.95, green: 0.55, blue: 0.25), // Warm Terracotta
         accentDark: Color(red: 0.85, green: 0.45, blue: 0.15),
         accentLight: Color(red: 0.95, green: 0.55, blue: 0.25).opacity(0.3),
-        
+
         success: Color(red: 0.25, green: 0.66, blue: 0.56), // Fresh Sage
         warning: Color(red: 0.95, green: 0.65, blue: 0.15), // Golden Amber
         error: Color(red: 0.88, green: 0.35, blue: 0.45), // Soft Coral
         info: Color(red: 0.45, green: 0.65, blue: 0.85), // Sky Blue
-        
+
         background: Color(red: 0.04, green: 0.05, blue: 0.10), // Deep Night
         backgroundSecondary: Color(red: 0.10, green: 0.12, blue: 0.18), // Dark Gray
         backgroundTertiary: Color(red: 0.15, green: 0.17, blue: 0.23), // Lighter Dark Gray
-        
+
         textPrimary: Color.white,
         textSecondary: Color.white.opacity(0.8),
         textTertiary: Color.white.opacity(0.6),
-        
+
         border: Color.white.opacity(0.2),
         borderLight: Color.white.opacity(0.1),
-        
+
         shadow: Color.black.opacity(0.3),
         shadowDark: Color.black.opacity(0.5),
-        
+
         backgroundGradient: LinearGradient(
             gradient: Gradient(colors: [
                 Color(red: 0.12, green: 0.18, blue: 0.35).opacity(0.8),
@@ -127,34 +127,34 @@ struct ThemeColors {
         primary: Color(red: 0.0, green: 0.48, blue: 1.0), // System Blue
         primaryDark: Color(red: 0.0, green: 0.38, blue: 0.8),
         primaryLight: Color(red: 0.0, green: 0.48, blue: 1.0).opacity(0.3),
-        
+
         secondary: Color(red: 0.5, green: 0.0, blue: 0.5), // Purple
         secondaryDark: Color(red: 0.4, green: 0.0, blue: 0.4),
         secondaryLight: Color(red: 0.5, green: 0.0, blue: 0.5).opacity(0.3),
-        
+
         accent: Color(red: 1.0, green: 0.58, blue: 0.0), // Orange
         accentDark: Color(red: 0.8, green: 0.48, blue: 0.0),
         accentLight: Color(red: 1.0, green: 0.58, blue: 0.0).opacity(0.3),
-        
+
         success: Color.green,
         warning: Color.orange,
         error: Color.red,
         info: Color.cyan,
-        
+
         background: Color.black,
         backgroundSecondary: Color.white.opacity(0.1),
         backgroundTertiary: Color.white.opacity(0.05),
-        
+
         textPrimary: Color.white,
         textSecondary: Color.white.opacity(0.8),
         textTertiary: Color.white.opacity(0.6),
-        
+
         border: Color.white.opacity(0.3),
         borderLight: Color.white.opacity(0.1),
-        
+
         shadow: Color.black.opacity(0.3),
         shadowDark: Color.black.opacity(0.5),
-        
+
         backgroundGradient: LinearGradient(
             gradient: Gradient(colors: [Color.blue.opacity(0.8), Color.purple.opacity(0.6)]),
             startPoint: .topLeading,
@@ -166,34 +166,34 @@ struct ThemeColors {
         primary: Color(red: 0.0, green: 0.0, blue: 0.5), // Navy Blue
         primaryDark: Color(red: 0.0, green: 0.0, blue: 0.3),
         primaryLight: Color(red: 0.0, green: 0.0, blue: 0.5).opacity(0.3),
-        
+
         secondary: Color(red: 0.5, green: 0.0, blue: 0.0), // Maroon
         secondaryDark: Color(red: 0.3, green: 0.0, blue: 0.0),
         secondaryLight: Color(red: 0.5, green: 0.0, blue: 0.0).opacity(0.3),
-        
+
         accent: Color(red: 0.8, green: 0.4, blue: 0.0), // Dark Orange
         accentDark: Color(red: 0.6, green: 0.3, blue: 0.0),
         accentLight: Color(red: 0.8, green: 0.4, blue: 0.0).opacity(0.3),
-        
+
         success: Color(red: 0.0, green: 0.5, blue: 0.0), // Dark Green
         warning: Color(red: 0.8, green: 0.6, blue: 0.0), // Gold
         error: Color(red: 0.8, green: 0.0, blue: 0.0), // Dark Red
         info: Color(red: 0.0, green: 0.5, blue: 0.8), // Dark Cyan
-        
+
         background: Color(red: 0.05, green: 0.05, blue: 0.1), // Very Dark Blue
         backgroundSecondary: Color(red: 0.1, green: 0.1, blue: 0.15),
         backgroundTertiary: Color(red: 0.15, green: 0.15, blue: 0.2),
-        
+
         textPrimary: Color.white,
         textSecondary: Color.white.opacity(0.8),
         textTertiary: Color.white.opacity(0.6),
-        
+
         border: Color.white.opacity(0.2),
         borderLight: Color.white.opacity(0.1),
-        
+
         shadow: Color.black.opacity(0.4),
         shadowDark: Color.black.opacity(0.6),
-        
+
         backgroundGradient: LinearGradient(
             gradient: Gradient(colors: [
                 Color(red: 0.0, green: 0.0, blue: 0.5).opacity(0.8),
@@ -408,17 +408,152 @@ extension View {
         return self.padding(scaledPadding)
     }
     
+    func responsiveCornerRadius(_ baseRadius: CGFloat) -> some View {
+        let scaledRadius = ResponsiveDesign.scaledCornerRadius(baseRadius)
+        return self.cornerRadius(scaledRadius)
+    }
+
+    // MARK: - Comprehensive Responsive Modifiers
+    func responsiveFont(size: CGFloat, weight: Font.Weight = .regular, style: UIFont.TextStyle? = nil) -> some View {
+        let font = ResponsiveDesign.scaledFont(size: size, weight: weight, style: style)
+        return self.font(font)
+    }
+
+    func responsivePadding(_ edges: Edge.Set = .all, _ basePadding: CGFloat) -> some View {
+        let scaledPadding = ResponsiveDesign.scaledPadding(basePadding)
+        return self.padding(edges, scaledPadding)
+    }
+
     func responsiveSpacing(_ baseSpacing: CGFloat) -> some View {
-        let isIPad = UIDevice.current.userInterfaceIdiom == .pad
-        let scaledSpacing = isIPad ? baseSpacing * 1.3 : baseSpacing
+        let scaledSpacing = ResponsiveDesign.scaledSpacing(baseSpacing)
         return self.padding(.vertical, scaledSpacing)
     }
-    
-    
-    func responsiveCornerRadius(_ baseRadius: CGFloat) -> some View {
-        let isIPad = UIDevice.current.userInterfaceIdiom == .pad
-        let scaledRadius = isIPad ? baseRadius * 1.2 : baseRadius
-        return self.cornerRadius(scaledRadius)
+
+    func responsiveFrame(width: CGFloat? = nil, height: CGFloat? = nil, alignment: Alignment = .center) -> some View {
+        let scaledWidth = width.map { ResponsiveDesign.scaledPadding($0) }
+        let scaledHeight = height.map { ResponsiveDesign.scaledPadding($0) }
+        return self.frame(width: scaledWidth, height: scaledHeight, alignment: alignment)
+    }
+
+    // Device-specific layout helpers
+    func optimizedForDevice() -> some View {
+        self.modifier(DeviceOptimizedModifier())
+    }
+}
+
+struct DeviceOptimizedModifier: ViewModifier {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(\.verticalSizeClass) var verticalSizeClass
+
+    func body(content: Content) -> some View {
+        content
+            .modifier(DeviceSpecificLayout(
+                screenSize: ResponsiveDesign.screenSize,
+                orientation: ResponsiveDesign.orientation,
+                horizontalSizeClass: horizontalSizeClass,
+                verticalSizeClass: verticalSizeClass
+            ))
+    }
+}
+
+struct DeviceSpecificLayout: ViewModifier {
+    let screenSize: ResponsiveDesign.ScreenSize
+    let orientation: ResponsiveDesign.ScreenOrientation
+    let horizontalSizeClass: UserInterfaceSizeClass?
+    let verticalSizeClass: UserInterfaceSizeClass?
+
+    func body(content: Content) -> some View {
+        content
+            .environment(\.deviceLayout, DeviceLayoutInfo(
+                screenSize: screenSize,
+                orientation: orientation,
+                horizontalSizeClass: horizontalSizeClass,
+                verticalSizeClass: verticalSizeClass
+            ))
+    }
+}
+
+// MARK: - Device Layout Environment
+struct DeviceLayoutInfo {
+    let screenSize: ResponsiveDesign.ScreenSize
+    let orientation: ResponsiveDesign.ScreenOrientation
+    let horizontalSizeClass: UserInterfaceSizeClass?
+    let verticalSizeClass: UserInterfaceSizeClass?
+
+    var isCompact: Bool {
+        screenSize == .compact
+    }
+
+    var isRegular: Bool {
+        screenSize == .regular
+    }
+
+    var isLarge: Bool {
+        screenSize == .large
+    }
+
+    var isExtraLarge: Bool {
+        screenSize == .extraLarge
+    }
+
+    var isLandscape: Bool {
+        orientation == .landscape
+    }
+
+    var isPortrait: Bool {
+        orientation == .portrait
+    }
+
+    var isIPad: Bool {
+        screenSize == .extraLarge
+    }
+
+    var isIPhone: Bool {
+        !isIPad
+    }
+
+    // Layout multipliers for different elements
+    var cardHeightMultiplier: CGFloat {
+        switch screenSize {
+        case .compact: return 0.8
+        case .regular: return 1.0
+        case .large: return 1.1
+        case .extraLarge: return 1.3
+        }
+    }
+
+    var fontScaleMultiplier: CGFloat {
+        switch screenSize {
+        case .compact: return 0.9
+        case .regular: return 1.0
+        case .large: return 1.05
+        case .extraLarge: return 1.15
+        }
+    }
+
+    var spacingMultiplier: CGFloat {
+        switch screenSize {
+        case .compact: return 0.85
+        case .regular: return 1.0
+        case .large: return 1.05
+        case .extraLarge: return 1.2
+        }
+    }
+}
+
+private struct DeviceLayoutKey: EnvironmentKey {
+    static let defaultValue: DeviceLayoutInfo = DeviceLayoutInfo(
+        screenSize: .regular,
+        orientation: .portrait,
+        horizontalSizeClass: .compact,
+        verticalSizeClass: .regular
+    )
+}
+
+extension EnvironmentValues {
+    var deviceLayout: DeviceLayoutInfo {
+        get { self[DeviceLayoutKey.self] }
+        set { self[DeviceLayoutKey.self] = newValue }
     }
 }
 
@@ -430,9 +565,110 @@ enum TextStyle {
     case primary, secondary, tertiary
 }
 
+// MARK: - Comprehensive Responsive Design System
+struct ResponsiveDesign {
+    // Screen size categories
+    enum ScreenSize {
+        case compact     // iPhone SE, small phones
+        case regular     // iPhone 8, X, 11, 12, 13, 14
+        case large       // iPhone 12-16 Pro Max, Plus models
+        case extraLarge  // iPad, iPad Pro
+    }
+
+    enum ScreenOrientation {
+        case portrait
+        case landscape
+    }
+
+    // Current device characteristics
+    static var screenSize: ScreenSize {
+        let screenWidth = UIScreen.main.bounds.width
+        let screenHeight = UIScreen.main.bounds.height
+        let minDimension = min(screenWidth, screenHeight)
+
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            return .extraLarge
+        } else if minDimension <= 375 { // iPhone SE, iPhone 8 and older
+            return .compact
+        } else if minDimension <= 428 { // iPhone 12, 13, 14, 15 series
+            return .regular
+        } else { // iPhone 12-16 Pro Max, Plus models
+            return .large
+        }
+    }
+
+    static var orientation: ScreenOrientation {
+        UIDevice.current.orientation.isLandscape ? .landscape : .portrait
+    }
+
+    static var isLandscape: Bool {
+        orientation == .landscape
+    }
+
+    // Dynamic scaling factors
+    static var scaleFactor: CGFloat {
+        switch screenSize {
+        case .compact: return 0.85
+        case .regular: return 1.0
+        case .large: return 1.1
+        case .extraLarge: return 1.25
+        }
+    }
+
+    static var spacingScale: CGFloat {
+        switch screenSize {
+        case .compact: return 0.9
+        case .regular: return 1.0
+        case .large: return 1.05
+        case .extraLarge: return 1.2
+        }
+    }
+
+    // Dynamic font sizes
+    static func scaledFont(size: CGFloat, weight: Font.Weight = .regular, style: UIFont.TextStyle? = nil) -> Font {
+        let scaledSize = size * scaleFactor
+        if let textStyle = style {
+            // Convert UIFont.TextStyle to Font.TextStyle
+            let fontTextStyle: Font.TextStyle = {
+                switch textStyle {
+                case .largeTitle: return .largeTitle
+                case .title1: return .title
+                case .title2: return .title2
+                case .title3: return .title3
+                case .headline: return .headline
+                case .subheadline: return .subheadline
+                case .body: return .body
+                case .callout: return .callout
+                case .footnote: return .footnote
+                case .caption1: return .caption
+                case .caption2: return .caption2
+                default: return .body
+                }
+            }()
+            return Font.system(fontTextStyle).weight(weight)
+        }
+        return Font.system(size: scaledSize, weight: weight)
+    }
+
+    // Dynamic spacing
+    static func scaledSpacing(_ baseSpacing: CGFloat) -> CGFloat {
+        baseSpacing * spacingScale
+    }
+
+    // Dynamic padding
+    static func scaledPadding(_ basePadding: CGFloat) -> CGFloat {
+        basePadding * scaleFactor
+    }
+
+    // Dynamic corner radius
+    static func scaledCornerRadius(_ baseRadius: CGFloat) -> CGFloat {
+        baseRadius * scaleFactor
+    }
+}
+
 // MARK: - iPad Optimization Components
 extension DesignSystem {
-    
+
     // MARK: - iPad Optimization
     struct iPadOptimization {
         

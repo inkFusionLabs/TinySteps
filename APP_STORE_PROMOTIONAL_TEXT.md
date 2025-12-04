@@ -2,9 +2,9 @@
 
 ## 🎯 **170-Character Promotional Text**
 
-**"Essential NICU dad companion. Track progress, get UK support, journal journey. 40% faster performance. Download now!"**
+**"Transform your NICU journey: Track baby progress, access 20+ UK support services, journal emotions. For dads who need real help now."**
 
-**Character Count: 170**
+**Character Count: 128**
 
 ---
 

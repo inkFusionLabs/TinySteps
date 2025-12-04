@@ -18,6 +18,7 @@ class TestConfiguration {
             birthDate: Date(),
             weight: 3.5,
             height: 50.0,
+            gender: .boy,
             feedingMethod: "Bottle-fed"
         )
     }
@@ -98,13 +99,15 @@ class TestConfiguration {
     
     static func measurePerformance<T>(_ operation: () throws -> T) -> T {
         var result: T!
-        measure {
-            do {
-                result = try operation()
-            } catch {
-                XCTFail("Performance test failed: \(error)")
-            }
+        let startTime = Date()
+        do {
+            result = try operation()
+        } catch {
+            fatalError("Performance test failed: \(error)")
         }
+        let endTime = Date()
+        let duration = endTime.timeIntervalSince(startTime)
+        print("Performance test took \(duration) seconds")
         return result
     }
     
